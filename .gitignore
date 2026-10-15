@@ -66,3 +66,4 @@ contracts/deployments/localhost.json
 contracts/deployments/hardhat-inprocess.json
 # Local PGlite data
 backend/data/
+/work/
