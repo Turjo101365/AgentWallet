@@ -106,6 +106,26 @@ describe('agent chat', () => {
     expect(await screen.findByText(/No LLM provider configured/)).toBeTruthy();
   });
 
+  it('survives browsers whose scrollIntoView returns a Promise (Chrome 156) under StrictMode', async () => {
+    // Regression: an effect that returned scrollIntoView's Promise crashed the page with
+    // "destroy is not a function" when StrictMode re-ran effects or the page unmounted.
+    const original = Element.prototype.scrollIntoView;
+    Element.prototype.scrollIntoView = () => Promise.resolve();
+    try {
+      route([['/agent/status', () => ({ body: { success: true, data: { llm: { available: false, reason: 'No LLM provider configured', provider: 'none' } } } })]]);
+      const value = { config, isOwner: true, session: { address: '0xf39F', token: 't' }, getSigner: vi.fn() };
+      const { unmount } = render(
+        <React.StrictMode>
+          <MemoryRouter><AppContext.Provider value={value}><Agent /></AppContext.Provider></MemoryRouter>
+        </React.StrictMode>,
+      );
+      expect(await screen.findByText(/No LLM provider configured/)).toBeTruthy();
+      expect(() => unmount()).not.toThrow();
+    } finally {
+      Element.prototype.scrollIntoView = original;
+    }
+  });
+
   it('renders the plan, tool statuses and actions rejected by trusted code', async () => {
     const conversation = {
       id: 'c1', title: 't',

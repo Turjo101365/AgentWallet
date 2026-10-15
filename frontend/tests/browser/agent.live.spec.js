@@ -63,6 +63,11 @@ async function wallet(page) {
       on: (n, f) => (listeners[n] ||= []).push(f),
       removeListener: (n, f) => { listeners[n] = (listeners[n] || []).filter(x => x !== f); },
       request: async ({ method, params }) => {
+        if (method === 'personal_sign') {
+          // Like MetaMask: a SIWE message must name this page's host, or the wallet flags it as deceptive.
+          const text = new TextDecoder().decode(Uint8Array.from(params[0].slice(2).match(/../g).map((b) => parseInt(b, 16))));
+          if (/wants you to sign in/.test(text) && !text.startsWith(`${location.host} wants you to sign in`)) throw Object.assign(new Error(`SIWE domain mismatch: ${text.split(' ')[0]} vs ${location.host}`), { code: 4001 });
+        }
         if (method === 'eth_accounts') return connected ? [address] : [];
         if (method === 'eth_requestAccounts') { connected = true; return [address]; }
         if (method === 'eth_chainId') return chainId;

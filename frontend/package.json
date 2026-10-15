@@ -8,7 +8,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:browser": "playwright test"
+    "test:browser": "playwright test",
+    "test:metamask": "playwright test --config playwright.metamask.config.js"
   },
   "dependencies": {
     "clsx": "^2.1.0",

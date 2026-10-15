@@ -32,7 +32,8 @@ export function Button({
       onClick={onClick}
       className={`${base} ${sizeStyles[size]} ${variantStyles[variant]} ${className}`}
     >
-      {icon && <span className="material-symbols-outlined text-lg leading-none">{icon}</span>}
+      {/* The icon is a font ligature (its text is the icon name); hide it so the accessible name is just the label. */}
+      {icon && <span aria-hidden="true" className="material-symbols-outlined text-lg leading-none">{icon}</span>}
       {children}
     </button>
   );
