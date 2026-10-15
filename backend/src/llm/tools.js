@@ -74,7 +74,7 @@ export const TOOL_DEFINITIONS = [
   },
   {
     name: 'schedule_payment',
-    description: 'Create a scheduled or conditional payment task. It stays inactive until the owner signs its grant in the console. schedule_type "once" needs at_iso; "interval" needs every_seconds (start_iso optional); "weekly" needs weekday (0=Sunday) and hour_utc/minute_utc. condition_gas_below_gwei makes it a one-shot conditional task that runs once gas is below the value.',
+    description: 'Create a scheduled or conditional payment task. It stays inactive until the owner signs its grant in the console. schedule_type "once" needs at_iso; "interval" needs every_seconds (start_iso optional); "weekly" needs weekday (0=Sunday) and hour_utc/minute_utc. condition_gas_below_gwei makes it a one-shot conditional task that runs once gas is below the value. Unless the user asks for gas-optimized timing, set use_rl_timing false and execution_window_minutes 0. RL timing needs execution_window_minutes of at least twice the gas-sampling interval (30 by default). Set max_runs from a stated count or end date, otherwise null.',
     inputSchema: obj({
       token: { type: 'string' }, recipient: { type: 'string' }, amount: { type: 'string' }, title: nullableString,
       schedule_type: { type: 'string', enum: ['once', 'interval', 'weekly'] }, at_iso: nullableString, start_iso: nullableString,
