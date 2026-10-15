@@ -971,10 +971,11 @@ AgentWallet implements a strict non-custodial authorization architecture designe
 ## 17. Current Limitations & Technical Roadmap
 
 ### 17.1 Current Limitations
-1. **Model Checkpoint Availability:** Pre-trained neural weights (`.zip` binaries) are not checked into the repository to conserve repository size and avoid unverified benchmark claims. The system relies on its deterministic fallback engine until `train_ppo.py` or `train_dqn.py` is executed locally.
-2. **Contract Deployment Artifacts:** No live deployment JSON is stored in `contracts/deployments/`. The system requires deploying via Remix or Hardhat and setting `AGENT_WALLET_CONTRACT_ADDRESS` in `.env`.
-3. **Single-Agent Concurrency:** The orchestrator currently tracks one active proposal at a time per session; parallel multi-agent proposal bidding is not yet supported.
-4. **Testnet Calibration:** Default spending limits and gas models are calibrated specifically for the Base Sepolia Testnet.
+1. **Testnet Faucet & Gas Constraints:** Lack of Base Sepolia testnet ETH due to faucet anti-sybil gates prevented live deployment on Remix IDE; the project utilizes local Hardhat nodes and in-memory mock blockchain simulation as documented in [Project Constraints](Project%20Constraints.md).
+2. **Model Checkpoint Availability:** Pre-trained neural weights (`.zip` binaries) are not checked into the repository to conserve repository size and avoid unverified benchmark claims. The system relies on its deterministic fallback engine until `train_ppo.py` or `train_dqn.py` is executed locally.
+3. **Contract Deployment Artifacts:** No live deployment JSON is stored in `contracts/deployments/`. The system requires deploying via Remix or Hardhat and setting `AGENT_WALLET_CONTRACT_ADDRESS` in `.env`.
+4. **Single-Agent Concurrency:** The orchestrator currently tracks one active proposal at a time per session; parallel multi-agent proposal bidding is not yet supported.
+5. **Testnet Calibration:** Default spending limits and gas models are calibrated specifically for the Base Sepolia Testnet.
 
 ### 17.2 Technical Roadmap
 - [ ] **Automated Testnet Relayer:** Implement a gas-station relayer using EIP-2771 meta-transactions for automated execution of approved proposals.
@@ -989,6 +990,7 @@ AgentWallet implements a strict non-custodial authorization architecture designe
 
 For comprehensive architectural specifications and subsystem deep dives, consult the dedicated documentation files:
 
+- [Project Constraints & Environmental Limitations](Project%20Constraints.md) — Base Sepolia faucet restrictions, Remix IDE impact, and local simulation workarounds.
 - [System Architecture Specification](docs/architecture.md) — Detailed tier diagrams, data flow models, and component boundaries.
 - [Project Scope & System Boundaries](docs/project-scope.md) — Research objectives, operational boundaries, and non-goals.
 - [PPO vs. DQN Comparative Analysis](docs/ppo-vs-dqn.md) — Mathematical formulations, loss functions, and benchmark methodology.
