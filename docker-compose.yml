@@ -1,0 +1,83 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: agentwallet_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-agentwallet_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-agentwallet_password}
+      POSTGRES_DB: ${DB_NAME:-agentwallet_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-agentwallet_user} -d ${DB_NAME:-agentwallet_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  rl-engine:
+    build:
+      context: ./rl-engine
+      dockerfile: Dockerfile
+    container_name: agentwallet_rl_engine
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+      - HOST=0.0.0.0
+      - MODEL_DIR=/app/models
+    volumes:
+      - ./rl-engine/models:/app/models
+      - ./rl-engine/configs:/app/configs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: agentwallet_backend
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    environment:
+      - PORT=4000
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://${DB_USER:-agentwallet_user}:${DB_PASSWORD:-agentwallet_password}@postgres:5432/${DB_NAME:-agentwallet_db}
+      - RL_SERVICE_URL=http://rl-engine:8000
+      - CHAIN_ID=${CHAIN_ID:-84532}
+      - RPC_URL=${RPC_URL:-https://sepolia.base.org}
+      - AGENT_WALLET_CONTRACT_ADDRESS=${AGENT_WALLET_CONTRACT_ADDRESS:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rl-engine:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: agentwallet_frontend
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://localhost:4000/api
+      - VITE_CHAIN_ID=${CHAIN_ID:-84532}
+      - VITE_RPC_URL=${RPC_URL:-https://sepolia.base.org}
+      - VITE_CONTRACT_ADDRESS=${AGENT_WALLET_CONTRACT_ADDRESS:-}
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
