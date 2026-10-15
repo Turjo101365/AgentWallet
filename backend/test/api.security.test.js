@@ -124,6 +124,21 @@ describe('API security boundaries (audit findings C1, C2, H1, H3)', () => {
     assert.equal(r3.status, 401, 'signature from a different key must not create a session for the owner');
   });
 
+  test('SIWE domain follows an allowed console origin and ignores foreign ones (MetaMask domain check)', async () => {
+    // MetaMask flags a sign-in whose domain differs from the requesting site, e.g. the console opened on
+    // 127.0.0.1 while APP_ORIGIN says localhost. Allowed origins get their own domain; others never do.
+    const nonce = (origin) => request(ctx.app).post('/api/auth/nonce').set('Origin', origin).send({ address: fx.owner.address }).expect(200);
+    const local = (await nonce('http://127.0.0.1:5173')).body.data.message;
+    assert.match(local, /^127\.0\.0\.1:5173 wants you to sign in/);
+    assert.match(local, /\nURI: http:\/\/127\.0\.0\.1:5173\n/);
+    await request(ctx.app).post('/api/auth/verify').send({ message: local, signature: await fx.owner.signMessage(local) }).expect(200);
+    const foreign = (await nonce('https://evil.example')).body.data.message;
+    assert.match(foreign, /^localhost:5173 wants you to sign in/, 'a foreign origin falls back to APP_ORIGIN');
+    assert.ok(!foreign.includes('evil.example'));
+    const none = (await request(ctx.app).post('/api/auth/nonce').send({ address: fx.owner.address }).expect(200)).body.data.message;
+    assert.match(none, /^localhost:5173 wants you to sign in/);
+  });
+
   test('logout revokes the session token', async () => {
     const token = await signIn(ctx.app, fx.owner);
     await request(ctx.app).get('/api/auth/session').set(bearer(token)).expect(200);

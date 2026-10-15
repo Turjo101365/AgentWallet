@@ -28,8 +28,17 @@ typechain-types/
 .env
 .env.local
 .env.*.local
+.env.*
+!.env.example
+!.env.*.example
 *.pem
 *.key
+secrets/
+
+# Browser authentication state and local browser installations
+frontend/.auth/
+frontend/storageState*.json
+frontend/ms-playwright/
 
 # Logs & Databases
 *.log

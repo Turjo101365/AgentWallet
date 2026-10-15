@@ -14,16 +14,36 @@ const sha256 = (v) => crypto.createHash('sha256').update(v).digest('hex');
  *  - Roles are not stored: "owner" is re-derived from the contract's owner() on each request.
  */
 export function createAuthService({ config, repos, chain }) {
-  const domain = new URL(config.appOrigin).host;
+  const allowedOrigins = new Set([config.appOrigin, ...config.corsOrigins].flatMap((o) => {
+    try {
+      return [new URL(o).origin];
+    } catch {
+      return []; // e.g. "*": never used as a sign-in domain
+    }
+  }));
 
-  function buildMessage({ address, nonce, issuedAt, expiresAt }) {
+  /**
+   * EIP-4361 binds the message to the site asking for it, and MetaMask warns ("suspicious sign-in
+   * request") when the domain differs from the page's host. Use the request's Origin when it is one of
+   * our allowed console origins (e.g. 127.0.0.1 vs localhost, or another Vite port); otherwise APP_ORIGIN.
+   */
+  function originFor(requestOrigin) {
+    try {
+      const o = requestOrigin && new URL(requestOrigin).origin;
+      return o && allowedOrigins.has(o) ? o : new URL(config.appOrigin).origin;
+    } catch {
+      return new URL(config.appOrigin).origin;
+    }
+  }
+
+  function buildMessage({ address, nonce, issuedAt, expiresAt, origin }) {
     return [
-      `${domain} wants you to sign in with your Ethereum account:`,
+      `${new URL(origin).host} wants you to sign in with your Ethereum account:`,
       address,
       '',
       'Sign in to the AgentWallet operator console. This signature does not authorize any transaction or spending.',
       '',
-      `URI: ${config.appOrigin}`,
+      `URI: ${origin}`,
       'Version: 1',
       `Chain ID: ${config.chainId}`,
       `Nonce: ${nonce}`,
@@ -32,12 +52,13 @@ export function createAuthService({ config, repos, chain }) {
     ].join('\n');
   }
 
-  async function issueNonce(rawAddress) {
+  async function issueNonce(rawAddress, requestOrigin = null) {
     const address = normalizeAddress(rawAddress, 'address');
+    const origin = originFor(requestOrigin);
     const nonce = crypto.randomBytes(16).toString('hex');
     const issuedAt = nowSeconds();
     const expiresAt = issuedAt + config.nonceTtlSeconds;
-    const message = buildMessage({ address, nonce, issuedAt, expiresAt });
+    const message = buildMessage({ address, nonce, issuedAt, expiresAt, origin });
     await repos.auth.createNonce({ nonce, address, message, expiresAt });
     return { message, nonce, expiresAt };
   }

@@ -100,7 +100,11 @@ export function Agent() {
     setConversation(id ? await get(`/agent/conversations/${id}`) : null);
   }
 
-  useEffect(() => bottom.current?.scrollIntoView?.({ behavior: 'smooth' }), [conversation]);
+  // Block body on purpose: current Chromium returns a Promise from scrollIntoView, and React
+  // would call a returned value as the effect cleanup ("destroy is not a function").
+  useEffect(() => {
+    bottom.current?.scrollIntoView?.({ behavior: 'smooth' });
+  }, [conversation]);
 
   async function send(e) {
     e?.preventDefault();

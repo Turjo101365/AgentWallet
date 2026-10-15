@@ -94,26 +94,37 @@ export function AppProvider({ children, ethereum = typeof window !== 'undefined'
     if (session && account && session.address.toLowerCase() !== account.toLowerCase()) signOutLocal();
   }, [account, session, signOutLocal]);
 
+  // Wallet popups can be rejected, already pending (-32002) or refused; surface every failure.
   const connect = useCallback(async () => {
     setError(null);
-    if (!ethereum) throw new Error('No injected wallet found. Install MetaMask or another EIP-1193 wallet.');
-    const accs = await ethereum.request({ method: 'eth_requestAccounts' });
-    setAccount(accs?.[0] || null);
-    setWalletChainId(parseInt(await ethereum.request({ method: 'eth_chainId' }), 16));
-    return accs?.[0];
+    try {
+      if (!ethereum) throw new Error('No injected wallet found. Install MetaMask or another EIP-1193 wallet.');
+      const accs = await ethereum.request({ method: 'eth_requestAccounts' });
+      setAccount(accs?.[0] || null);
+      setWalletChainId(parseInt(await ethereum.request({ method: 'eth_chainId' }), 16));
+      return accs?.[0];
+    } catch (err) {
+      setError(err);
+      throw err;
+    }
   }, [ethereum]);
 
   const switchNetwork = useCallback(async () => {
     if (!ethereum || !config) return;
+    setError(null);
     const hex = `0x${config.chainId.toString(16)}`;
     try {
-      await ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: hex }] });
-    } catch (err) {
-      if (err?.code === 4902 && WALLET_CHAIN_PARAMS[config.chainId]) {
+      try {
+        await ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: hex }] });
+      } catch (err) {
+        // 4902 = chain not added. MetaMask Mobile nests it inside a -32603 error.
+        const unknownChain = err?.code === 4902 || err?.data?.originalError?.code === 4902;
+        if (!unknownChain || !WALLET_CHAIN_PARAMS[config.chainId]) throw err;
         await ethereum.request({ method: 'wallet_addEthereumChain', params: [WALLET_CHAIN_PARAMS[config.chainId](config.walletRpcUrl)] });
-      } else {
-        throw err;
       }
+    } catch (err) {
+      setError(err);
+      throw err;
     }
   }, [ethereum, config]);
 

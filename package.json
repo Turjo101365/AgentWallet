@@ -9,6 +9,7 @@
     "deploy:local": "cd contracts && npx hardhat run scripts/deploy.js --network localhost",
     "dev:backend": "cd backend && npm run dev",
     "dev:frontend": "cd frontend && npm run dev",
+    "demo:metamask": "node scripts/demo-metamask.mjs",
     "dev:rl": "node rl-engine/scripts/python.js -m uvicorn app.main:app --port 8000",
     "build:frontend": "cd frontend && npm run build",
     "test:contracts": "cd contracts && npm test",

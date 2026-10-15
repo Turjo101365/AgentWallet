@@ -58,6 +58,11 @@ async function wallet(page) {
       removeListener: (n, f) => { listeners[n] = (listeners[n] || []).filter(x => x !== f); },
       request: async ({ method, params }) => {
         if (reject && ['personal_sign', 'eth_signTypedData_v4', 'eth_sendTransaction'].includes(method)) { reject = false; throw Object.assign(new Error('User rejected request'), { code: 4001 }); }
+        if (method === 'personal_sign') {
+          // Like MetaMask: a SIWE message must name this page's host, or the wallet flags it as deceptive.
+          const text = new TextDecoder().decode(Uint8Array.from(params[0].slice(2).match(/../g).map((b) => parseInt(b, 16))));
+          if (/wants you to sign in/.test(text) && !text.startsWith(`${location.host} wants you to sign in`)) throw Object.assign(new Error(`SIWE domain mismatch: ${text.split(' ')[0]} vs ${location.host}`), { code: 4001 });
+        }
         if (method === 'eth_accounts') return connected ? [address] : [];
         if (method === 'eth_requestAccounts') { connected = true; return [address]; }
         if (method === 'eth_chainId') return chainId;
@@ -137,7 +142,7 @@ test('portfolio prices, bounded automation grant lifecycle, and truthful unavail
   await navigate(page, '/agent');
   await expect(page.getByText('No language model configured', { exact: true })).toBeVisible();
   await page.getByPlaceholder('Ask the agent…').fill('Show my portfolio');
-  await page.getByRole('button', { name: 'Send', exact: false }).click();
+  await page.getByRole('button', { name: 'Send', exact: true }).click();
   await expect(page.getByText('UNAVAILABLE', { exact: true })).toBeVisible();
 });
 

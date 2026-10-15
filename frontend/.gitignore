@@ -1,2 +1,7 @@
 test-results/
 playwright-report/
+.metamask/
+.auth/
+storageState*.json
+ms-playwright/
+blob-report/

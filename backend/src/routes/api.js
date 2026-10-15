@@ -41,7 +41,7 @@ export function createApiRouter(deps) {
 
   // ---------------------------------------------------------------- auth
   router.post('/auth/nonce', limits.auth, validate(s.nonceRequest), wrap(async (req, res) => {
-    ok(res, await auth.issueNonce(req.valid.body.address));
+    ok(res, await auth.issueNonce(req.valid.body.address, req.get('origin') || null));
   }));
 
   router.post('/auth/verify', limits.auth, validate(s.verifyRequest), wrap(async (req, res) => {

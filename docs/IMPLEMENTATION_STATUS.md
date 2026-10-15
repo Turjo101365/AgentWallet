@@ -14,11 +14,15 @@ Updated 2026-10-15 after repository reconnaissance and local verification. The w
 | RL timing | Trained PPO and DQN checkpoints loaded for local inference; timing advice constrained by execution deadlines | 21 Python tests and local-chain end-to-end inference |
 | Portfolio | Feed-sourced valuation, allocation targets and drift, exposure, spending analytics, balance snapshots | Backend portfolio tests and local-chain end-to-end valuation |
 | Frontend | Agent, automation, portfolio, treasury, controls, approval, audit and security pages | 18 component tests and production build |
+| Real MetaMask | Connect, add/switch network, SIWE, EIP-712 approval and grant, rejection, pause/unpause, deposit, agent-drafted approval, account and network switching | All 11 rows of the `METAMASK_DEMO.md` checklist pass with the official MetaMask 13.52.0 extension (`npm run test:metamask`, 2026-10-15). Local chains only |
 
 ## Implemented but still needs verification
 
-- Real Anthropic or OpenAI-compatible model interaction: no provider credentials were supplied. Tool-loop and wire-format tests use scripted/injected providers.
-- Browser flows with MetaMask: component tests and HTTP end-to-end tests pass, but a real extension session has not been exercised.
+- Live OpenAI-compatible interaction was verified with gpt-4.1-mini; see [LIVE_LLM_VERIFICATION.md](LIVE_LLM_VERIFICATION.md). Anthropic and local model servers still need live verification.
+- MetaMask outside the automated checklist:
+  - nonce-cache behaviour after a chain restart;
+  - choosing a network from MetaMask's own menu (the run switches through a page request);
+  - MetaMask Mobile.
 - PostgreSQL server mode: persistence tests use PGlite. Docker images and compose have not been built on this host.
 - Base Sepolia: deployment script and guards exist, but no public deployment or transaction has been authorized or performed.
 - RL performance on real-chain fee distributions: current training and held-out evaluation use synthetic gas data.
@@ -32,9 +36,8 @@ Updated 2026-10-15 after repository reconnaissance and local verification. The w
 
 ## Next engineering priorities
 
-1. Run a real-provider agent evaluation with credentials supplied through environment configuration, including refusal, tool-schema compatibility and representative user commands.
-2. Exercise wallet connect, SIWE, task authorization, approval and owner controls in a real MetaMask browser session.
-3. Verify Docker and PostgreSQL paths, then add CI gates for the full suite and dependency scanning.
-4. Decide how to distribute checkpoint artifacts and evaluate timing against representative Base Sepolia fee histories.
-5. Design and security-review a bounded swap/rebalance flow before claiming executable portfolio rebalancing.
-6. Prepare Base Sepolia configuration and deployment review; public deployment and transaction broadcast require explicit owner approval.
+1. Extend the live-provider evaluation to Anthropic and local model servers, including refusal, tool-schema compatibility and representative user commands.
+2. Verify Docker and PostgreSQL paths, then add CI gates for the full suite and dependency scanning.
+3. Decide how to distribute checkpoint artifacts and evaluate timing against representative Base Sepolia fee histories.
+4. Design and security-review a bounded swap/rebalance flow before claiming executable portfolio rebalancing.
+5. Prepare Base Sepolia configuration and deployment review; public deployment and transaction broadcast require explicit owner approval.
