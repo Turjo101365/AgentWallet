@@ -1,0 +1,1545 @@
+{
+  "chain_id": 8453,
+  "rpc_url": "https://mainnet.base.org",
+  "collected_at": "2026-10-15T12:38:23.236603+00:00",
+  "fee_component": "L2 baseFeePerGas only",
+  "sample_seconds": 900,
+  "blocks": [
+    {
+      "number": 52523936,
+      "hash": "0x1bf637f0fdef943e6bf6f253edf6b58430ec2dcfe7f8515c60a238e484bf96dd",
+      "timestamp": 1791837219,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52524386,
+      "hash": "0x78910e72fee4a32e15b1c141655e425da8d61707507a3b49c9ada08a7e196dee",
+      "timestamp": 1791838119,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52524836,
+      "hash": "0x2456cae8f44f986f3b416dc99b152ef931ba0bb2902c30d13fcdb861dccc642d",
+      "timestamp": 1791839019,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52525286,
+      "hash": "0xa3084e0e5b468598f8f36f4dfc26f5b6423dfe482acad8a6e797dca2fb5b07a4",
+      "timestamp": 1791839919,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52525736,
+      "hash": "0xe2030500d32fdd64ff61de6b73a757a2aa5f101dee71e5ab97131a1a39487801",
+      "timestamp": 1791840819,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52526186,
+      "hash": "0x18ba43686e91fc788a67860ca44733bbf69e38799826f408ed6ed810a38cf529",
+      "timestamp": 1791841719,
+      "base_fee_wei": 5293840
+    },
+    {
+      "number": 52526636,
+      "hash": "0xabd481fb0415299da7cce16d9dddc894e971604c427593988b9504d6d390c16a",
+      "timestamp": 1791842619,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52527086,
+      "hash": "0x582348be75c176cd3ad834c5dfd40a3368edc8354af7a7e87413b323f870407f",
+      "timestamp": 1791843519,
+      "base_fee_wei": 5008015
+    },
+    {
+      "number": 52527536,
+      "hash": "0xd6719bc979208634bb544c7a321ff17df4e7432f03fe59e725bb7ef9c967b864",
+      "timestamp": 1791844419,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52527986,
+      "hash": "0x21324befce64758de46e13b63e2bb4f3f7db0918582c6e4c09e62e4080063a26",
+      "timestamp": 1791845319,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52528436,
+      "hash": "0xabc309e1478330b65d064860cfce563efe167db5080cd1d7f5853b8d03634f50",
+      "timestamp": 1791846219,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52528886,
+      "hash": "0x50ba050fbec4cff64f7b6b3a834c9bcdf7edbae9041664f7ed18f211ad39b9b2",
+      "timestamp": 1791847119,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52529336,
+      "hash": "0x5d5de7ced5b43b43f68d81c0c3d404850b379e8251d9dafb58a6901e068cb847",
+      "timestamp": 1791848019,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52529786,
+      "hash": "0x1717e42787732e66ea6862eb5330b0bb4bc196938855f74d720e3df5eccf0093",
+      "timestamp": 1791848919,
+      "base_fee_wei": 5068166
+    },
+    {
+      "number": 52530236,
+      "hash": "0x32f0154c146ee1b7ee2b8f806b1504d9eb0e76fd7c7e58708a16dc043a80c7ad",
+      "timestamp": 1791849819,
+      "base_fee_wei": 5015266
+    },
+    {
+      "number": 52530686,
+      "hash": "0x6e5d8c9a74d1dffd589e1247a80d9743efe6595165e9b9aaad569f7afd4e3c46",
+      "timestamp": 1791850719,
+      "base_fee_wei": 7808282
+    },
+    {
+      "number": 52531136,
+      "hash": "0x2b4fe3d8f93d587b005b63a32e0138b2e2e5f5ff5902ee1be2acf795b5562b8a",
+      "timestamp": 1791851619,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52531586,
+      "hash": "0xee3157866e9fd0e736d56d4391e12abd3f3c6ac70fcafea2e033c51bfce75696",
+      "timestamp": 1791852519,
+      "base_fee_wei": 5119678
+    },
+    {
+      "number": 52532036,
+      "hash": "0xd92d92dd926fde87866e256ddac3f9c8db95762ca9589227daf6755fb6c89cfa",
+      "timestamp": 1791853419,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52532486,
+      "hash": "0xddcab6068c549dc96eae00d0f6c0c5d6d109c82e851d766ffd3f52d79f357e6a",
+      "timestamp": 1791854319,
+      "base_fee_wei": 5619722
+    },
+    {
+      "number": 52532936,
+      "hash": "0xf826263072de0454737dab600f6c503e067de305a24b013fc6f007bbfa54f65f",
+      "timestamp": 1791855219,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52533386,
+      "hash": "0x47b1df1c34d48ddab3d5a2fdcf32c370bf05e0421e341e3d2318bbddf551cb33",
+      "timestamp": 1791856119,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52533836,
+      "hash": "0x1655af0a0acf994ff363a672d4430de5db11c1d71f96e03da4745779f455c149",
+      "timestamp": 1791857019,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52534286,
+      "hash": "0x9616191804ca11cde3985bc89f7a1e0d0e367c1185b67a45d6a03cada1f9ffd4",
+      "timestamp": 1791857919,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52534736,
+      "hash": "0x4205746a9f6479fa1459a705dbda5538a18b97b0d5869579c799ab2f935eea5c",
+      "timestamp": 1791858819,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52535186,
+      "hash": "0x2aa23cd504ce8df4d54725ad1fba6201282542335b1e357acf5bd054efc066ec",
+      "timestamp": 1791859719,
+      "base_fee_wei": 5084646
+    },
+    {
+      "number": 52535636,
+      "hash": "0x1e065f9867b0f76b8e922f4382e72fecba120b6cd44889062eeb88a50af41676",
+      "timestamp": 1791860619,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52536086,
+      "hash": "0x01775772c49bfc4277b9812998321d4ef8ddd8a9646ecb1cd10850a5c0d43f8a",
+      "timestamp": 1791861519,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52536536,
+      "hash": "0x289be59043057e1af5d6b48cd9c67e2597fe5021c21747e9618d0ea1d614dba9",
+      "timestamp": 1791862419,
+      "base_fee_wei": 5374908
+    },
+    {
+      "number": 52536986,
+      "hash": "0xec76a7038b497c40f4accb6470e4c67ffaa878c15d8e098de86fb79bb3bfc2c0",
+      "timestamp": 1791863319,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52537436,
+      "hash": "0x130c35ee049fe339632039bfe94f847886ba3ac986f010434491bca49c06aaab",
+      "timestamp": 1791864219,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52537886,
+      "hash": "0x9b1d99ae7ca638e659dc0bdbf9d4d152c9bcbf87891e8e097c7e6c5641ece3d3",
+      "timestamp": 1791865119,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52538336,
+      "hash": "0xcc6de731c6fce9a96607101c90cf268c0e3a716ec15ca4923c87775879b79015",
+      "timestamp": 1791866019,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52538786,
+      "hash": "0xa5efa0a015a24d07278fed9cb4b4340eecb39942bc12519357198b4e2fe5b180",
+      "timestamp": 1791866919,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52539236,
+      "hash": "0x11525ce8f3232203e87c259785bacd4e8fe1decdae211970d5bbf34b3a022552",
+      "timestamp": 1791867819,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52539686,
+      "hash": "0xf995007376a4e481bc3ac18b90f0d44d4ff1657ea504bbc372bb1a8e6f9ccad2",
+      "timestamp": 1791868719,
+      "base_fee_wei": 5216541
+    },
+    {
+      "number": 52540136,
+      "hash": "0xf78b5cdbdecf3c07b2979e7d9228ce327c5763e58dc42e814ea0a71051a66d02",
+      "timestamp": 1791869619,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52540586,
+      "hash": "0xeb5cc0894076b79dc2e53b34cc8e944413419d613ce15aab6a4a059ea837df92",
+      "timestamp": 1791870519,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52541036,
+      "hash": "0x2cd559c9e78d28a60b0469383680281f93f48f9a8c2d0c003b84b841ae37d983",
+      "timestamp": 1791871419,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52541486,
+      "hash": "0xc1b5e6050d6238c5334ca5095d3e4728e9efc968353c0209827b720c9fbbdd3f",
+      "timestamp": 1791872319,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52541936,
+      "hash": "0xde4560e7132c8195c73487c765d32ce93d0c5e01204af5b580dcf1de14890b8a",
+      "timestamp": 1791873219,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52542386,
+      "hash": "0x12100fe6658d843dd6491cd582a77ddca5d4853369f9a83be42c899a5c06fc2d",
+      "timestamp": 1791874119,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52542836,
+      "hash": "0x707ae6064748bdcd0ffcf4480bb5ed732b66d93b4e6d1e84748cd931ad02958a",
+      "timestamp": 1791875019,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52543286,
+      "hash": "0x3cbd6cadf181d7126637084827f09a1a092a9a4b77c87b2068074b7464d33065",
+      "timestamp": 1791875919,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52543736,
+      "hash": "0xc63bcf2398c7c503efe5b9ca5b12b490e1f4762f1c821baf7a29f2bdca9f9f40",
+      "timestamp": 1791876819,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52544186,
+      "hash": "0xde0cd309bae73ece34a5efff2f41eb44a462ca8a32b488a0fbffd9e7f341ee52",
+      "timestamp": 1791877719,
+      "base_fee_wei": 5045257
+    },
+    {
+      "number": 52544636,
+      "hash": "0x6f19c2839e78788da21ab2f638bf452f2e016c5ab0bf01a594f775476786ef23",
+      "timestamp": 1791878619,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52545086,
+      "hash": "0xc5e7b456fae7c219ad6dd6d64dd089111a8c7426e0e8b5ea5d93fae1510ba4cb",
+      "timestamp": 1791879519,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52545536,
+      "hash": "0x1df6a0082cf8075f7f44c3f188176a1d1cd32bc53127fabf5ca1fd22e363e997",
+      "timestamp": 1791880419,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52545986,
+      "hash": "0x0c73e64b9f21c0e65702f6ddde8312400cd8ca3a5fcd87bda35719f23c01c906",
+      "timestamp": 1791881319,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52546436,
+      "hash": "0xc1234a82657d8f301ff6efc3ca9cb53bdcc46d71c8a87712de004e723dc4864c",
+      "timestamp": 1791882219,
+      "base_fee_wei": 5038592
+    },
+    {
+      "number": 52546886,
+      "hash": "0x5790d158b24e5277b90d833ae4cfdd863cd0aec6ce9ba95316ec3aea82bd2119",
+      "timestamp": 1791883119,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52547336,
+      "hash": "0x2066a57f3d80df915c8da2b540975b7a37fcf4b465be879763b35e7ab738e768",
+      "timestamp": 1791884019,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52547786,
+      "hash": "0x112531b8799e10621e37536a5a106a215363f9fd5ca32979b16ede4b2b648540",
+      "timestamp": 1791884919,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52548236,
+      "hash": "0x548d5ed144d35aad56edc6bcf2d01c6ee87f2827dbbc6abc5a31778823aad746",
+      "timestamp": 1791885819,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52548686,
+      "hash": "0x5542d1c0bcb3a5feae21aad9ad042734dc1418091711ab15c86c96a76c3e024c",
+      "timestamp": 1791886719,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52549136,
+      "hash": "0x8578eb70b39bf993c9c8b963cce735b077f7800e1ffe46399a3c1d04adba4c49",
+      "timestamp": 1791887619,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52549586,
+      "hash": "0x4da7394d3b6463d8295a3f9dd69d309856cc19efef8ab0d95b42e0ce107aa3ce",
+      "timestamp": 1791888519,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52550036,
+      "hash": "0x28188e1a4e224f70ac1328a54d114ae32131e029150f0cdea91c5ffb0132eda3",
+      "timestamp": 1791889419,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52550486,
+      "hash": "0x0039052bfc0a20bf332db246b3a49d8c911f2616dfd5436a288941a4885421a1",
+      "timestamp": 1791890319,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52550936,
+      "hash": "0x96811af4a3a72e23dd016b7e513866b3c401dd3874b73e4039e6a2a6c7e41eff",
+      "timestamp": 1791891219,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52551386,
+      "hash": "0x71d1b7eb8fb8c14479a1a4d08c3fee6f4215502123e232c981ad5b0d9c4d9b72",
+      "timestamp": 1791892119,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52551836,
+      "hash": "0x6ff9eb44fdacf4d2144424861d7c197e3a59787a894b13a19bbf24f076cb88d6",
+      "timestamp": 1791893019,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52552286,
+      "hash": "0xab428987bbb9d4c5e2ef7d185bd81b73354541bc4f0eb6213c1dc46ae36a5661",
+      "timestamp": 1791893919,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52552736,
+      "hash": "0x0d4f1cbdcbc77135bcdff1f416b41fa9b545ee687f68610fe30b95e3b9cde956",
+      "timestamp": 1791894819,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52553186,
+      "hash": "0xa332f35e4ab6a25f324bee763f3f7c2df27e74c9a99db22b44f93458f66214bd",
+      "timestamp": 1791895719,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52553636,
+      "hash": "0x0f260ee8c75cf627e216063420e43a2cd715a6e45b915802812c0a3a51e9b50a",
+      "timestamp": 1791896619,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52554086,
+      "hash": "0x2bb187b554d66f5631910f6423ed146d5356ceda3b0548cdc6d602bcaf354450",
+      "timestamp": 1791897519,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52554536,
+      "hash": "0xe7546b0bab1c48c66ce554e976aa730ba1a0b2a3661c9e7493e86349b7a2a495",
+      "timestamp": 1791898419,
+      "base_fee_wei": 5059060
+    },
+    {
+      "number": 52554986,
+      "hash": "0x882b961a5b60b6057836e6136eb991256008601028710b87d6d2613f11f21dd4",
+      "timestamp": 1791899319,
+      "base_fee_wei": 5001378
+    },
+    {
+      "number": 52555436,
+      "hash": "0xbb381c743e359a9031a33d43c2457ec13467a040ee853e6228b0eaa7150897a7",
+      "timestamp": 1791900219,
+      "base_fee_wei": 5002105
+    },
+    {
+      "number": 52555886,
+      "hash": "0x5d41e03620bb75595b65695dc034b7014fb13ee9e39d4684d3e84001b3b85a65",
+      "timestamp": 1791901119,
+      "base_fee_wei": 5361613
+    },
+    {
+      "number": 52556336,
+      "hash": "0x9e2da07dffe829eedb9b947797a59e75e1732d34fee39eacb9a466da235b5fc2",
+      "timestamp": 1791902019,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52556786,
+      "hash": "0xb9a206deaa49a80c8985d0e11c70bab803b9a66dac54345ce361f548e32347be",
+      "timestamp": 1791902919,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52557236,
+      "hash": "0x4103d66346b8f1939699e361a4508a439a60648ac112b81d4b845c07edbf0558",
+      "timestamp": 1791903819,
+      "base_fee_wei": 5073626
+    },
+    {
+      "number": 52557686,
+      "hash": "0x3533c22c4e147df06753eb693881e92833c92253ce503f277623443addcd13d1",
+      "timestamp": 1791904719,
+      "base_fee_wei": 5186506
+    },
+    {
+      "number": 52558136,
+      "hash": "0x7d4cd7fe7e67a6b490505ba78d56bfa26c5809ec910f089cb7c57fd4f67e5156",
+      "timestamp": 1791905619,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52558586,
+      "hash": "0x8591f0ac0782e3f0eddbba32e556202f131a20fa98cdf928e4c7fcbd57e2d0b0",
+      "timestamp": 1791906519,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52559036,
+      "hash": "0x51a5ad7933d698e505dddc303c36c05cf690840409e92bd30862dfb4beb7b5d8",
+      "timestamp": 1791907419,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52559486,
+      "hash": "0xabe399ed2eda147d3eafdd1a09b6759e55d7520bcc94413f5b6acd85bf5486ed",
+      "timestamp": 1791908319,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52559936,
+      "hash": "0xb6e431d0c75159ddcdd4ef093af996c9de6d77f6a28c32d91613e65e1ed36271",
+      "timestamp": 1791909219,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52560386,
+      "hash": "0xcd9d6e6b54141e6060c471ed71676ea0e9701fdcbd05816edd371b3b962e2f29",
+      "timestamp": 1791910119,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52560836,
+      "hash": "0x1818912d556f8c923126f612186fc2d5ce105579fe4c8d4141d42812d7bf38dd",
+      "timestamp": 1791911019,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52561286,
+      "hash": "0x3bdefae93635439f6dbd77a963c3fad1137195a16c61e1f344c7d2ad22b0dcae",
+      "timestamp": 1791911919,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52561736,
+      "hash": "0xac9b7e188efeaea426c96b16aa901183f4e1b235f72743062483ad80e46ec6ae",
+      "timestamp": 1791912819,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52562186,
+      "hash": "0xc111c5fcaa5ad710b28b6048a609fed27e9ceb6f0f6e9b105550a6c37e2c8a17",
+      "timestamp": 1791913719,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52562636,
+      "hash": "0x344ecf88bc70b6284f224a419b0d6c618aa0123b4ed14f26042ea8e562833f50",
+      "timestamp": 1791914619,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52563086,
+      "hash": "0x355eb46b366218fc65136ad6d96d9e57e7a31fe35dcfb46c9db3e73e76963da2",
+      "timestamp": 1791915519,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52563536,
+      "hash": "0x494cc3be229b0cbfd01a626dd566627f1e542b5944af559f976c86f37b6c6ad1",
+      "timestamp": 1791916419,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52563986,
+      "hash": "0xd475032cc4fd4027c1fc98a761d1eeb68df252f1d151be4a80253c05badb9ddd",
+      "timestamp": 1791917319,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52564436,
+      "hash": "0x1a884a1c8d9d31d7d431fb062847c8d8d7c982845a4706b8f10190400aa0c657",
+      "timestamp": 1791918219,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52564886,
+      "hash": "0xd3a6ec3212c629287e1857aeb42637e71a962f7d71b5ed837808f6ae7636ae27",
+      "timestamp": 1791919119,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52565336,
+      "hash": "0x40bc927781053e180ee72d5ffb41df292c620f2a69fe49778131c6f9cee419a2",
+      "timestamp": 1791920019,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52565786,
+      "hash": "0x6fb4073c69552c67fab64a5397cd2c213bcf5d1b28ce0e7c1308a2914b9f5ecc",
+      "timestamp": 1791920919,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52566236,
+      "hash": "0x8882f233388596af8c399d521221864c47593eb66e4a3011b6871718cf7878af",
+      "timestamp": 1791921819,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52566686,
+      "hash": "0x1b79732509e5154a1498a132cb1c190f93e0803fb2bbad83b5f38727477850df",
+      "timestamp": 1791922719,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52567136,
+      "hash": "0x74fe4200fa6c5981343b403d9534824049ebde0c817a359c015d581c45816b57",
+      "timestamp": 1791923619,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52567586,
+      "hash": "0x9e053a7efaffa9475c33e0afd549202f17c8cfa24fb559acaf312451d7e094f7",
+      "timestamp": 1791924519,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52568036,
+      "hash": "0x34df891a6e421b23a5baa3488268c1d9870b8b18c30d81aaee4367cfffe3881f",
+      "timestamp": 1791925419,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52568486,
+      "hash": "0x00c1c323e1e7374c5c34a07d07c37d3642bb24d9ac2a6c315e6bb9f7883eb0d8",
+      "timestamp": 1791926319,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52568936,
+      "hash": "0xf70440370bdb3c088afab2f0e43da3ee72c27ca4c8638f20e4ffc3d49199dfe2",
+      "timestamp": 1791927219,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52569386,
+      "hash": "0xa72194ec159d80ff7e97b459c90e49b663aa3590eeb1db01ffc7f12d4d0473cf",
+      "timestamp": 1791928119,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52569836,
+      "hash": "0x9cc728fb483896aa8bac50a89e7ed4dd65ae5f9d50118624ea4f02f52f50bdfc",
+      "timestamp": 1791929019,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52570286,
+      "hash": "0xa6891d46c928db4b68c7eaebe77b28f5dc5de709ad1b15756f9c62ee0859a6da",
+      "timestamp": 1791929919,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52570736,
+      "hash": "0xfbab1a27bd0bf24b849e3bd1349049b0d0af5172596defb363b2ba7bc87c454d",
+      "timestamp": 1791930819,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52571186,
+      "hash": "0x209c4844587316cffa40e71b592f294e1170817dbf868dfd672b1d8727f36696",
+      "timestamp": 1791931719,
+      "base_fee_wei": 5001526
+    },
+    {
+      "number": 52571636,
+      "hash": "0xbb88e1cc95a9cfaaaed08b587ca630a000bc4efae8045744a36db8ee022a4fc1",
+      "timestamp": 1791932619,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52572086,
+      "hash": "0x4fa66d6ad325e14c4cd75f4859f91050b5281b980c36b353e8648b1c3dd211fc",
+      "timestamp": 1791933519,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52572536,
+      "hash": "0x567906cfead95ac2af87f8b3db661a61b618e409be9e3e3b8ab5c78141524a85",
+      "timestamp": 1791934419,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52572986,
+      "hash": "0xc81db987b258ad2a9ce5092baa70da2aaf787bac1935115f7e820a4d5c4aa7fa",
+      "timestamp": 1791935319,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52573436,
+      "hash": "0x7a44cab7857fadbb619c5a8b90c2f2a8b127551d6566fdffcd81cecf96ad58bf",
+      "timestamp": 1791936219,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52573886,
+      "hash": "0x8d6c697a5c253e269f5e7b235e98065ceea9f2ae45e320d193cd976fdfbf9ca4",
+      "timestamp": 1791937119,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52574336,
+      "hash": "0x9b97f1163e5043fb2fec67f971ec8fe39ae8631a9c3f72c3b595be1c073792de",
+      "timestamp": 1791938019,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52574786,
+      "hash": "0x17c2bc886b14e4f84879fc8dab53982725137d2bbf78eecb82a967a64f3d3338",
+      "timestamp": 1791938919,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52575236,
+      "hash": "0xfdc00bfc30eb8f1bdce947c257859bd3806683bde92ae4cf443050c73ee2d305",
+      "timestamp": 1791939819,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52575686,
+      "hash": "0x113a52dd2448017abed78374d835c2ad3a72dd4d5fa1469250a6b2abd5b89027",
+      "timestamp": 1791940719,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52576136,
+      "hash": "0x3c8c88d4ff2aa87ec8c9a80cd2e90c3edf05d3d09ab6a8943ed6fc441ca0c3b8",
+      "timestamp": 1791941619,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52576586,
+      "hash": "0x79101d711adedb5d3f958b58822d2439c54b0163f52ec8b73b2b9efe0d1c6084",
+      "timestamp": 1791942519,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52577036,
+      "hash": "0x0d951e6244ae79c883b28d1274fbad0c45575d0a1ea3e0a5765cf30d569161d4",
+      "timestamp": 1791943419,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52577486,
+      "hash": "0x79f9a944d05e12280920cd07ee87b15f53623fd9aea6520c38ba99aef3bfde08",
+      "timestamp": 1791944319,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52577936,
+      "hash": "0x87159e24f99a4692b11f811b46f735dd4d899023555b08c2a26710e5d335d4c8",
+      "timestamp": 1791945219,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52578386,
+      "hash": "0xc4978827bc8f5907d9f83b2e53024554906b700747abec6b45fdac6586041ec7",
+      "timestamp": 1791946119,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52578836,
+      "hash": "0x87061e369c4e4cde24f7aaed631903f6c2f83113856597731ff0ed45737aa090",
+      "timestamp": 1791947019,
+      "base_fee_wei": 5016429
+    },
+    {
+      "number": 52579286,
+      "hash": "0x22f1a4869fcb6c37c32588c96636e819b6af84b65c082a127e27302fa78516bf",
+      "timestamp": 1791947919,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52579736,
+      "hash": "0xfeaf6342e7a1856eb720e404d9772532b0676d0541473e8d8daf061354e1a62c",
+      "timestamp": 1791948819,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52580186,
+      "hash": "0xdf396b7829cd0eb339783acfb34ec63adbd12234338dc02200dee82a00ced32f",
+      "timestamp": 1791949719,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52580636,
+      "hash": "0x6e359895c728117a599d09df0219b5a3d870334bbe99037415fe37319095d3e0",
+      "timestamp": 1791950619,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52581086,
+      "hash": "0x32ab04e2b04be6903f6facfbb917a0b5893447de2a80a457c7bac04e93314fad",
+      "timestamp": 1791951519,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52581536,
+      "hash": "0x23b2a5d4c093124f21c38a28719def00c0343cf59c9d08b3a1439b1efd727582",
+      "timestamp": 1791952419,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52581986,
+      "hash": "0x5b955f88b196b2d9867db05cff3e06f97a6e0c955055a50f15bc294306be758c",
+      "timestamp": 1791953319,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52582436,
+      "hash": "0xab504d82eb96cc2e4b7a12bc302b4ee2745d170499eb7c193ba91a2ae1f162e6",
+      "timestamp": 1791954219,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52582886,
+      "hash": "0x7a8b9925eeb97a0fbe7b14bc03a978cc1d03583ce0d89ae99dcdfaafbb620d20",
+      "timestamp": 1791955119,
+      "base_fee_wei": 5084716
+    },
+    {
+      "number": 52583336,
+      "hash": "0xec717128946bb1e86aea2afa7441ed3b0decd7f6db05ec9736c3e4e2a6f3b5a7",
+      "timestamp": 1791956019,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52583786,
+      "hash": "0x5dcbd30d4e398e13140d59ed954560c4cdff99524467957608ddf394233c6938",
+      "timestamp": 1791956919,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52584236,
+      "hash": "0xcf15c5487552e1d0ccadca40f6e97368569e663539eeefda6a5a3d4bda2a1764",
+      "timestamp": 1791957819,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52584686,
+      "hash": "0x3c86f8a5ae638f25d102e1c3f4d97e0975f6f1cbf2ddb0c0c9554f6df3906f78",
+      "timestamp": 1791958719,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52585136,
+      "hash": "0x9c61f3097f1992f0640e8ceed4ab12d02a73bfeaa6ea4e8edc930db1096722d9",
+      "timestamp": 1791959619,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52585586,
+      "hash": "0x6a9a7fb7a070adeddc85204c43cf2a389b277aa465eefba9fcdff893b587d6f3",
+      "timestamp": 1791960519,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52586036,
+      "hash": "0x8988441ad64091194f7dcb3b02d01933bf3d176c0d0e3fc49d157ddf985b1b8a",
+      "timestamp": 1791961419,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52586486,
+      "hash": "0xaa03d3a82d714462b231863eb958ddc2991676c7e7e5a4582de88cf1de3be068",
+      "timestamp": 1791962319,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52586936,
+      "hash": "0xfea2cce1da10a06a3bc07e4c57239a34d4f657b721469b332741f4211da4a190",
+      "timestamp": 1791963219,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52587386,
+      "hash": "0x76ba0d82f47a52ebe8474c7355c47afc63b25c45ca873b3abf9b322b1d53bf37",
+      "timestamp": 1791964119,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52587836,
+      "hash": "0x5a4f440f2a434bc5110b4a02e9741194458fe70d100136a7c2d3d28fc6c5151d",
+      "timestamp": 1791965019,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52588286,
+      "hash": "0x541516daefbbbb206dfa86fac378ce26323396f4edd65ec4fbb6b0f1fba81f63",
+      "timestamp": 1791965919,
+      "base_fee_wei": 5114783
+    },
+    {
+      "number": 52588736,
+      "hash": "0xde2003837620f7cbbcffe6cda78c35fbb5d03e1300bf2d75168020ce0bb71689",
+      "timestamp": 1791966819,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52589186,
+      "hash": "0xe51f51a4536953843ace903ee85f7c91edf527ddd57101e2b1c7a48b779098d4",
+      "timestamp": 1791967719,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52589636,
+      "hash": "0x3389e204f459d981f3b50662e826d2725b1dc5671617b14b80399ceef4175507",
+      "timestamp": 1791968619,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52590086,
+      "hash": "0x595e32b844b644fff76730f4420772caf73c6573a4ac3f13f0ce2bf37679ddd7",
+      "timestamp": 1791969519,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52590536,
+      "hash": "0x9d7bf8aa5d101ec5e3c118ce9d3dbd8c2cdddb5ed5c0f249c35c2be069b31557",
+      "timestamp": 1791970419,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52590986,
+      "hash": "0xb9ac9a224b5d54a49e19af555ca6cfb3e8ee21ceb6f3996c722a9886485dc35e",
+      "timestamp": 1791971319,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52591436,
+      "hash": "0x3850d894faa74d59072dd918424f498736cc74c56477285a261203f54f8f86b8",
+      "timestamp": 1791972219,
+      "base_fee_wei": 5107118
+    },
+    {
+      "number": 52591886,
+      "hash": "0x755a6c53c06032704b19cd2e15c5a4afc5b439a76c0cca8e851a4946de013eed",
+      "timestamp": 1791973119,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52592336,
+      "hash": "0x98be54ee3a876a7350f38c3a5f8cfde75c7f6ffe783396239bf6fd6669a3c04f",
+      "timestamp": 1791974019,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52592786,
+      "hash": "0x995b2fc635ffbd9d44e3ad398389052540379ee2f7ab48b4676a7fdbbdecffe2",
+      "timestamp": 1791974919,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52593236,
+      "hash": "0x6163c4199ba3d7ce9f4730665da00937c60b47d6559d64ae1c4c498a30192ef2",
+      "timestamp": 1791975819,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52593686,
+      "hash": "0x0348cd653ba41d93e46c44e88cf8968e6ae3b9b467aea019bbd7c98fbadc5589",
+      "timestamp": 1791976719,
+      "base_fee_wei": 5039009
+    },
+    {
+      "number": 52594136,
+      "hash": "0xe0c18c5da2d30197f291e3519d5d39ee521e53aed6b37b1bf5fa164cbd5fcd08",
+      "timestamp": 1791977619,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52594586,
+      "hash": "0xfa233210cf7a6a72cc58ae5c205298a0610802beae2e92850b76efd16169b94d",
+      "timestamp": 1791978519,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52595036,
+      "hash": "0xab00e6518a06d4391ffac752b3097cc0ac28d82f4b71a50d0294cb6c17533f50",
+      "timestamp": 1791979419,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52595486,
+      "hash": "0x511d35eadc15b53f3ae7ef85f2007e30a4ad528e79a2ef8d799f861bc9b449f9",
+      "timestamp": 1791980319,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52595936,
+      "hash": "0x0f15f560481ed0c5301d040543198d16ddffd811656c85ac2b8cf8419caebb0f",
+      "timestamp": 1791981219,
+      "base_fee_wei": 8847596
+    },
+    {
+      "number": 52596386,
+      "hash": "0xb6d80b59938373ce7522d6a0989246288fa021e95f7a3107b7154cad340c0464",
+      "timestamp": 1791982119,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52596836,
+      "hash": "0xaee95ef36c450210b22d5dda8d773188182c29ea9a2e725cce19d134482317b7",
+      "timestamp": 1791983019,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52597286,
+      "hash": "0x3982fe60ecd0dc64adf81877b1276ab2635d811bcea17f843800ef93ee97f18a",
+      "timestamp": 1791983919,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52597736,
+      "hash": "0x278742019ac237462bb0f6b490035f85cb0b125a53fa888b04f7288374207691",
+      "timestamp": 1791984819,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52598186,
+      "hash": "0xb7c1643f3df5893ecbcc5bbcdb665f61607aef1c1ac609e31652e4a5616d6197",
+      "timestamp": 1791985719,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52598636,
+      "hash": "0xc30beb66628d99c1e00088a10d026be1d018efa5c26b1b49eda91d84b06a05b9",
+      "timestamp": 1791986619,
+      "base_fee_wei": 5038190
+    },
+    {
+      "number": 52599086,
+      "hash": "0x0372ec433ebc7a60194aa96cc60378d22fece8895aa32bb3eeb00beb1a95a166",
+      "timestamp": 1791987519,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52599536,
+      "hash": "0xbc725307228b4f6ec15b7fdb8aa517f866095e533317364a18e7f52e3182c691",
+      "timestamp": 1791988419,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52599986,
+      "hash": "0xe14b1f2e2ec3a605e0d42fc6279ce789202a516b3cab695ee92fb2aa912dcd00",
+      "timestamp": 1791989319,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52600436,
+      "hash": "0x88fd8eb9b16a408765a12a2f1e3f34227060e1704c18cf5d60e4342fd4f4aad4",
+      "timestamp": 1791990219,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52600886,
+      "hash": "0x96b521491a27bb9bedd8f654b43568bac4af1ba675c85f2e552cea3fc5c5499b",
+      "timestamp": 1791991119,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52601336,
+      "hash": "0x9e64b8f2fbc7d5ee7af8af26fd372f5b6f40950fb5eb9fe4481610e99a510199",
+      "timestamp": 1791992019,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52601786,
+      "hash": "0x06d8a137fbd1e02b731f5af47d48d0f71a21bd674d1e4d1eb3cc551e5b95b06a",
+      "timestamp": 1791992919,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52602236,
+      "hash": "0xbabcbad8503c03c737cb6ffcb3a1334322534584630e15d08ece7400042e847e",
+      "timestamp": 1791993819,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52602686,
+      "hash": "0xf5dd8afe38defdb0f1790f37ea13ed5392a8b7bf1c2dee8b62df5f100f4eff7c",
+      "timestamp": 1791994719,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52603136,
+      "hash": "0xb579954d24dc55f5a5668212d6ccdea127234e42b5e1a94372ae166718401c85",
+      "timestamp": 1791995619,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52603586,
+      "hash": "0xc0cb0d25e078fbe66551161b335b59321627a81e64e353e93393a13f3452f2d6",
+      "timestamp": 1791996519,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52604036,
+      "hash": "0x5feccfb618a5adab0dd19014a9a508c0ec2dba84435ec481421c6663fcf9a326",
+      "timestamp": 1791997419,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52604486,
+      "hash": "0xe31a147f1e8765f65690dabd3b2deac98d196be0a51164faf984025fcba2dff9",
+      "timestamp": 1791998319,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52604936,
+      "hash": "0xa51a026a8812a177fe47f47dd74e59258386040f85cb971b5e64a00f20a31c13",
+      "timestamp": 1791999219,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52605386,
+      "hash": "0x13426c11e6d5b9d0963063e0d2c57d95d38ba207d614e0ef84aa7a2fc909ea14",
+      "timestamp": 1792000119,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52605836,
+      "hash": "0xdb5640c2e1db0a36579172ff84644adbfed034948bfd035ee6fd47fe4e6f998d",
+      "timestamp": 1792001019,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52606286,
+      "hash": "0x641c32f3c5bb9cc6a9fc7f7304b5a71793b98b212c0bb62efb1097c6424517fd",
+      "timestamp": 1792001919,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52606736,
+      "hash": "0x788b6c65003bdf1280d27d23430bbc96374ff5a42fda034262bc65f78d9a6a2f",
+      "timestamp": 1792002819,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52607186,
+      "hash": "0x6f9bf4ab3614374530dbd43fe7ba75619a26918d7029b882087fd20f75b3a540",
+      "timestamp": 1792003719,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52607636,
+      "hash": "0xf14b84e8d8fb04fc0935394ddc29c687e52527ddb7aaee8b73f75cfd61b2e9f3",
+      "timestamp": 1792004619,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52608086,
+      "hash": "0xcbbf90d6b24c57b55ff1b173ef82f4eb81a2b2b91188906a256db652aef3cbdf",
+      "timestamp": 1792005519,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52608536,
+      "hash": "0x920fc8e55d04b8368d564413f956f4a13b534c411d87240cbae8ab9541fef819",
+      "timestamp": 1792006419,
+      "base_fee_wei": 5008273
+    },
+    {
+      "number": 52608986,
+      "hash": "0x8404b74e6e81af5d0972ad324b4af0c24eb2ccda0cb8496458fa79ff20b79a83",
+      "timestamp": 1792007319,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52609436,
+      "hash": "0x0ac8cf533b03d01658c2c570feb754d091cc4f9171526f77fcb52922b20b4d9e",
+      "timestamp": 1792008219,
+      "base_fee_wei": 5133788
+    },
+    {
+      "number": 52609886,
+      "hash": "0x25f15d53d43cffd9eb76133080471bf7c2170fcd962367ccbd859291824ebdc9",
+      "timestamp": 1792009119,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52610336,
+      "hash": "0x1e65b6b3aed675f2221b4c22a3ae46cd9df035a5b2d8ab380f9366bf7dc16f24",
+      "timestamp": 1792010019,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52610786,
+      "hash": "0xfdf8a0beb3d0554ba829e5f8f7a68045adcf364aa39c2c6323ca13c0889cb1af",
+      "timestamp": 1792010919,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52611236,
+      "hash": "0x0071687fc4bec8a5f6b5aded5c5c9bda6f5f7d09cc5fb44566921a1ae07364b5",
+      "timestamp": 1792011819,
+      "base_fee_wei": 5319130
+    },
+    {
+      "number": 52611686,
+      "hash": "0x42f925dfdcec69390493ed4cb22a3763fb0ade7d72529c7b9be044a98d88d48b",
+      "timestamp": 1792012719,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52612136,
+      "hash": "0xc0526c976dcc3a98bfb3114c0a8de17cf236deb17a8afe7dcf66ce1265425fb7",
+      "timestamp": 1792013619,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52612586,
+      "hash": "0x1e265f7612b8a715ab3dcd52126e9f3e58b033b9cdf87e84de1528ef1a965a40",
+      "timestamp": 1792014519,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52613036,
+      "hash": "0x954bde45678b2cfa2bdc6672cfd101858a902b5de07fb1bbf9376721643da921",
+      "timestamp": 1792015419,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52613486,
+      "hash": "0xeae9cfc6c2f82df4d555bf83fb2714545f9e75f5807a02140eeedacfbb09491c",
+      "timestamp": 1792016319,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52613936,
+      "hash": "0x4fa0deee4bbbb0cf9ba336ef74e124eac5f1a2606a3f123aa79f2a2ce6071a9e",
+      "timestamp": 1792017219,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52614386,
+      "hash": "0x7f088d6887797e09b536d4566bf4ef0e380b79d6d1c910464fd9fce148400789",
+      "timestamp": 1792018119,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52614836,
+      "hash": "0x2b8a2a8bbad0c35037fdeded486c0f7af0490e524888eecfa4317509aa60746a",
+      "timestamp": 1792019019,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52615286,
+      "hash": "0x8cb93b347bda626fc89eec2c062ffc7af63cff602bb07ab77e962fb4af592a05",
+      "timestamp": 1792019919,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52615736,
+      "hash": "0x61a86484125c921a89c11520ee5ca5c1629d457b6227d696485cd81479cddad0",
+      "timestamp": 1792020819,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52616186,
+      "hash": "0x3a5fd103cc47ef4fd9e7510c72769b4e5740c9eb632c827b5cfa4c2116c373be",
+      "timestamp": 1792021719,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52616636,
+      "hash": "0xa2112e8322f9e0fb6390cdc429f6396bb0b7a8e25099ac5a9315479b7a43e68a",
+      "timestamp": 1792022619,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52617086,
+      "hash": "0x1a52111082465cb1ad75f184b5e21b515022ccbbedc30ae064fc9313d3ec52e8",
+      "timestamp": 1792023519,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52617536,
+      "hash": "0x19997d01929f6bc9fce4e0b6520886cdc59fc5c1263fb7643af2c307ccc870cf",
+      "timestamp": 1792024419,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52617986,
+      "hash": "0x461ed3a00132011a32ac1358364912cbfab9bce6f7c155001221f3619e7c2fed",
+      "timestamp": 1792025319,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52618436,
+      "hash": "0x18eb254f8c1a44e90b6b827930d0dec37eaf5feda2d50b22ac29fb0a1bf1ab87",
+      "timestamp": 1792026219,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52618886,
+      "hash": "0x6ba44428a3503cc0b0f1e0c2351a9dfb69b6f5b9039fc39101d8702e00702d15",
+      "timestamp": 1792027119,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52619336,
+      "hash": "0x30ffd7f0b42bf73206efb9eab395ac2edb9f9d23fb8d91cecdafe47615db438e",
+      "timestamp": 1792028019,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52619786,
+      "hash": "0x981e105c5e5daff23d91f0dce5f569c1fe1e2e9f4d6fb875ce437f58989276c2",
+      "timestamp": 1792028919,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52620236,
+      "hash": "0x42ecff2a8034cc48990aa399bba836552649bc767b4130871a648aa966e262db",
+      "timestamp": 1792029819,
+      "base_fee_wei": 5007762
+    },
+    {
+      "number": 52620686,
+      "hash": "0x75f71def523c6befc7ea04e49165124eb5781e1c54af62eb25ea8c1b3b244a23",
+      "timestamp": 1792030719,
+      "base_fee_wei": 5026277
+    },
+    {
+      "number": 52621136,
+      "hash": "0xc9fb14f9c59406735a91b54d148131cecfa44f0b1dd808515188619333594243",
+      "timestamp": 1792031619,
+      "base_fee_wei": 37262514
+    },
+    {
+      "number": 52621586,
+      "hash": "0xdba089853e7071074ef2cd2c214ca830031ac1ab86c6af6871c5c5b1d49638ae",
+      "timestamp": 1792032519,
+      "base_fee_wei": 6783187
+    },
+    {
+      "number": 52622036,
+      "hash": "0x39e6011f313e622ecb8f0d7b26897a9634d64d8405c888c32e79dfdd4105c1ad",
+      "timestamp": 1792033419,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52622486,
+      "hash": "0x48708f2964e80e0e6d6ecef26f09c173b4b4d1e8f04a484d1bed9e1f5f3c7f7c",
+      "timestamp": 1792034319,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52622936,
+      "hash": "0xb448cbc5d6c49195e94815de6194bd660200eb1aea30b0f4a952bd05b1107272",
+      "timestamp": 1792035219,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52623386,
+      "hash": "0xe0294499408672fb8d91190eb7b6a9cb5a303c3e9550090deaae742d7971f7aa",
+      "timestamp": 1792036119,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52623836,
+      "hash": "0x92096e79c6e54be370fb1c301a098d5de4aa44f1019f211a2c073b8aa5ec6018",
+      "timestamp": 1792037019,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52624286,
+      "hash": "0xad8d9c7a3395fe3819ab9d449f76fc3eed31149ba06447dd5172fdf93251ea62",
+      "timestamp": 1792037919,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52624736,
+      "hash": "0x8b2bdec2d54b6ddbf50ca98ae4116463a33e963047f482ed11a64f116d92b4fb",
+      "timestamp": 1792038819,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52625186,
+      "hash": "0x337d53e2001e8005302a41f52f143134a91f47037ae771b54b182c9cd46c1f31",
+      "timestamp": 1792039719,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52625636,
+      "hash": "0xffa66eb23a8d857ce443ebd6f9e7484fc182acd2cc36af04f53cccf0d727dd00",
+      "timestamp": 1792040619,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52626086,
+      "hash": "0x94c3d78f17f45e691dbae08a90b4f737e8486758d631600da1ac4fbd79add0b9",
+      "timestamp": 1792041519,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52626536,
+      "hash": "0x79cb4c6a615031fdbf9c383dcf8395a322cc8c0e95852e662ca20fe45d729c50",
+      "timestamp": 1792042419,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52626986,
+      "hash": "0x8a7eb97d90a79f4495eca1f071684ab23c89ee754ff12043094bee880c7599d0",
+      "timestamp": 1792043319,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52627436,
+      "hash": "0xc291f687c886393fc0b4db00f043a44672c4f291d59c48e67cd6a1e69ba0fcbc",
+      "timestamp": 1792044219,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52627886,
+      "hash": "0xf58c6509eca0f50bc39b8ed0e6fdaa2302600758968786498f4363fdf8404754",
+      "timestamp": 1792045119,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52628336,
+      "hash": "0x8be47789a3baf1b1a4289e535a9c04cb4b685cb17adac97ffd82ff462521bc1b",
+      "timestamp": 1792046019,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52628786,
+      "hash": "0x16277a3906f5c8549533d139bab6836aaec203f8808c6ed5b6d6d027be569545",
+      "timestamp": 1792046919,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52629236,
+      "hash": "0xdaf298b6198e7388f2d9cc1642cf266ecdc4a953ae15e66ef26c8f4b124d2da0",
+      "timestamp": 1792047819,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52629686,
+      "hash": "0x6d351dfff7b27b298e5e0257164afc7656927a765074fc6b26a9273a0aaaf644",
+      "timestamp": 1792048719,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52630136,
+      "hash": "0x50a11943509ab89c39bc04a3a3982ea0bbff45131af64a08559b950f9f1f9052",
+      "timestamp": 1792049619,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52630586,
+      "hash": "0x7027a2091eec6bf65c9c2927feae4ac0c484292401ab8a2bbfbc51ddda848c41",
+      "timestamp": 1792050519,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52631036,
+      "hash": "0x3bfa379a89546cbc9075d1c061fe7663db5a0dc46f165ec77a31567130401484",
+      "timestamp": 1792051419,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52631486,
+      "hash": "0x18aef4d78015fa47188ebced6d52018918de296c60b78dfbfadf679045c445ef",
+      "timestamp": 1792052319,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52631936,
+      "hash": "0xa2acd698ccf8eae7c16ed9d214ce74d2eced556f6e7f01dfcfdf2d770e7ee845",
+      "timestamp": 1792053219,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52632386,
+      "hash": "0x32a427f7a13f325f78bceda8faa77747b9686eafe560e88bb4259da822f313b6",
+      "timestamp": 1792054119,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52632836,
+      "hash": "0x217d4de3d7f7eb007371020050033b3644bfe6246761bb3dc13a2dae112e5b87",
+      "timestamp": 1792055019,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52633286,
+      "hash": "0x82f97142a0d46b07725c3513e8dc706622df3ce703212cbe5584bd017d07fa99",
+      "timestamp": 1792055919,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52633736,
+      "hash": "0x8cdf93c583b025e017f3a6ad750f62d1c264f8ee1e0b24054edf7036e330d828",
+      "timestamp": 1792056819,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52634186,
+      "hash": "0xb1c5f548dcbb7ca8b95022f18487e9a86960c6baf12de80bf431d7cf5345579d",
+      "timestamp": 1792057719,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52634636,
+      "hash": "0xd44d2a8418af284126e6f5b23b9c03dfc038be820289e2885a3864113e25e61a",
+      "timestamp": 1792058619,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52635086,
+      "hash": "0xdc5dc9931be19a3b9366d23d519d43a3f2ae4bad5aee62e8e2c8bac5f03555bc",
+      "timestamp": 1792059519,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52635536,
+      "hash": "0xc591542b839a4220d6458dd7ccf034bda6a0e9c98e64ff843a5dc59285ce2f44",
+      "timestamp": 1792060419,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52635986,
+      "hash": "0x7588b76acbcf0a56e6b6c08e1b79aeef863f4bc35451b9ddb9c3577c57167dcc",
+      "timestamp": 1792061319,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52636436,
+      "hash": "0xc24a7994913215b63f2a5120f2f76913ace25799d4457680d16ef9cca32a4bfb",
+      "timestamp": 1792062219,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52636886,
+      "hash": "0xdaf23d640293ede1408bd6e00af3451d545964ec48c806627e52a0e75d104547",
+      "timestamp": 1792063119,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52637336,
+      "hash": "0xe3db21b3a3699e221a3f28dddb4286b4bf0787b4452cb412ed98d59deb3e63c0",
+      "timestamp": 1792064019,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52637786,
+      "hash": "0xf17e140134f8edfb65d62147b103a8a77b96a4b49dbe44a91207ed0e133abaaf",
+      "timestamp": 1792064919,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52638236,
+      "hash": "0x3cebda0a542d65c3f3fa051d9e5cf997266ba40fea19aeb481005850d5b47e79",
+      "timestamp": 1792065819,
+      "base_fee_wei": 5000000
+    },
+    {
+      "number": 52638686,
+      "hash": "0xc45f16b3583c80af5de38dba2924d03dfa882de885f6f1f7b9541801b26c7758",
+      "timestamp": 1792066719,
+      "base_fee_wei": 5000000
+    }
+  ]
+}

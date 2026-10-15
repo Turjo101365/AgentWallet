@@ -60,3 +60,9 @@ rl-engine/experiments/runs/
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Local chain deployments change on every run
+contracts/deployments/localhost.json
+contracts/deployments/hardhat-inprocess.json
+# Local PGlite data
+backend/data/

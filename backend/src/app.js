@@ -1,41 +1,54 @@
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
+import { createApiRouter } from './routes/api.js';
+import { createRateLimits } from './middleware/rateLimits.js';
+import { requestId, createErrorHandler, notFoundHandler } from './middleware/errorHandler.js';
 
-import healthRoutes from './routes/health.routes.js';
-import walletRoutes from './routes/wallet.routes.js';
-import agentRoutes from './routes/agent.routes.js';
-import rlRoutes from './routes/rl.routes.js';
-import transactionRoutes from './routes/transaction.routes.js';
-import contractRoutes from './routes/contract.routes.js';
-import { errorHandler } from './middleware/errorHandler.js';
+export function createApp(container, { disableRateLimits = false } = {}) {
+  const { config, logger, db, chain, rl, executor, indexer } = container;
+  const app = express();
+  const limits = createRateLimits({ disabled: disableRateLimits });
 
-const app = express();
+  app.disable('x-powered-by');
+  if (config.trustProxy) app.set('trust proxy', 1);
+  app.use(requestId);
+  app.use(helmet());
+  app.use(
+    cors({
+      origin(origin, cb) {
+        // Non-browser clients send no Origin; browsers must be on the allowlist.
+        if (!origin || config.corsOrigins.includes(origin)) return cb(null, true);
+        return cb(null, false);
+      },
+      methods: ['GET', 'POST', 'PUT'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'Idempotency-Key'],
+      exposedHeaders: ['X-Request-Id', 'Idempotent-Replayed'],
+      maxAge: 600,
+    }),
+  );
+  app.use(express.json({ limit: '32kb', strict: true }));
+  app.use(limits.global);
 
-app.use(cors());
-app.use(express.json());
-
-// Base health route
-app.use('/health', healthRoutes);
-
-// API Routes
-app.use('/api/wallet', walletRoutes);
-app.use('/api/agent', agentRoutes);
-app.use('/api/rl', rlRoutes);
-app.use('/api/transactions', transactionRoutes);
-app.use('/api/contract', contractRoutes);
-
-// 404 Handler
-app.use((req, res) => {
-  res.status(404).json({
-    success: false,
-    error: {
-      message: `Cannot ${req.method} ${req.originalUrl}`,
-      status: 404,
-    },
+  app.get('/health', async (_req, res) => {
+    const database = await db.ping().then(() => 'ok', (e) => `error: ${e.message}`);
+    const rlHealth = await rl.health();
+    const checks = {
+      database: { status: database, engine: db.kind },
+      chain: { status: chain.status.ready ? 'ok' : 'error', error: chain.status.error, chainId: config.chainId, rpcChainId: chain.status.rpcChainId },
+      contract: { address: config.contractAddress },
+      executor: { status: executor.enabled ? 'enabled' : 'disabled', address: executor.address },
+      rlEngine: { status: rlHealth.status === 'healthy' ? 'ok' : 'unavailable', task: rlHealth.task || null, policies: rlHealth.policies || null },
+      llm: container.agentChat.status(),
+      scheduler: container.scheduler.status,
+      indexer: indexer.status,
+    };
+    const healthy = database === 'ok' && chain.status.ready;
+    res.status(healthy ? 200 : 503).json({ status: healthy ? 'ok' : 'degraded', checks, time: new Date().toISOString() });
   });
-});
 
-// Centralized Error Handler
-app.use(errorHandler);
-
-export default app;
+  app.use('/api', createApiRouter({ ...container, limits }));
+  app.use(notFoundHandler);
+  app.use(createErrorHandler(logger));
+  return app;
+}

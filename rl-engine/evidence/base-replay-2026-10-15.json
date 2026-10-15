@@ -1,0 +1,211 @@
+{
+  "dataset_sha256": "5be48ace158c3e733653febed5d57fb49c0a2770ef93e54ab12ae77a8efaba9c",
+  "chain_id": 8453,
+  "from_timestamp": 1791837219,
+  "to_timestamp": 1792066719,
+  "samples": 256,
+  "window_steps": 16,
+  "delay_cost": 0.004,
+  "models": {
+    "PPO": {
+      "version": "ppo-timing-bf448d29024c-s42-t200000",
+      "checkpoint_sha256": "f3290973274227843a78c368ac11cb06a249ece72803827b50d78f178af235d1"
+    },
+    "DQN": {
+      "version": "dqn-timing-926aa6612f69-s42-t200000",
+      "checkpoint_sha256": "41555168e021b4f38f7e7db59715eb385328edfd4db0542a836464d01c115157"
+    }
+  },
+  "results": {
+    "execute_immediately": {
+      "episodes": 13,
+      "mean_l2_base_fee_saving_pct": 0.0,
+      "mean_objective_gain": 0.0,
+      "mean_wait_minutes": 0.0,
+      "forced_at_deadline_pct": 0.0,
+      "mean_objective_regret_vs_hindsight": 0.03314421068120129,
+      "episode_fee_ratios": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "episode_wait_steps": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "threshold_10pct": {
+      "episodes": 13,
+      "mean_l2_base_fee_saving_pct": 3.168601068120125,
+      "mean_objective_gain": -0.022160143164952604,
+      "mean_wait_minutes": 201.92307692307693,
+      "forced_at_deadline_pct": 84.61538461538461,
+      "mean_objective_regret_vs_hindsight": 0.05530435384615389,
+      "episode_fee_ratios": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0229566,
+        1.0,
+        0.5651252611443832,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "episode_wait_steps": [
+        15,
+        15,
+        15,
+        15,
+        15,
+        15,
+        15,
+        15,
+        15,
+        15,
+        10,
+        0,
+        15
+      ]
+    },
+    "ppo": {
+      "episodes": 13,
+      "mean_l2_base_fee_saving_pct": 3.3451902988893667,
+      "mean_objective_gain": 0.008836518373508961,
+      "mean_wait_minutes": 92.3076923076923,
+      "forced_at_deadline_pct": 0.0,
+      "mean_objective_regret_vs_hindsight": 0.02430769230769233,
+      "episode_fee_ratios": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        0.5651252611443832,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "episode_wait_steps": [
+        15,
+        13,
+        4,
+        0,
+        0,
+        0,
+        15,
+        13,
+        4,
+        0,
+        0,
+        1,
+        15
+      ]
+    },
+    "dqn": {
+      "episodes": 13,
+      "mean_l2_base_fee_saving_pct": 3.2851764527355054,
+      "mean_objective_gain": 0.013467149142739738,
+      "mean_wait_minutes": 72.6923076923077,
+      "forced_at_deadline_pct": 0.0,
+      "mean_objective_regret_vs_hindsight": 0.019677061538461552,
+      "episode_fee_ratios": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0078018,
+        0.5651252611443832,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "episode_wait_steps": [
+        10,
+        13,
+        2,
+        1,
+        0,
+        1,
+        11,
+        11,
+        2,
+        1,
+        0,
+        1,
+        10
+      ]
+    }
+  },
+  "distribution_shift": {
+    "features": [
+      "long_ema_ratio_log",
+      "short_ema_ratio_log",
+      "recent_min_ratio_log",
+      "volatility"
+    ],
+    "synthetic_p01": [
+      -0.9726303219795227,
+      -0.40484363853931427,
+      0.0,
+      0.04878065630793572
+    ],
+    "synthetic_p99": [
+      0.856000527143478,
+      0.3740921333432194,
+      1.4293178641796103,
+      0.9059996378421779
+    ],
+    "real_means": [
+      0.011182161048054695,
+      0.018743328750133514,
+      0.04390060529112816,
+      0.06104705110192299
+    ],
+    "fraction_outside_synthetic_p01_p99": [
+      0.0,
+      0.0,
+      0.0,
+      0.8461538461538461
+    ]
+  },
+  "limitations": [
+    "L2 base fees only; excludes L1 data fees, priority fees and gas usage",
+    "Small contiguous observational sample; no causal or total transaction savings claim",
+    "Action probabilities are policy preferences, not calibrated savings probabilities",
+    "No live transaction execution; policies remain advisory and opt-in"
+  ]
+}

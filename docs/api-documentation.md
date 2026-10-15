@@ -1,191 +1,77 @@
-# AgentWallet — API Documentation
+# Backend API
 
-This document describes the REST APIs exposed by the Backend Orchestrator (`http://localhost:4000`) and the RL Engine Microservice (`http://localhost:8000`).
+Base URL `http://localhost:4000`.
 
----
+**Response shape:**
+- success: `{ "success": true, "data": … }`
+- error: `{ "success": false, "error": { "code", "message", "details?", "requestId" } }`
 
-## 1. Backend Orchestration API (Port 4000)
+Request bodies are strict: unknown fields return `400 VALIDATION_FAILED`. Amounts are decimal
+strings in token units (`"0.005"`). Returned amounts are integer base-unit strings (`amountWei`)
+plus a formatted value.
 
-### 1.1 Health & Diagnostics
-#### `GET /health`
-Returns backend service uptime, database connectivity, and RL engine status.
+**Auth levels:**
+- **public**: no token
+- **session**: `Authorization: Bearer <token>` from sign-in
+- **owner**: session whose address equals the contract's on-chain `owner()`
 
-**Response (200 OK):**
-```json
-{
-  "status": "healthy",
-  "timestamp": "2026-10-15T04:50:00.000Z",
-  "uptime": 124.5,
-  "services": {
-    "database": "connected",
-    "rlEngine": "available",
-    "rpcNode": "connected"
-  }
-}
+## Public
+| Method | Path | Description |
+|---|---|---|
+| GET | `/health` | 200 `ok` or 503 `degraded`, with database, chain (incl. RPC chain id), executor, RL engine and indexer checks |
+| GET | `/api/config` | Chain id, network, contract address, tokens, ABI, executor address, proposal TTL, chain readiness |
+| POST | `/api/auth/nonce` | `{address}` → `{message, nonce, expiresAt}`; an EIP-4361 message to sign with `personal_sign` |
+| POST | `/api/auth/verify` | `{message, signature}` → `{token, address, role, expiresAt}`. The nonce is single-use |
+
+## Session
+| Method | Path | Description |
+|---|---|---|
+| GET | `/api/auth/session` | Current session and role (`owner` / `viewer`) |
+| POST | `/api/auth/logout` | Revokes the session |
+| GET | `/api/wallet/state` | Block-pinned on-chain snapshot: per-token balance, caps, spent today, remaining; paused; agent; executor gas balance; off-chain pause |
+| GET | `/api/recipients` | Allowlisted recipients (from `RecipientUpdated` events, re-checked on-chain) with labels |
+| GET | `/api/proposals?status=A,B&limit=n` | Proposals with execution details; `approvalTypedData` when awaiting approval |
+| GET | `/api/proposals/:id` | One proposal |
+| GET | `/api/agent/status` | Pause state, RL payee, pending approvals, executor, RL health, indexer status |
+| GET | `/api/agent/decisions` | RL decision log |
+| GET | `/api/transactions` | Verified history (receipts + indexed contract events) |
+| POST | `/api/transactions/track` | `{txHash}`: the backend reads the tx from chain, checks it targets the wallet, and indexes it. No other fields are accepted |
+| GET | `/api/audit` | Last 200 audit entries |
+| GET | `/api/audit/verify` | Recomputes the hash chain: `{valid, entries, head | brokenAt}` |
+| GET | `/api/rl/models` | RL policies and their `policy_source` |
+
+## Owner
+| Method | Path | Description |
+|---|---|---|
+| POST | `/api/proposals` | `{token, recipient, amount, memo?}` → 201 with `status` `AWAITING_APPROVAL` or `POLICY_REJECTED`, plus `policyResult` and `simulation` |
+| POST | `/api/proposals/:id/approve` | Header `Idempotency-Key` (16–128 URL-safe chars), body `{signature}` = EIP-712 signature of `approvalTypedData`. Errors: 401 wrong signer/proposal, 409 `INVALID_STATE`, 410 `PROPOSAL_EXPIRED`, 422 `POLICY_FAILED_AT_APPROVAL` / `IDEMPOTENCY_KEY_REUSED` |
+| POST | `/api/proposals/:id/reject` | `{reason?}` |
+| POST | `/api/agent/pause` / `/api/agent/resume` | `{reason?}`. Persistent off-chain pause; blocks new proposals, approvals and execution |
+| PUT | `/api/agent/settings` | `{rlPayee: address | null}`: where RL payment suggestions may go (must also be allowlisted on-chain) |
+| POST | `/api/agent/evaluate` | `{agentType?: "PPO"|"DQN"}`. Runs an RL evaluation on live chain state; returns `{decision, proposal|null}`; 503 `RL_UNAVAILABLE` if the engine is down |
+| PUT | `/api/recipients/:address/label` | `{label}`. Display label only; allowlisting is an on-chain owner transaction |
+| POST | `/api/rl/models/select`, `/api/rl/evaluate` | Choose the active policy; run simulator episodes |
+
+## EIP-712 approval
+
+```js
+domain = { name: 'AgentWallet Operator Approval', version: '1', chainId, verifyingContract: <wallet> }
+ApproveTransfer(string proposalId, bytes32 intentId, address token, address recipient, uint256 amount, uint256 deadline)
 ```
 
----
+`deadline` is the proposal expiry. The backend returns the exact object to sign. Clients must not
+build their own.
 
-### 1.2 Wallet State & Telemetry
-#### `GET /api/wallet/state`
-Returns the real-time observed on-chain state of the wallet and connected smart contract.
+## Proposal statuses
+`POLICY_REJECTED`, `AWAITING_APPROVAL`, `APPROVED`, `SUBMITTED`, `CONFIRMED`, `FAILED`, `REJECTED`, `EXPIRED`.
+`CONFIRMED` is only set after the mined receipt is verified (status 1, target, matching `TransferExecuted`).
 
-**Query Parameters:**
-- `address` (optional): Override target wallet address. Defaults to configured contract.
-
-**Response (200 OK):**
-```json
-{
-  "chainId": 84532,
-  "blockNumber": 6842109,
-  "walletAddress": "0x71C8412eD33ef08083a216F669B78D8210D3498B",
-  "nativeBalanceWei": "14842000000000000000",
-  "nativeBalanceEth": 14.842,
-  "dailySpentEth": 0.0035,
-  "dailyLimitEth": 0.05,
-  "perTxLimitEth": 0.01,
-  "baseFeeGwei": 14.2,
-  "mempoolCongestion": 0.28,
-  "slippageSpreadBps": 12.0,
-  "isContractPaused": false,
-  "timestamp": 1792039800
-}
-```
-
----
-
-### 1.3 Agent & Decision Lifecycle
-#### `GET /api/agent/status`
-Returns current operational mode, active policy, and execution lock.
-
-**Response (200 OK):**
-```json
-{
-  "state": "IDLE",
-  "engineMode": "HITL_AUTONOMOUS",
-  "activeModel": "PPO",
-  "modelVersion": "AgentPolicy_v2.4_PPO",
-  "pendingProposalsCount": 0,
-  "lastCycleEvaluation": "2026-10-15T04:48:00.000Z"
-}
-```
-
-#### `POST /api/agent/evaluate`
-Triggers an observation-inference-validation cycle using the active RL agent.
-
-**Request Body:**
-```json
-{
-  "agentType": "PPO",
-  "overrideState": null
-}
-```
-
-**Response (200 OK):**
-```json
-{
-  "decisionId": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-  "agentType": "PPO",
-  "modelVersion": "AgentPolicy_v2.4_PPO",
-  "actionIndex": 2,
-  "actionType": "STANDARD_REBALANCE",
-  "proposedParameters": {
-    "recipient": "0xE592427A0AEce92De3Edee1F18E0157C05861564",
-    "amountEth": 0.01,
-    "maxSlippageBps": 30,
-    "gasLimit": 142500
-  },
-  "confidenceScore": 0.948,
-  "rationale": "Slippage spread exceeds threshold theta=0.82; rebalancing reserve asset to lock yield.",
-  "deterministicValidation": {
-    "passed": true,
-    "violations": [],
-    "dailyLimitRemainingEth": 0.0465,
-    "validatedAt": 1792039810
-  },
-  "authorization": {
-    "status": "AWAITING_APPROVAL",
-    "ttlSeconds": 180,
-    "expiresAt": 1792039990,
-    "signatureRequired": true
-  },
-  "createdAt": 1792039810
-}
-```
-
-#### `POST /api/agent/proposals/:id/approve`
-Records human authorization of a proposal and prepares call data for MetaMask.
-
-**Response (200 OK):**
-```json
-{
-  "decisionId": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-  "status": "APPROVED",
-  "contractCall": {
-    "to": "0xContractAddress...",
-    "method": "executePayment(address,uint256)",
-    "args": ["0xE592427A0AEce92De3Edee1F18E0157C05861564", "10000000000000000"],
-    "calldata": "0x4146bf38..."
-  }
-}
-```
-
-#### `POST /api/agent/proposals/:id/reject`
-Rejects the proposal and records rejection reason.
-
----
-
-### 1.4 Transactions
-#### `GET /api/transactions`
-Retrieves verified transactions from PostgreSQL audit table.
-
-#### `POST /api/transactions/track`
-Submits a newly broadcasted transaction hash from MetaMask for backend receipt monitoring.
-
----
-
-## 2. RL Engine Microservice API (Port 8000)
-
-### 2.1 Health & Models
-#### `GET /health`
-Returns PyTorch / Gymnasium availability and loaded agent registry status.
-
-#### `GET /models`
-Lists available model checkpoints for PPO and DQN, along with training epochs and timestamps.
-
-### 2.2 Inference
-#### `POST /predict/ppo`
-Computes action probabilities and sampled action from state observation vector.
-
-**Request Body:**
-```json
-{
-  "observation": [0.74, 0.07, 0.93, 0.28, 0.15, 0.12, 0.85, 1.0]
-}
-```
-
-**Response (200 OK):**
-```json
-{
-  "agent": "PPO",
-  "action": 2,
-  "action_name": "STANDARD_REBALANCE",
-  "confidence": 0.948,
-  "probabilities": [0.02, 0.03, 0.948, 0.002],
-  "value_estimate": 4.12
-}
-```
-
-#### `POST /predict/dqn`
-Computes Q-values for all discrete actions and selects $\arg\max_a Q(s, a)$.
-
-**Response (200 OK):**
-```json
-{
-  "agent": "DQN",
-  "action": 2,
-  "action_name": "STANDARD_REBALANCE",
-  "confidence": 0.912,
-  "q_values": [-0.15, 1.82, 4.35, -2.10]
-}
-```
+## RL engine (internal, port 8000)
+| Method | Path | Description |
+|---|---|---|
+| GET | `/health` | Status and `policy_sources` |
+| GET | `/models` | Agent metadata incl. `load_error` |
+| POST | `/models/select?agent_type=` / `/models/reload` | Active policy / reload checkpoints |
+| POST | `/predict/{ppo,dqn,active}` | 8-dim observation → action |
+| POST | `/propose` | `{raw_state, agent_type?}` → `{agentType, modelVersion, policySource, actionIndex, actionType, suggestedAmountWei, confidence|null, rationale, observationVector}` |
+| POST | `/evaluate` | `{agent_type, episodes, seed?}`. Synthetic simulator rewards |

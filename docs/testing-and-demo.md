@@ -1,92 +1,73 @@
-# Testing & Verification Guide
+# Running, Testing and Demoing Locally
 
-This document outlines the testing strategy, test commands, and simulation procedures across all tiers of AgentWallet.
+Everything below uses the local Hardhat chain (31337) and its public development accounts.
+Nothing touches a public network.
 
----
-
-## 1. Testing Framework Matrix
-
-| Subsystem | Framework | Focus Area | Command |
-|---|---|---|---|
-| **Contracts** | Hardhat + Chai | EVM limits, reentrancy, pause logic, access controls | `cd contracts && npm test` |
-| **Backend** | Node Test Runner / Jest | Routing, safety validation, RPC adapters | `cd backend && npm test` |
-| **RL Engine** | Pytest | Gym env dynamics, reward math, inference bounds | `cd rl-engine && pytest` |
-| **Frontend** | Vitest + React Testing Library | UI components, MetaMask state, proposal reviews | `cd frontend && npm test` |
-| **Integration** | Mocha / Node | End-to-end multi-tier pipeline validation | `npm run test:integration` |
-
----
-
-## 2. Hardhat Contract Unit Tests
-
-The contract suite verifies the core security guarantees:
+## Prerequisites
+- Node 20+
+- Python 3.11+ (for the RL engine)
+- MetaMask (for the browser demo)
 
 ```bash
-cd contracts
-npm install
-npx hardhat test
+cd contracts && npm ci && cd ../backend && npm ci && cd ../frontend && npm ci && cd ..
+cd rl-engine && python -m venv .venv && .venv/Scripts/python -m pip install -r requirements.txt && cd ..
+cp backend/.env.example backend/.env
 ```
 
-### Verified Test Cases
-1. `should set deployer as owner and default agent`
-2. `should accept deposits and increment balance`
-3. `should allow agent to execute payment within limits`
-4. `should revert if payment exceeds perTransactionLimit`
-5. `should revert if cumulative payments exceed dailySpendingLimit`
-6. `should revert unauthorized callers attempting executePayment`
-7. `should prevent payments when paused and allow emergency withdrawal`
+On macOS/Linux the venv interpreter is `.venv/bin/python`.
 
----
-
-## 3. RL Engine Tests
-
-Verify environment observation bounds, reward calculations, and deterministic action constraints:
-
+## Run the stack (four terminals)
 ```bash
-cd rl-engine
-pip install -r requirements.txt
-pytest tests/ -v
+npm run chain          # 1. Hardhat node on :8545
+npm run deploy:local   #    then deploy (writes contracts/deployments/localhost.json)
+npm run dev:rl         # 2. RL engine on :8000
+npm run dev:backend    # 3. backend on :4000 (PGlite in backend/data/pglite)
+npm run dev:frontend   # 4. UI on :5173
 ```
 
-### Verified Test Cases
-1. `test_wallet_env_step_and_observation_space`: Confirms 8-dimensional observation vector and bounds.
-2. `test_reward_penalizes_high_gas`: Confirms penalty scaling during gas congestion.
-3. `test_safety_validator_rejects_over_limit`: Asserts that `action_validator` blocks proposals exceeding bounds.
+Restarting the chain wipes it. If you do, redeploy and delete `backend/data/pglite` so
+the database does not reference the old chain.
 
----
+## MetaMask setup (local)
+1. Add the network: RPC `http://127.0.0.1:8545`, chain id `31337`, currency ETH. The app also offers to add it.
+2. Import Hardhat account **#0** (the owner) from the `npx hardhat node` output. It is a public
+   test key, so use it only on the local chain.
 
-## 4. Backend Orchestration Tests
+## Demo script
+1. Open http://localhost:5173 → Connect → Switch network → Sign in (a text signature, no transaction).
+2. **Overview**: contract balances and caps read on-chain; the agent executor is authorized.
+3. **Proposals**: create 0.005 ETH to "Demo payee A". You will see:
+   - policy checks;
+   - the simulation gas estimate;
+   - a 3-minute TTL.
+4. **Approve & sign**: MetaMask shows the typed approval (recipient, amount, token, deadline). The status moves
+   Approved → Submitted → **Confirmed on-chain** only after the receipt is verified.
+5. Try to break it:
+   - 0.02 ETH: blocked by `PER_TX_LIMIT`;
+   - a random address: `RECIPIENT_ALLOWLISTED`;
+   - several 0.01 approvals: the daily cap holds.
+6. **Risk controls**: pause the contract, and a new proposal is blocked (`CONTRACT_ACTIVE`). Emergency stop
+   revokes the agent.
+7. **Transactions** / **Audit log**: verified history and a hash chain marked "Chain valid".
+8. **RL advisory**: set an allowlisted payee and evaluate. The policy is shown as a heuristic fallback, and
+   any suggestion becomes a normal proposal that still needs your approval.
 
+## Automated tests
 ```bash
-cd backend
-npm install
-npm test
+cd contracts && npx hardhat test        # 30
+cd backend && npm test                  # 59 (starts its own Hardhat nodes; needs compiled artifacts)
+cd frontend && npx vitest run           # 13
+cd rl-engine && .venv/Scripts/python -m unittest discover -s tests -p "test_*.py"   # 16
+node --test tests/e2e/                  # 6: full stack, prints E2E_EVIDENCE
 ```
 
-Verifies:
-- `health.routes.js` health checks and dependencies.
-- `safetyService.js` rejecting illegal proposals.
-- Express error handlers formatting consistent JSON error envelopes.
+Results and evidence: [TEST_RESULTS.md](TEST_RESULTS.md).
 
----
+## Docker (written, not yet verified)
+`docker compose up --build` starts:
+- Postgres;
+- a Hardhat chain;
+- a one-shot deployer;
+- the RL engine, backend and frontend.
 
-## 5. Base Sepolia EVM Deployment
-
-To test transactions on Base Sepolia:
-
-1. Fund your testnet wallet using the official Base Sepolia faucet (e.g. `https://faucets.chain.link/base-sepolia` or Coinbase faucet).
-2. Deploy `AgentWallet.sol` via Remix IDE or Hardhat:
-   ```bash
-   cd contracts
-   npx hardhat run scripts/deploy.js --network baseSepolia
-   ```
-3. Update `.env` with the deployed contract address and `CHAIN_ID=84532`.
-4. Connect MetaMask switched to Base Sepolia (Chain ID: 84532).
-
----
-
-## 6. Demo Simulation Mode
-
-Per the **Strict No-Fake-Data Rule**, when no live blockchain connection or trained checkpoint is active, AgentWallet enters **Simulation Mode**:
-- Marked with a high-visibility badge: `[SIMULATION ENGINE ACTIVE]`.
-- All simulated actions are explicitly flagged as synthetic benchmarks and never saved as live blockchain receipts.
-- Live tabs display `Not connected` or `No transactions recorded` until genuine on-chain interactions occur.
+The backend uses `LOCAL_DEV_AGENT_INDEX=1`, which is refused on any non-local chain.

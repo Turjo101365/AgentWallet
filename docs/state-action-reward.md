@@ -1,83 +1,69 @@
-# State, Action, and Reward Function Design
+# RL Task Definition: Gas-Aware Execution Timing
 
-## 1. State Representation ($S_t$)
+Phase 2 replaced the earlier 4-action "treasury" MDP. That MDP rewarded spending money: +3.0 for a
+0.01 ETH transfer to a fixed address. The RL component now has one narrow advisory job, and
+cannot affect who is paid or how much.
 
-The state space provides the agent with an accurate snapshot of both internal wallet constraints and external EVM network dynamics.
+## Decision
+
+A payment is already authorized: owner-signed grant, recipient, amount. It must settle within an
+execution window of W decision steps (15 minutes each in training). At each step the policy
+chooses:
+
+| Action | Meaning |
+|---|---|
+| 0 `WAIT` | Defer one step |
+| 1 `EXECUTE` | Submit now |
+
+At the last step execution is **forced**. In production the scheduler enforces the deadline itself;
+the model can only defer inside the window.
+
+## Observation (8 features, `rl-engine/app/timing/features.py`)
+
+| # | Feature | Definition |
+|---|---|---|
+| 0 | level | `log(gas_now / EMA_24(gas))`; negative = cheaper than usual |
+| 1 | momentum | `log(gas_now / EMA_4(gas))` |
+| 2 | distance from recent low | `log(gas_now / min(last 8))` |
+| 3 | volatility | std of log returns over the last 8 steps |
+| 4 | time left | `steps_remaining / window_steps` |
+| 5–6 | time of day | `sin`, `cos` of the UTC hour |
+| 7 | deadline flag | 1 when `steps_remaining = 0` |
+
+All price features are **ratios**, so the policy is independent of the absolute fee level. The same
+function is used in training and serving, so there is no feature skew.
+
+## Reward
 
 ```
-State Vector s_t = [
-    s[0]: Normalized Native Balance (ETH)
-    s[1]: Daily Spending Ratio (Spent / Daily Limit)
-    s[2]: Remaining Spending Headroom
-    s[3]: Normalized Gas Base Fee (Gwei / 50.0)
-    s[4]: Mempool Congestion Factor [0.0 - 1.0]
-    s[5]: Observed Pool Spread / Slippage (bps / 100.0)
-    s[6]: Diurnal Gas Cycle Factor [-1.0, 1.0]
-    s[7]: Contract Operational Status (1.0 = Active, 0.0 = Paused)
-]
+on EXECUTE (or forced at deadline):  r = -(gas_at_execution / gas_at_window_start)
+on each WAIT:                         r = -delay_cost        (0.004 by default)
 ```
 
-### Observation Normalization
-Raw values are clipped and scaled to avoid exploding gradients:
-- `balance_eth`: Scaled relative to standard reserve target (e.g., 2.0 ETH).
-- `gas_price_gwei`: Clipped at 100 Gwei, normalized by dividing by 50 Gwei.
-- `slippage_bps`: Clipped between 0 and 200 bps, normalized by dividing by 100.
+- Executing immediately always scores exactly −1.0.
+- The policy gains only by executing when the fee is lower than at the window start, by more than the delay cost it accumulates.
+- Every episode settles exactly one payment, so there is no incentive to spend.
 
----
+## Data
 
-## 2. Action Space ($A$)
+The gas price is **synthetic** (`rl-engine/app/timing/gas_process.py`):
 
-The action space is discrete, consisting of 4 distinct choices:
+```
+log g_t = daily(t) + x_t + s_t
+x_t = (1 - θ) x_{t-1} + σ ε_t           mean-reverting noise   (θ = 0.08, σ = 0.12)
+s_t = 0.75 s_{t-1} + Bernoulli(0.03)·Exp(0.8)   congestion spikes
+daily(t) = 0.35 · sin(2π hour/24 + φ)
+```
 
-| Action Index | Label | Execution Behavior | Parameter Bounds |
-|---|---|---|---|
-| `0` | `HOLD` | Defer action to next observation epoch. No calldata created. | N/A |
-| `1` | `MICRO_PAYMENT` | Execute sub-limit payment or top-up. | Amount: 0.005 ETH |
-| `2` | `STANDARD_REBALANCE` | Standard operational transfer / rebalance. | Amount: 0.010 ETH (contract limit) |
-| `3` | `DEFENSIVE_STABILIZE` | Hold assets; signal pause due to abnormal gas or volatility. | Amount: 0.0 ETH |
+It is a modelling assumption, not market data. Real fee dynamics differ: L2 base fees on Base
+Sepolia, or a Hardhat node whose base fee decays toward zero with no load. See
+KNOWN_LIMITATIONS.md.
 
----
+## Evaluation protocol
 
-## 3. Reward Function Formulation ($R(s, a, s')$)
+- **Seed sets:** training seeds are drawn by SB3 from the training seed; validation seeds start at 500 000 (checkpoint selection); test seeds start at 1 000 000 (reported numbers only).
+- **Paired comparison:** every policy runs on the same episodes, so comparisons are paired.
+- **Baselines:** execute immediately (what the system does without a model), a 10%-below-average threshold rule, and a hindsight **oracle** (uses future prices; a lower bound, not a policy).
+- **Reported metrics:** fee saving vs immediate (mean and 95% bootstrap CI), objective gain including delay, mean wait, deadline-forced rate, share of episodes worse than immediate, and regret vs the oracle.
 
-The composite reward balances operational efficiency, gas frugality, and strict adherence to safety limits:
-
-$$R(s, a, s') = R_{\text{utility}}(a) + R_{\text{gas}}(s, a) + R_{\text{slippage}}(s, a) + R_{\text{safety}}(s, a)$$
-
-### Component 1: Operational Utility ($R_{\text{utility}}$)
-Rewards the agent for fulfilling necessary liquidity disbursements:
-- If action is `MICRO_PAYMENT` and liquidity was required: $+1.5$
-- If action is `STANDARD_REBALANCE` and liquidity was required: $+3.0$
-- If action is `HOLD` when market is hostile (gas $> 35$ Gwei): $+0.5$ (Reward for patience)
-
-### Component 2: Gas Penalty ($R_{\text{gas}}$)
-Penalizes conducting operations during elevated base fees:
-
-$$R_{\text{gas}} = -w_{\text{gas}} \cdot \left(\frac{\text{BaseFeeGwei}}{10}\right)^{1.5}$$
-
-where $w_{\text{gas}} = 0.4$. If the agent executes a transfer during 45 Gwei gas, it incurs a substantial penalty.
-
-### Component 3: Slippage / Spread Penalty ($R_{\text{slippage}}$)
-Penalizes trading or transferring into thin liquidity pools:
-
-$$R_{\text{slippage}} = -w_{\text{slip}} \cdot \frac{\text{SlippageSpreadBps}}{20}$$
-
-where $w_{\text{slip}} = 0.3$.
-
-### Component 4: Safety Violation Penalty ($R_{\text{safety}}$)
-If the agent selects an action that would violate contract limits:
-- Exceeding daily spending limit: $-10.0$ penalty
-- Exceeding single tx limit: $-10.0$ penalty
-- Attempting transaction while contract is paused: $-15.0$ penalty
-
-This strong negative feedback trains the policy to steer clear of boundary conditions even before the deterministic validator intervenes.
-
----
-
-## 4. Episode Dynamics & Termination
-
-- **Episode Length:** 100 timesteps per training episode (simulating 100 sequential blocks or market intervals).
-- **Early Termination:**
-  - Balance drops below minimum required reserve ($0.05$ ETH).
-  - Agent triggers 3 severe limit violations in a single episode.
-- **Success Criteria:** Completing the episode with healthy treasury reserves and maximized net operational utility.
+Results: [ppo-vs-dqn.md](ppo-vs-dqn.md).

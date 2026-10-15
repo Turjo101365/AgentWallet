@@ -1,29 +1,37 @@
-import app from './app.js';
-import { config, validateStartupConfig } from './config/env.js';
-import { checkDatabaseConnection } from './config/database.js';
+import { loadDotenv, loadConfig, describeConfig } from './config/env.js';
+import { createContainer } from './container.js';
+import { createApp } from './app.js';
 
-async function startServer() {
-  validateStartupConfig();
-  await checkDatabaseConnection();
+async function main() {
+  loadDotenv();
+  const config = loadConfig();
+  const container = await createContainer(config);
+  const { logger, chain, executor } = container;
 
-  const server = app.listen(config.port, () => {
-    console.log(`====================================================`);
-    console.log(`AgentWallet Backend Server running on port ${config.port}`);
-    console.log(`REST Health: http://localhost:${config.port}/health`);
-    console.log(`Wallet State: http://localhost:${config.port}/api/wallet/state`);
-    console.log(`Agent Status: http://localhost:${config.port}/api/agent/status`);
-    console.log(`====================================================`);
-  });
+  logger.info('AgentWallet backend starting', describeConfig(config));
+  logger.info('Database migrations', container.migrations);
+  if (!chain.status.ready) logger.warn('Blockchain not ready; money paths fail closed until it is', { error: chain.status.error });
 
-  const shutdown = () => {
-    console.log('Shutting down AgentWallet backend gracefully...');
-    server.close(() => {
-      process.exit(0);
-    });
+  if (config.backgroundJobs) {
+    container.startBackgroundJobs();
+    const recovered = await executor.recover().catch((e) => ({ error: e.message }));
+    logger.info('Executor recovery', recovered);
+  }
+
+  const app = createApp(container);
+  const server = app.listen(config.port, config.host, () => logger.info(`Listening on http://${config.host}:${config.port}`));
+
+  const shutdown = async (signal) => {
+    logger.info('Shutting down', { signal });
+    server.close();
+    await container.close().catch(() => {});
+    process.exit(0);
   };
-
-  process.on('SIGTERM', shutdown);
-  process.on('SIGINT', shutdown);
+  process.on('SIGTERM', () => shutdown('SIGTERM'));
+  process.on('SIGINT', () => shutdown('SIGINT'));
 }
 
-startServer();
+main().catch((err) => {
+  console.error(`Fatal startup error: ${err.message}`);
+  process.exit(1);
+});
