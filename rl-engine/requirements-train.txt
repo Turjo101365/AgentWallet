@@ -1,0 +1,4 @@
+# Training and checkpoint loading (large: pulls in PyTorch). Install only where you train or load models.
+-r requirements.txt
+torch>=2.2.0
+stable-baselines3>=2.2.1

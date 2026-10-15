@@ -1,0 +1,109 @@
+{
+  "algorithm": "DQN",
+  "task": "execution_timing",
+  "version": "dqn-timing-926aa6612f69-s42-t200000",
+  "config_sha256_12": "926aa6612f69",
+  "config": {
+    "algorithm": "DQN",
+    "hyperparameters": {
+      "learning_rate": 0.0005,
+      "buffer_size": 100000,
+      "learning_starts": 2000,
+      "batch_size": 128,
+      "gamma": 0.995,
+      "train_freq": 4,
+      "gradient_steps": 1,
+      "target_update_interval": 2000,
+      "exploration_fraction": 0.25,
+      "exploration_final_eps": 0.02
+    },
+    "training": {
+      "total_timesteps": 200000,
+      "seed": 42
+    },
+    "evaluation": {
+      "eval_freq": 10000,
+      "validation_episodes": 300,
+      "test_episodes": 2000
+    }
+  },
+  "seed": 42,
+  "total_timesteps": 200000,
+  "train_seconds": 342.3,
+  "best_validation_mean_reward": -0.9133,
+  "trained_at": "2026-10-15T11:08:04Z",
+  "libraries": {
+    "stable_baselines3": "2.9.0",
+    "torch": "2.14.1+cpu",
+    "gymnasium": "1.4.0",
+    "python": "3.14.6"
+  },
+  "data": "synthetic gas process (app/timing/gas_process.py); not market data",
+  "test_set": {
+    "seed_start": 1000000,
+    "episodes": 2000
+  },
+  "test_metrics": {
+    "execute_immediately": {
+      "episodes": 2000,
+      "mean_fee_ratio": 1.0,
+      "mean_fee_saving_pct": 0.0,
+      "fee_saving_pct_ci95": [
+        0.0,
+        0.0
+      ],
+      "mean_objective_gain": 0.0,
+      "objective_gain_ci95": [
+        0.0,
+        0.0
+      ],
+      "mean_wait_steps": 0.0,
+      "forced_at_deadline_pct": 0.0,
+      "mean_regret_vs_oracle": 0.2782,
+      "pct_episodes_worse_than_immediate": 0.0
+    },
+    "threshold_10pct": {
+      "episodes": 2000,
+      "mean_fee_ratio": 1.0346,
+      "mean_fee_saving_pct": -3.46,
+      "fee_saving_pct_ci95": [
+        -6.52,
+        -0.74
+      ],
+      "mean_objective_gain": -0.0551,
+      "objective_gain_ci95": [
+        -0.0861,
+        -0.03
+      ],
+      "mean_wait_steps": 5.12,
+      "forced_at_deadline_pct": 13.1,
+      "mean_regret_vs_oracle": 0.3128,
+      "pct_episodes_worse_than_immediate": 19.3
+    },
+    "dqn": {
+      "episodes": 2000,
+      "mean_fee_ratio": 0.9301,
+      "mean_fee_saving_pct": 6.99,
+      "fee_saving_pct_ci95": [
+        5.02,
+        8.56
+      ],
+      "mean_objective_gain": 0.05,
+      "objective_gain_ci95": [
+        0.0326,
+        0.0657
+      ],
+      "mean_wait_steps": 4.99,
+      "forced_at_deadline_pct": 3.25,
+      "mean_regret_vs_oracle": 0.2082,
+      "pct_episodes_worse_than_immediate": 19.05
+    },
+    "oracle_hindsight": {
+      "episodes": 2000,
+      "mean_fee_ratio": 0.7218,
+      "mean_fee_saving_pct": 27.82,
+      "note": "Uses future prices; an unattainable lower bound, not a policy."
+    }
+  },
+  "checkpoint_sha256": "41555168e021b4f38f7e7db59715eb385328edfd4db0542a836464d01c115157"
+}

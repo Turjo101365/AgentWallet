@@ -1,74 +1,54 @@
-# PPO vs DQN Architecture & Comparative Analysis
+# PPO vs DQN: Measured Results (Execution Timing)
 
-## 1. Algorithmic Overview
+Both policies were trained on 2026-10-15 with `python -m app.training.train --algo {ppo,dqn}`:
+- Stable-Baselines3 2.9.0, PyTorch 2.14.1+cpu, Gymnasium 1.4.0, Python 3.14.6, CPU only.
+- 200 000 timesteps, seed 42.
+- Configs: `rl-engine/configs/{ppo,dqn}.yaml`.
 
-AgentWallet supports two foundational Reinforcement Learning paradigms to evaluate algorithmic decision-making in autonomous treasury management:
+The numbers below are copied from each checkpoint's `metadata.json`. They come from **2 000
+held-out test episodes** (seeds 1 000 000–1 001 999) of the **synthetic** gas process. They measure
+fee savings in a simulator, not real-market performance.
 
-| Dimension | Proximal Policy Optimization (PPO) | Deep Q-Network (DQN) |
+| Metric | Execute immediately | Threshold 10% | **PPO** | **DQN** | Hindsight oracle |
+|---|---|---|---|---|---|
+| Mean fee vs window start | 1.000 | 1.035 | **0.918** | **0.930** | 0.722 |
+| Mean fee saving | 0% | −3.46% | **8.20%** | **6.99%** | 27.82% |
+| Fee saving 95% CI | — | [−6.52, −0.74] | **[6.16, 9.96]** | **[5.02, 8.56]** | — |
+| Objective gain (fee + delay) | 0 | −0.055 | **+0.056** | **+0.050** | — |
+| Mean wait (15-min steps) | 0 | 5.12 | 6.47 | 4.99 | — |
+| Forced at deadline | 0% | 13.1% | 2.1% | 3.25% | — |
+| Episodes worse than immediate | 0% | 19.3% | 17.2% | 19.05% | — |
+| Regret vs oracle | 0.278 | 0.313 | 0.196 | 0.208 | 0 |
+
+| | PPO | DQN |
 |---|---|---|
-| **Class** | Policy-gradient, Actor-Critic | Value-based, Q-learning |
-| **Policy Type** | Stochastic (outputs probability distribution $\pi(a\|s)$) | Deterministic via argmax ($\arg\max_a Q(s, a)$) |
-| **Exploration** | Entropy bonus in objective function | $\epsilon$-greedy decaying schedule |
-| **Data Efficiency** | On-policy (requires fresh rollout buffer) | Off-policy (Experience Replay Buffer) |
-| **Network Architecture** | Dual-headed / Twin networks: Actor $\pi_\theta$ + Critic $V_\phi$ | Single Q-Network $Q_\theta$ + Target Network $Q_{\theta^-}$ |
-| **Objective Function** | Clipped surrogate objective $L^{CLIP}(\theta)$ | Bellman Mean Squared Error loss against $Q_{\theta^-}$ |
-| **Best Suited For** | Smooth continuous probability distribution over decisions | Discrete value estimation with high sample reuse |
+| Model version | `ppo-timing-bf448d29024c-s42-t200000` | `dqn-timing-926aa6612f69-s42-t200000` |
+| Training time | 188 s | 342 s |
+| Checkpoint size | 148 KB | 104 KB |
 
----
+## Reading the results
 
-## 2. Mathematical Formulations
+- Both learned policies beat executing immediately on held-out episodes, and the confidence intervals exclude zero.
+- PPO is somewhat better than DQN on this task, but the CIs overlap; with one seed each this is not a robust ranking.
+- A naive threshold rule is *worse* than doing nothing (it waits into spikes and gets forced at the deadline). The task is not trivial.
+- About 17–19% of individual episodes still cost more than executing immediately: the policy pays off on average, not every time.
+- The oracle shows large remaining headroom (28%). That gap is the cost of not knowing the future.
+- Tests check the policies' behaviour on real environment states, not hand-picked states. Neither is a simple "cheap → execute" rule; for example, DQN executes more often in the highest-priced quartile of first-step states, conditioning on momentum and volatility.
 
-### Proximal Policy Optimization (PPO)
-PPO stabilizes policy updates by constraining the policy probability ratio $r_t(\theta) = \frac{\pi_\theta(a_t | s_t)}{\pi_{\theta_{old}}(a_t | s_t)}$:
+## What these numbers do not show
 
-$$L^{CLIP}(\theta) = \hat{\mathbb{E}}_t \left[ \min\left(r_t(\theta)\hat{A}_t, \, \text{clip}(r_t(\theta), 1-\epsilon, 1+\epsilon)\hat{A}_t\right) \right]$$
+- **Real-chain performance:** no real fee data was used. On a local Hardhat chain the PPO model output WAIT with probability 0.99998 on smoothly decaying fees, an input unlike its training data. The deterministic deadline then forced execution (E2E evidence in TEST_RESULTS.md). Calibrating on recorded Base Sepolia fees is open work.
+- **Seed variance:** one training seed per algorithm.
+- **Any claim about returns:** the only quantity optimized is the network fee paid for an already-authorized payment.
 
-where $\hat{A}_t$ is the Generalized Advantage Estimator (GAE) computed using the Critic network $V_\phi(s)$.
+## Reproduce
 
-### Deep Q-Network (DQN)
-DQN minimizes the temporal difference error between predicted action values and the Bellman target:
-
-$$L(\theta) = \mathbb{E}_{(s, a, r, s')} \left[ \left( r + \gamma \max_{a'} Q_{\theta^-}(s', a') - Q_\theta(s, a) \right)^2 \right]$$
-
-The target network weights $\theta^-$ are updated periodically every $C$ steps or via Polyak averaging:
-
-$$\theta^- \leftarrow \tau \theta + (1 - \tau)\theta^-$$
-
----
-
-## 3. Shared Environment & Discrete Action Space
-
-To ensure an unbiased and reproducible comparison, both agents operate in an identical Gymnasium environment with identical action and observation spaces.
-
-### Shared Action Space
-The action space consists of 4 discrete actions:
-
-```python
-ACTION_HOLD = 0                 # Do nothing; observe next block
-ACTION_MICRO_PAYMENT = 1        # Issue sub-limit payment (0.005 ETH)
-ACTION_STANDARD_REBALANCE = 2   # Issue standard liquidity payment (0.010 ETH)
-ACTION_DEFENSIVE_STABILIZE = 3  # Signal defensive pause / low-risk hold
+```bash
+cd rl-engine
+.venv/Scripts/python -m pip install -r requirements-train.txt --extra-index-url https://download.pytorch.org/whl/cpu
+.venv/Scripts/python -m app.training.train --algo ppo
+.venv/Scripts/python -m app.training.train --algo dqn
 ```
 
-### Shared Observation Vector (8 Dimensions)
-Every state $s_t \in \mathbb{R}^8$ is normalized within $[0, 1]$ or $[-1, 1]$:
-1. `norm_balance`: Current native balance normalized by initial treasury cap.
-2. `norm_daily_spent`: Cumulative ETH spent today normalized by `dailySpendingLimit`.
-3. `daily_limit_headroom`: Remaining spending allowance ratio $(1 - \text{daily\_spent}/\text{limit})$.
-4. `norm_base_fee`: Gas base fee normalized by peak gas threshold (50 Gwei).
-5. `mempool_congestion`: Relative ratio of pending high-priority transactions.
-6. `slippage_spread_bps`: Normalized liquidity pool spread in basis points.
-7. `time_of_day_phase`: Cyclical feature $\sin(2\pi \cdot t / 86400)$ for circadian gas patterns.
-8. `contract_status`: Binary flag ($1.0 = \text{Active}, 0.0 = \text{Paused}$).
-
----
-
-## 4. Comparative Evaluation Metrics
-
-In `evaluation/compare_agents.py`, both trained checkpoints are evaluated against an identical 500-step test scenario:
-
-- **Mean Cumulative Reward:** Total reward accumulated over treasury lifecycle.
-- **Gas Efficiency Ratio:** Realized treasury output divided by total gas fees consumed.
-- **Safety Violation Rate:** Percentage of actions proposing illegal transactions (caught by safety validator).
-- **Execution Latency:** Average forward-pass inference time in milliseconds.
-- **Decision Entropy / Confidence:** Shannon entropy for PPO vs Q-value margin for DQN.
+Training writes `models/<algo>/best_model.zip` and `metadata.json`. The model version encodes the
+config hash, seed and timesteps. Changing any hyperparameter changes the version.

@@ -1,83 +1,101 @@
-version: '3.8'
+# Local full stack: Postgres, a Hardhat chain (31337), a one-shot deployer, the RL engine,
+# the backend and the static frontend. Public networks are never touched by this file.
+#
+#   docker compose up --build
+#
+# The backend executor uses Hardhat dev account #1 (derived from the public dev mnemonic via
+# LOCAL_DEV_AGENT_INDEX); the backend refuses that on any non-local chain.
 
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: agentwallet_postgres
-    restart: unless-stopped
     environment:
-      POSTGRES_USER: ${DB_USER:-agentwallet_user}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-agentwallet_password}
-      POSTGRES_DB: ${DB_NAME:-agentwallet_db}
+      POSTGRES_USER: ${DB_USER:-agentwallet}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-agentwallet_local_only}
+      POSTGRES_DB: ${DB_NAME:-agentwallet}
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./database/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-agentwallet_user} -d ${DB_NAME:-agentwallet_db}"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-agentwallet} -d ${DB_NAME:-agentwallet}"]
       interval: 5s
+      timeout: 5s
+      retries: 10
+
+  chain:
+    build: ./contracts
+    ports:
+      - "127.0.0.1:8545:8545"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- --header='content-type: application/json' --post-data='{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"eth_chainId\",\"params\":[]}' http://127.0.0.1:8545 || exit 1"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  deployer:
+    build: ./contracts
+    command: ["npx", "hardhat", "run", "scripts/deploy.js", "--network", "localhost"]
+    environment:
+      LOCAL_RPC_URL: http://chain:8545
+      DEPLOYMENTS_DIR: /deployments
+    volumes:
+      - deployments:/deployments
+    depends_on:
+      chain:
+        condition: service_healthy
+    restart: "no"
+
+  rl-engine:
+    build: ./rl-engine
+    environment:
+      HOST: 0.0.0.0
+      PORT: 8000
+      MODEL_DIR: /app/models
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8000/health"]
+      interval: 10s
       timeout: 5s
       retries: 5
 
-  rl-engine:
-    build:
-      context: ./rl-engine
-      dockerfile: Dockerfile
-    container_name: agentwallet_rl_engine
-    restart: unless-stopped
-    ports:
-      - "8000:8000"
-    environment:
-      - PORT=8000
-      - HOST=0.0.0.0
-      - MODEL_DIR=/app/models
-    volumes:
-      - ./rl-engine/models:/app/models
-      - ./rl-engine/configs:/app/configs
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-
   backend:
     build:
-      context: ./backend
-      dockerfile: Dockerfile
-    container_name: agentwallet_backend
-    restart: unless-stopped
+      context: .
+      dockerfile: backend/Dockerfile
     ports:
-      - "4000:4000"
+      - "127.0.0.1:4000:4000"
     environment:
-      - PORT=4000
-      - NODE_ENV=development
-      - DATABASE_URL=postgresql://${DB_USER:-agentwallet_user}:${DB_PASSWORD:-agentwallet_password}@postgres:5432/${DB_NAME:-agentwallet_db}
-      - RL_SERVICE_URL=http://rl-engine:8000
-      - CHAIN_ID=${CHAIN_ID:-84532}
-      - RPC_URL=${RPC_URL:-https://sepolia.base.org}
-      - AGENT_WALLET_CONTRACT_ADDRESS=${AGENT_WALLET_CONTRACT_ADDRESS:-}
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: 4000
+      APP_ORIGIN: http://localhost:5173
+      CORS_ORIGINS: http://localhost:5173,http://127.0.0.1:5173
+      DATABASE_URL: postgresql://${DB_USER:-agentwallet}:${DB_PASSWORD:-agentwallet_local_only}@postgres:5432/${DB_NAME:-agentwallet}
+      RL_SERVICE_URL: http://rl-engine:8000
+      CHAIN_ID: 31337
+      RPC_URL: http://chain:8545
+      DEPLOYMENT_FILE: /deployments/localhost.json
+      LOCAL_DEV_AGENT_INDEX: 1
+    volumes:
+      - deployments:/deployments:ro
     depends_on:
       postgres:
         condition: service_healthy
       rl-engine:
         condition: service_healthy
+      deployer:
+        condition: service_completed_successfully
 
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile
-    container_name: agentwallet_frontend
-    restart: unless-stopped
+      args:
+        VITE_API_URL: http://localhost:4000/api
     ports:
-      - "5173:5173"
-    environment:
-      - VITE_API_URL=http://localhost:4000/api
-      - VITE_CHAIN_ID=${CHAIN_ID:-84532}
-      - VITE_RPC_URL=${RPC_URL:-https://sepolia.base.org}
-      - VITE_CONTRACT_ADDRESS=${AGENT_WALLET_CONTRACT_ADDRESS:-}
+      - "127.0.0.1:5173:5173"
     depends_on:
       - backend
 
 volumes:
   postgres_data:
+  deployments:

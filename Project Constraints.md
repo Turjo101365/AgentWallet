@@ -12,7 +12,7 @@ As a direct consequence:
 - The smart contract (`AgentWallet.sol`) could not be deployed to the live public **Base Sepolia Testnet** (Chain ID: `84532`) via **Remix IDE** using an **Injected Provider (MetaMask)**.
 - Live on-chain transaction execution and block explorer (`sepolia.basescan.org`) transaction indexing could not be demonstrated in a live public network environment.
 
-To maintain engineering momentum and verify 100% of the project's logic, the architecture was designed with **deterministic local fallbacks**, **Hardhat simulated network nodes**, and an **in-memory mock blockchain adapter** that allows the entire end-to-end pipeline (Reinforcement Learning -> Backend Orchestration -> Safety Guardrails -> Frontend Dashboard) to function without requiring live testnet gas.
+> **Correction (Phase 1, 2026-10-15):** an earlier version of this document described an "in-memory mock blockchain adapter" and "mock transaction hashes". No such code existed, and none is used now. Instead, the whole pipeline runs against a **real local Hardhat chain (chain id 31337)** with real signed transactions and verified receipts. See `docs/TEST_RESULTS.md` for the evidence.
 
 ---
 
@@ -39,7 +39,7 @@ Acquiring testnet Ether on modern Layer 2 networks (such as Base Sepolia and Arb
    - The contract cannot establish a live testnet contract address (`AGENT_WALLET_CONTRACT_ADDRESS`).
    - Daily spending limit tracking cannot be stored in EVM storage slots on Base Sepolia.
 3. **MetaMask Transaction Signing & Broadcast:**
-   - When the frontend human-in-the-loop (HITL) interface prompts MetaMask to execute `approveTransaction(...)`, MetaMask warns of insufficient funds and disables the "Confirm" action.
+   - When the frontend human-in-the-loop (HITL) interface prompts MetaMask to approve a proposal, MetaMask warns of insufficient funds and disables the "Confirm" action.
 
 ---
 
@@ -76,16 +76,16 @@ flowchart TD
   cd contracts
   npx hardhat test
   ```
-  *(Result: 6 passing tests, 100% core contract logic verified).*
+  *(Result at Phase 1: 30 passing tests. Passing tests are not proof of safety; see docs/SECURITY_FINDINGS.md.)*
 
 ### 3.2 Remix VM (Local Simulation)
 - While the contract could not be deployed to Base Sepolia, it can be seamlessly tested in **Remix IDE** by switching the environment from `Injected Provider - MetaMask` to **`Remix VM (Cancun)`** or **`Remix VM (Shanghai)`**.
-- This enables manual interactive testing of `deposit()`, `executeTransaction()`, and `updateLimits()` within the browser's local sandbox without requiring faucet coins.
+- This enables manual interactive testing of `deposit()`, `setRecipient()`, `setTokenPolicy()` and `executeTransfer()` (from the agent account) within the browser's local sandbox without requiring faucet coins.
 
-### 3.3 Backend Simulated Blockchain Service
-- The Express orchestrator (`backend/src/services/blockchainService.js`) and safety engine (`safetyService.js`) contain resilient mock fallbacks:
-  - If no RPC node is connected or the contract address is set to mock mode, the backend constructs valid Ethereum ABI-encoded calldata (`0x...`), generates cryptographically structured mock transaction hashes, and verifies state transitions without throwing uncaught network exceptions.
-  - This enables full testing of the **180-second TTL proposal lifecycle** and **deterministic guardrails**.
+### 3.3 Local chain instead of mocks
+- `npm run chain` + `npm run deploy:local` start a Hardhat node (31337) and deploy the contract, a test-only mUSDC token, funding, limits and demo recipients.
+- The backend executes real `executeTransfer` transactions with the agent key and marks them confirmed only after verifying the receipt.
+- `tests/e2e/local-chain.e2e.test.js` runs the whole stack, including the real RL engine process.
 
 ### 3.4 Gymnasium RL Simulation (`WalletEnv`)
 - The Reinforcement Learning microservice (`rl-engine/app/environment/wallet_env.py`) operates entirely in a simulated Markov Decision Process (MDP).
@@ -97,17 +97,17 @@ flowchart TD
 
 | Constraint Category | Specific Limitation | Impact & Resolution |
 |---|---|---|
-| **Custody Boundary** | **Zero Server-Side Custody** | The backend cannot sign or broadcast transactions on behalf of the user. Every mutation must originate from the operator's browser wallet (MetaMask). If the operator has no funds, the backend cannot sponsor gas without a relayer. |
-| **Model Checkpoints** | **No Checked-In Binaries** | Heavy `.zip` neural weight checkpoints were excluded from Git to prevent repository bloat. Both PPO and DQN engines include deterministic heuristic fallbacks that mirror trained agent behavior when checkpoints are not loaded. |
+| **Custody Boundary** | **No owner key on the server** | The backend holds only a limited agent key that the contract restricts to `executeTransfer` within caps and to allowlisted recipients. On Base Sepolia that agent key needs a little testnet ETH for gas. |
+| **Model Checkpoints** | **No trained checkpoints exist** | PPO and DQN run a declared rule-based fallback (`policySource: heuristic_fallback`, no confidence). It does not mirror any trained behaviour. |
 | **Compute & Hardware** | **Local CPU RL Rollouts** | RL training scripts (`train_ppo.py`, `train_dqn.py`) are configured for local CPU execution (single environment worker) rather than multi-GPU distributed clusters. |
-| **Single-Agent Scope** | **Serial Proposal Processing** | The orchestrator processes one active proposal per session at a time to prevent race conditions during human review. |
+| **Single-Instance Backend** | **In-process locks** | Approval and execution mutexes and rate limits are per process; run one backend instance. |
 | **Network Configuration** | **Single-Chain Calibration** | Financial constants ($0.01\text{ ETH}$ limit, $0.05\text{ ETH}$ daily cap, gas thresholds) are calibrated specifically for Base Sepolia and Ethereum L2 economics. |
 
 ---
 
 ## 5. Roadmap to Live Testnet Deployment (When Faucet Funds are Available)
 
-Once testnet ETH is obtained through a working faucet or cross-chain bridge, the transition to live Base Sepolia requires zero code changes:
+Once testnet ETH is obtained through a working faucet or cross-chain bridge, the transition to live Base Sepolia requires configuration only (no code changes are expected; this is unverified until a real deployment):
 
 1. **Obtain Base Sepolia ETH:**
    - Acquire Ethereum Sepolia ETH via [sepoliafaucet.com](https://sepoliafaucet.com).
@@ -115,9 +115,9 @@ Once testnet ETH is obtained through a working faucet or cross-chain bridge, the
 2. **Deploy via Remix / Hardhat:**
    - In Remix IDE, select `Injected Provider - MetaMask`.
    - Confirm that MetaMask is connected to **Base Sepolia** (Network ID: `84532`, RPC: `https://sepolia.base.org`).
-   - Deploy `AgentWallet.sol` with desired parameters (`dailyLimit = 50000000000000000`, `txLimit = 10000000000000000`).
+   - Deploy with `cd contracts && CONFIRM_PUBLIC_DEPLOY=yes npm run deploy:base_sepolia` (constructor: owner, agent, native per-tx cap, native daily cap).
 3. **Update Environment Variable:**
-   - Copy the deployed contract address into `backend/.env`:
+   - Copy the deployed contract address into `backend/.env` along with `CHAIN_ID=84532`, a dedicated agent key and `ALLOW_PUBLIC_TESTNET_EXECUTION=true` (after explicit approval):
      ```env
      AGENT_WALLET_CONTRACT_ADDRESS=0xYourDeployedContractAddressHere
      ```
@@ -126,9 +126,9 @@ Once testnet ETH is obtained through a working faucet or cross-chain bridge, the
      cd backend && npm run dev
      ```
 4. **Broadcast Live Transactions:**
-   - Approve proposals directly through the React dashboard, signing live gas-funded transactions in MetaMask.
+   - Approve proposals in the dashboard with an EIP-712 signature; the backend agent key broadcasts the transfer.
 
 ---
 
 > [!NOTE]
-> All core logic, safety invariant verifications, smart contract unit tests, API communication contracts, and reinforcement learning policy evaluations remain fully verified and operational within the local and simulated monorepo architecture.
+> What is and is not verified is tracked in `docs/IMPLEMENTATION_STATUS.md`. Base Sepolia remains unverified until an approved deployment happens.

@@ -1,5 +1,7 @@
 # AgentWallet — Project Scope & Boundaries
 
+> **Status note (Phase 1):** this is design background. No trained PPO/DQN checkpoint exists yet; the engine runs a declared heuristic fallback. Current status: [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md).
+
 ## 1. Executive Summary
 
 **AgentWallet** is an autonomous AI-powered cryptocurrency wallet management system that unites modern Reinforcement Learning (PPO and DQN), EVM smart contract guardrails, and non-custodial human authorization.

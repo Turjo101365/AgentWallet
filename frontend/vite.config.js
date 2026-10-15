@@ -9,6 +9,8 @@ export default defineConfig({
   },
   test: {
     globals: true,
+    include: ['tests/**/*.test.{js,jsx}'],
     environment: 'jsdom',
   },
 });
+

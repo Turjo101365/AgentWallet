@@ -1,19 +1,23 @@
 {
   "name": "agentwallet-monorepo",
-  "version": "1.0.0",
-  "description": "AgentWallet — Autonomous Wallet Decision Support powered by Reinforcement Learning & Smart Contracts",
+  "version": "1.1.0",
+  "description": "AgentWallet: policy-bounded autonomous treasury agent with on-chain limits",
   "private": true,
   "type": "module",
   "scripts": {
+    "chain": "cd contracts && npx hardhat node",
+    "deploy:local": "cd contracts && npx hardhat run scripts/deploy.js --network localhost",
+    "dev:backend": "cd backend && npm run dev",
     "dev:frontend": "cd frontend && npm run dev",
-    "dev:backend": "cd backend && npm run start",
-    "dev:rl": "cd rl-engine && uvicorn app.main:app --reload --port 8000",
+    "dev:rl": "node rl-engine/scripts/python.js -m uvicorn app.main:app --port 8000",
     "build:frontend": "cd frontend && npm run build",
     "test:contracts": "cd contracts && npm test",
-    "test:backend": "cd backend && npm test",
+    "test:backend": "cd contracts && npx hardhat compile --quiet && cd ../backend && npm test",
     "test:frontend": "cd frontend && npm test",
-    "test:rl": "cd rl-engine && python3 -m unittest discover -s tests -p 'test_*.py'",
-    "test:integration": "node --test tests/integration/*.js tests/security/*.js tests/e2e/*.js",
-    "test": "npm run test:contracts && npm run test:backend && npm run test:frontend && npm run test:rl && npm run test:integration"
+    "test:rl": "node rl-engine/scripts/python.js -m unittest discover -s tests -p \"test_*.py\"",
+    "test:e2e": "node --test tests/e2e/",
+    "test": "npm run test:contracts && npm run test:backend && npm run test:frontend && npm run test:rl && npm run test:e2e",
+    "train:ppo": "node rl-engine/scripts/python.js -m app.training.train --algo ppo",
+    "train:dqn": "node rl-engine/scripts/python.js -m app.training.train --algo dqn"
   }
 }

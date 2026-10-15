@@ -2,25 +2,35 @@ import React from 'react';
 import { createBrowserRouter } from 'react-router-dom';
 import { AppLayout } from '../components/layout/AppLayout.jsx';
 import { Overview } from '../pages/Overview.jsx';
-import { Wallet } from '../pages/Wallet.jsx';
-import { AgentActivity } from '../pages/AgentActivity.jsx';
-import { TransactionHistory } from '../pages/TransactionHistory.jsx';
-import { SmartContracts } from '../pages/SmartContracts.jsx';
-import { RLInsights } from '../pages/RLInsights.jsx';
-import { Settings } from '../pages/Settings.jsx';
+import { Proposals } from '../pages/Proposals.jsx';
+import { Treasury } from '../pages/Treasury.jsx';
+import { Controls } from '../pages/Controls.jsx';
+import { Transactions } from '../pages/Transactions.jsx';
+import { Audit } from '../pages/Audit.jsx';
+import { RLAdvisory } from '../pages/RLAdvisory.jsx';
+import { Security } from '../pages/Security.jsx';
+import { Agent } from '../pages/Agent.jsx';
+import { Automation } from '../pages/Automation.jsx';
+import { Portfolio } from '../pages/Portfolio.jsx';
 
-export const router = createBrowserRouter([
+export const routes = [
   {
     path: '/',
     element: <AppLayout />,
     children: [
       { index: true, element: <Overview /> },
-      { path: 'wallet', element: <Wallet /> },
-      { path: 'agent', element: <AgentActivity /> },
-      { path: 'transactions', element: <TransactionHistory /> },
-      { path: 'contracts', element: <SmartContracts /> },
-      { path: 'rl-insights', element: <RLInsights /> },
-      { path: 'settings', element: <Settings /> },
+      { path: 'agent', element: <Agent /> },
+      { path: 'proposals', element: <Proposals /> },
+      { path: 'automation', element: <Automation /> },
+      { path: 'portfolio', element: <Portfolio /> },
+      { path: 'treasury', element: <Treasury /> },
+      { path: 'controls', element: <Controls /> },
+      { path: 'transactions', element: <Transactions /> },
+      { path: 'audit', element: <Audit /> },
+      { path: 'rl', element: <RLAdvisory /> },
+      { path: 'security', element: <Security /> },
     ],
   },
-]);
+];
+
+export const router = createBrowserRouter(routes);
