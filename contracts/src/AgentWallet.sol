@@ -6,23 +6,44 @@ import {Pausable} from "@openzeppelin/contracts/utils/Pausable.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {SignatureChecker} from "@openzeppelin/contracts/utils/cryptography/SignatureChecker.sol";
+import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 
 /**
- * @title AgentWallet
+ * @title AgentWallet (v2)
  * @notice Treasury wallet that lets a limited-authority agent key move funds only to
- *         owner-approved recipients, only in owner-enabled assets, and only within
- *         per-transaction and per-day caps. The owner keeps full custody.
+ *         owner-approved recipients, only in owner-enabled assets, only within per-transaction
+ *         and per-day caps, and only with the owner's EIP-712 signature for that transfer or a
+ *         bounded task grant. The owner keeps full custody.
  *
  * Roles
  *  - owner: full custody. Manages the agent, recipients, token policies, pause, withdrawals.
+ *           Signs transfer approvals and task grants off-chain (EIP-712; EOA or ERC-1271).
  *           Two-step transfer (Ownable2Step); renouncing is disabled.
- *  - agent: may only call executeTransfer(). Must never be the owner. Revocable at any time.
+ *  - agent: may only call executeApprovedTransfer() / executeGrantTransfer(), each of which
+ *           verifies the current owner's signature on-chain. Must never be the owner.
+ *           Revocable at any time.
+ *
+ * v1 (deployed on Ethereum Sepolia at 0x8A44716Efabb6Ce401291B91D4427149CaF956a6, frozen in
+ * contracts/legacy/) let the agent call executeTransfer() with no signature; the owner's approval
+ * was checked by the backend only. v2 removes that function. The EIP-712 domains and types are
+ * unchanged from what the v1 backend already asked owners to sign.
+ *
+ * Signed authorizations
+ *  - ApproveTransfer: one transfer; executable once (intent id) and only until its signed deadline.
+ *  - AuthorizeTask:   up to maxRuns transfers and/or maxTotal (0 = that bound unused, but at least
+ *                     one must be set) of exactly amountPerRun to one recipient until validUntil.
+ *                     The schedule (scheduleHash, executionWindowSeconds) is enforced off-chain;
+ *                     on-chain the agent can at most use the grant's remaining runs and total early.
+ *  - Signatures are checked against owner() at execution time, so changing the owner voids every
+ *    outstanding approval and grant. The owner can revoke one grant (revokeGrant) or one approved
+ *    intent (cancelIntent) without stopping the agent.
  *
  * Accounting
  *  - Assets are keyed by token address; address(0) is native ETH.
  *  - Daily caps use UTC calendar days (block.timestamp / 1 days), not a rolling 24h window.
  *    Up to 2x the daily cap can therefore move within 24h across a day boundary.
- *  - Every executeTransfer carries an off-chain intent id; each id can execute at most once.
+ *  - Every transfer carries an off-chain intent id; each id can execute at most once.
  *
  * Not upgradeable by design: a proxy would add an admin key able to replace the limit logic,
  * which defeats the purpose of on-chain limits. Migrations are done by redeploying.
@@ -61,6 +82,63 @@ contract AgentWallet is Ownable2Step, Pausable, ReentrancyGuard {
     error SwapNotAllowed();
     error SwapExpired();
     error InvalidSwapOutput();
+
+    /// @notice Interface version, so off-chain code can tell v2 from the frozen v1 (which has no such getter).
+    uint256 public constant VERSION = 2;
+
+    /// @notice One owner-approved transfer, exactly as signed (EIP-712 "ApproveTransfer").
+    struct TransferApproval {
+        string proposalId;
+        bytes32 intentId;
+        address token;
+        address recipient;
+        uint256 amount;
+        uint256 deadline;
+    }
+
+    /// @notice A bounded autonomous payment mandate, exactly as signed (EIP-712 "AuthorizeTask").
+    struct TaskGrant {
+        string taskId;
+        address token;
+        address recipient;
+        uint256 amountPerRun;
+        uint256 maxRuns;
+        uint256 maxTotal;
+        uint256 validUntil;
+        bytes32 scheduleHash;
+        uint256 executionWindowSeconds;
+    }
+
+    bytes32 private constant DOMAIN_TYPEHASH =
+        keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
+    bytes32 private constant APPROVAL_DOMAIN_NAME = keccak256("AgentWallet Operator Approval");
+    bytes32 private constant GRANT_DOMAIN_NAME = keccak256("AgentWallet Task Authorization");
+    bytes32 private constant DOMAIN_VERSION = keccak256("1");
+    bytes32 public constant APPROVE_TRANSFER_TYPEHASH = keccak256(
+        "ApproveTransfer(string proposalId,bytes32 intentId,address token,address recipient,uint256 amount,uint256 deadline)"
+    );
+    bytes32 public constant AUTHORIZE_TASK_TYPEHASH = keccak256(
+        "AuthorizeTask(string taskId,address token,address recipient,uint256 amountPerRun,uint256 maxRuns,uint256 maxTotal,uint256 validUntil,bytes32 scheduleHash,uint256 executionWindowSeconds)"
+    );
+
+    mapping(bytes32 grantDigest => uint256 runs) public grantRuns;
+    mapping(bytes32 grantDigest => uint256 amount) public grantSpent;
+    mapping(bytes32 grantDigest => bool revoked) public grantRevoked;
+    mapping(bytes32 intentId => bool cancelled) public cancelledIntents;
+
+    event GrantRunExecuted(bytes32 indexed grantDigest, bytes32 indexed intentId, uint256 runs, uint256 spent);
+    event GrantRevoked(bytes32 indexed grantDigest);
+    event IntentCancelled(bytes32 indexed intentId);
+
+    error ApprovalExpired(uint256 deadline);
+    error InvalidOwnerSignature();
+    error GrantExpired(uint256 validUntil);
+    error GrantIsRevoked(bytes32 grantDigest);
+    error GrantExhausted(bytes32 grantDigest);
+    error UnboundedGrant();
+    error IntentIsCancelled(bytes32 intentId);
+    /// @notice Raised by simulateTransfer when the full transfer, including the send, would succeed.
+    error SimulationSucceeded();
 
     address public agent;
     mapping(address recipient => bool allowed) public isRecipientAllowed;
@@ -143,45 +221,99 @@ contract AgentWallet is Ownable2Step, Pausable, ReentrancyGuard {
     // ---------------------------------------------------------------------
 
     /**
-     * @notice Transfer `amount` of `token` (address(0) = ETH) to an allowlisted recipient.
-     * @dev Checks-effects-interactions plus nonReentrant. The intent id is consumed before
-     *      the external call, so a replayed or re-entered intent always reverts.
+     * @notice Executes one transfer the owner approved with an EIP-712 "ApproveTransfer" signature.
+     * @dev The signature is verified against the CURRENT owner() (EOA or ERC-1271), the signed deadline
+     *      is binding, and the intent id makes it single-use. All v1 limits still apply.
      */
-    function executeTransfer(bytes32 intentId, address token, address recipient, uint256 amount)
+    function executeApprovedTransfer(TransferApproval calldata a, bytes calldata ownerSignature)
         external
         onlyAgent
         whenNotPaused
         nonReentrant
     {
-        if (intentId == bytes32(0)) revert ZeroIntent();
-        if (executedIntents[intentId]) revert IntentAlreadyExecuted(intentId);
-        if (!isRecipientAllowed[recipient]) revert RecipientNotAllowed(recipient);
+        if (block.timestamp > a.deadline) revert ApprovalExpired(a.deadline);
+        if (!SignatureChecker.isValidSignatureNow(owner(), approvalDigest(a), ownerSignature)) revert InvalidOwnerSignature();
+        _executeTransfer(a.intentId, a.token, a.recipient, a.amount);
+    }
 
-        TokenPolicy memory policy = _tokenPolicies[token];
-        if (!policy.enabled) revert TokenNotEnabled(token);
-        if (amount == 0) revert InvalidAmount();
-        if (amount > policy.perTxLimit) revert PerTxLimitExceeded(amount, policy.perTxLimit);
+    /**
+     * @notice Executes one run of an owner-signed task grant ("AuthorizeTask").
+     * @dev Run count and total are tracked per grant digest on-chain, so a compromised agent can never
+     *      exceed what the owner signed. `intentId` is chosen off-chain per run and is single-use.
+     */
+    function executeGrantTransfer(TaskGrant calldata g, bytes calldata ownerSignature, bytes32 intentId)
+        external
+        onlyAgent
+        whenNotPaused
+        nonReentrant
+    {
+        if (block.timestamp > g.validUntil) revert GrantExpired(g.validUntil);
+        if (g.maxRuns == 0 && g.maxTotal == 0) revert UnboundedGrant();
+        bytes32 digest = grantDigest(g);
+        if (grantRevoked[digest]) revert GrantIsRevoked(digest);
+        if (!SignatureChecker.isValidSignatureNow(owner(), digest, ownerSignature)) revert InvalidOwnerSignature();
 
-        uint256 day = currentDay();
-        uint256 spent = spentPerDay[token][day];
-        if (spent + amount > policy.dailyLimit) {
-            revert DailyLimitExceeded(amount, spent >= policy.dailyLimit ? 0 : policy.dailyLimit - spent);
-        }
+        uint256 runs = grantRuns[digest] + 1;
+        uint256 spent = grantSpent[digest] + g.amountPerRun;
+        if ((g.maxRuns != 0 && runs > g.maxRuns) || (g.maxTotal != 0 && spent > g.maxTotal)) revert GrantExhausted(digest);
+        grantRuns[digest] = runs;
+        grantSpent[digest] = spent;
 
-        uint256 available = _balanceOf(token);
-        if (available < amount) revert InsufficientBalance(amount, available);
+        _executeTransfer(intentId, g.token, g.recipient, g.amountPerRun);
+        emit GrantRunExecuted(digest, intentId, runs, spent);
+    }
 
-        executedIntents[intentId] = true;
-        uint256 spentToday = spent + amount;
-        spentPerDay[token][day] = spentToday;
+    /**
+     * @notice Full pre-signature simulation for the agent: runs every check AND the actual ETH/token send,
+     *         then always reverts, so no state or funds can ever change. It reverts with SimulationSucceeded()
+     *         if the transfer would succeed, otherwise with the real error (e.g. NativeTransferFailed for a
+     *         recipient contract that rejects ETH). Use with eth_call only.
+     */
+    function simulateTransfer(bytes32 intentId, address token, address recipient, uint256 amount) external {
+        _simulateTransfer(intentId, token, recipient, amount);
+        revert SimulationSucceeded();
+    }
 
-        _send(token, recipient, amount);
-        emit TransferExecuted(intentId, token, recipient, amount, day, spentToday);
+    /// @dev Same modifiers as the real entry points, so the simulation sees the same agent, pause and re-entrancy rules.
+    function _simulateTransfer(bytes32 intentId, address token, address recipient, uint256 amount)
+        private
+        onlyAgent
+        whenNotPaused
+        nonReentrant
+    {
+        _executeTransfer(intentId, token, recipient, amount);
+    }
+
+    /**
+     * @notice Dry run of the transfer limits for the agent (call with from = agent). Reverts with the same
+     *      errors as execution but checks no signature; used to simulate a proposal before it is signed.
+     */
+    function checkTransfer(bytes32 intentId, address token, address recipient, uint256 amount)
+        external
+        view
+        onlyAgent
+        whenNotPaused
+    {
+        _checkTransfer(intentId, token, recipient, amount);
     }
 
     // ---------------------------------------------------------------------
     // Owner administration
     // ---------------------------------------------------------------------
+
+    /// @notice Revokes one signed task grant on-chain; its remaining runs can never execute.
+    function revokeGrant(bytes32 grantDigest_) external onlyOwner {
+        grantRevoked[grantDigest_] = true;
+        emit GrantRevoked(grantDigest_);
+    }
+
+    /// @notice Cancels one not-yet-executed intent, voiding an owner approval signed for it.
+    function cancelIntent(bytes32 intentId) external onlyOwner {
+        if (intentId == bytes32(0)) revert ZeroIntent();
+        if (executedIntents[intentId]) revert IntentAlreadyExecuted(intentId);
+        cancelledIntents[intentId] = true;
+        emit IntentCancelled(intentId);
+    }
 
     /// @notice Only the owner can approve router authority. No router is enabled by default.
     function setSwapRouter(address router, bool allowed) external onlyOwner {
@@ -300,6 +432,23 @@ contract AgentWallet is Ownable2Step, Pausable, ReentrancyGuard {
     // Views
     // ---------------------------------------------------------------------
 
+    /// @notice EIP-712 digest of a transfer approval (domain "AgentWallet Operator Approval", version "1").
+    function approvalDigest(TransferApproval calldata a) public view returns (bytes32) {
+        bytes32 structHash = keccak256(
+            abi.encode(APPROVE_TRANSFER_TYPEHASH, keccak256(bytes(a.proposalId)), a.intentId, a.token, a.recipient, a.amount, a.deadline)
+        );
+        return MessageHashUtils.toTypedDataHash(_domainSeparator(APPROVAL_DOMAIN_NAME), structHash);
+    }
+
+    /// @notice EIP-712 digest of a task grant (domain "AgentWallet Task Authorization", version "1").
+    function grantDigest(TaskGrant calldata g) public view returns (bytes32) {
+        // Encoded in two halves to stay within the legacy code generator's stack limit. Every member is a
+        // static 32-byte word, so the concatenation equals abi.encode of the whole struct.
+        bytes memory head = abi.encode(AUTHORIZE_TASK_TYPEHASH, keccak256(bytes(g.taskId)), g.token, g.recipient, g.amountPerRun);
+        bytes memory tail = abi.encode(g.maxRuns, g.maxTotal, g.validUntil, g.scheduleHash, g.executionWindowSeconds);
+        return MessageHashUtils.toTypedDataHash(_domainSeparator(GRANT_DOMAIN_NAME), keccak256(bytes.concat(head, tail)));
+    }
+
     function currentDay() public view returns (uint256) {
         return block.timestamp / 1 days;
     }
@@ -326,6 +475,48 @@ contract AgentWallet is Ownable2Step, Pausable, ReentrancyGuard {
     // ---------------------------------------------------------------------
     // Internal
     // ---------------------------------------------------------------------
+
+    /// @dev Computed per call from block.chainid and address(this), so it stays correct on a fork.
+    function _domainSeparator(bytes32 nameHash) private view returns (bytes32) {
+        return keccak256(abi.encode(DOMAIN_TYPEHASH, nameHash, DOMAIN_VERSION, block.chainid, address(this)));
+    }
+
+    /// @dev The v1 executeTransfer checks, unchanged in order, plus owner-cancelled intents.
+    function _checkTransfer(bytes32 intentId, address token, address recipient, uint256 amount)
+        private
+        view
+        returns (uint256 day, uint256 spent)
+    {
+        if (intentId == bytes32(0)) revert ZeroIntent();
+        if (executedIntents[intentId]) revert IntentAlreadyExecuted(intentId);
+        if (cancelledIntents[intentId]) revert IntentIsCancelled(intentId);
+        if (!isRecipientAllowed[recipient]) revert RecipientNotAllowed(recipient);
+
+        TokenPolicy memory policy = _tokenPolicies[token];
+        if (!policy.enabled) revert TokenNotEnabled(token);
+        if (amount == 0) revert InvalidAmount();
+        if (amount > policy.perTxLimit) revert PerTxLimitExceeded(amount, policy.perTxLimit);
+
+        day = currentDay();
+        spent = spentPerDay[token][day];
+        if (spent + amount > policy.dailyLimit) {
+            revert DailyLimitExceeded(amount, spent >= policy.dailyLimit ? 0 : policy.dailyLimit - spent);
+        }
+
+        uint256 available = _balanceOf(token);
+        if (available < amount) revert InsufficientBalance(amount, available);
+    }
+
+    /// @dev Checks-effects-interactions: the intent is consumed and the cap charged before the external call.
+    function _executeTransfer(bytes32 intentId, address token, address recipient, uint256 amount) private {
+        (uint256 day, uint256 spent) = _checkTransfer(intentId, token, recipient, amount);
+        executedIntents[intentId] = true;
+        uint256 spentToday = spent + amount;
+        spentPerDay[token][day] = spentToday;
+
+        _send(token, recipient, amount);
+        emit TransferExecuted(intentId, token, recipient, amount, day, spentToday);
+    }
 
     function _setTokenPolicy(address token, bool enabled, uint128 perTxLimit, uint128 dailyLimit) internal {
         if (token != NATIVE_TOKEN && (token == address(this) || token.code.length == 0)) revert InvalidToken(token);

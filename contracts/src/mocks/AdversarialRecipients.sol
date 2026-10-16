@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.24;
 
-interface IAgentWallet {
-    function executeTransfer(bytes32 intentId, address token, address recipient, uint256 amount) external;
-}
-
 /// @notice Test-only recipient that rejects all native transfers.
 contract RevertingRecipient {
     receive() external payable {
@@ -13,29 +9,34 @@ contract RevertingRecipient {
 }
 
 /**
- * @notice Test-only contract acting as BOTH agent and recipient. On receiving ETH it tries to
- *         re-enter executeTransfer with a fresh intent id and records whether that was blocked.
+ * @notice Test-only contract acting as BOTH agent and recipient. It sends a pre-built agent call
+ *         (e.g. executeApprovedTransfer with a valid owner signature); on receiving ETH it tries a second
+ *         pre-built call (a fresh, validly signed transfer) and records whether that re-entry was blocked.
  */
 contract ReentrantAgent {
-    IAgentWallet public immutable wallet;
+    address public immutable wallet;
+    bytes private reentryCall;
     bool public reentryAttempted;
     bool public reentryBlocked;
 
     constructor(address wallet_) {
-        wallet = IAgentWallet(wallet_);
+        wallet = wallet_;
     }
 
-    function run(bytes32 intentId, uint256 amount) external {
-        wallet.executeTransfer(intentId, address(0), address(this), amount);
+    function run(bytes calldata firstCall, bytes calldata secondCall) external {
+        reentryCall = secondCall;
+        (bool ok, bytes memory ret) = wallet.call(firstCall);
+        if (!ok) {
+            assembly {
+                revert(add(ret, 32), mload(ret))
+            }
+        }
     }
 
     receive() external payable {
         if (reentryAttempted) return;
         reentryAttempted = true;
-        try wallet.executeTransfer(keccak256("reentry"), address(0), address(this), msg.value) {
-            reentryBlocked = false;
-        } catch {
-            reentryBlocked = true;
-        }
+        (bool ok,) = wallet.call(reentryCall);
+        reentryBlocked = !ok;
     }
 }

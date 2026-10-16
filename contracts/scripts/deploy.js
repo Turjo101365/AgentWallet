@@ -6,7 +6,7 @@
  *   Also deploys a test-only MockERC20 ("mUSDC", 6 decimals), funds the wallet and
  *   configures ETH + mUSDC limits so the full pipeline can be exercised immediately.
  *
- * Base Sepolia (chain 84532):
+ * Base Sepolia (chain 84532) and Ethereum Sepolia (chain 11155111):
  *   Refuses to run unless CONFIRM_PUBLIC_DEPLOY=yes and OWNER_ADDRESS / AGENT_ADDRESS are set.
  *   Deploys only AgentWallet; no mock tokens, no funding, no recipients.
  */
@@ -16,7 +16,9 @@ const path = require("path");
 
 const { ethers, network } = hre;
 const LOCAL_CHAIN_ID = 31337n;
-const PUBLIC_CHAIN_IDS = { 84532n: "base_sepolia" };
+const PUBLIC_CHAIN_IDS = { 84532n: "base_sepolia", 11155111n: "sepolia" };
+// Per-network cap variables, e.g. BASE_SEPOLIA_NATIVE_PER_TX_ETH or SEPOLIA_NATIVE_PER_TX_ETH.
+const CAP_PREFIX = { base_sepolia: "BASE_SEPOLIA", sepolia: "SEPOLIA" };
 
 function requireAddress(name) {
   const value = process.env[name];
@@ -71,6 +73,7 @@ async function deployLocal(chainId) {
     network: "localhost",
     chainId: Number(chainId),
     contractAddress: walletAddress,
+    contractVersion: Number(await wallet.VERSION()),
     deployBlock: deployReceipt.blockNumber,
     owner: owner.address,
     agent: agent.address,
@@ -99,8 +102,11 @@ async function deployPublic(chainId, name) {
   const owner = requireAddress("OWNER_ADDRESS");
   const agent = requireAddress("AGENT_ADDRESS");
   if (owner === agent) throw new Error("OWNER_ADDRESS and AGENT_ADDRESS must differ");
-  const nativePerTx = ethers.parseEther(process.env.NATIVE_PER_TX_ETH || "0.001");
-  const nativeDaily = ethers.parseEther(process.env.NATIVE_DAILY_ETH || "0.005");
+  // Separate names from the local NATIVE_* caps: contracts/.env is also loaded for local deploys,
+  // so public caps written there must never change the local demo's limits.
+  const prefix = CAP_PREFIX[name];
+  const nativePerTx = ethers.parseEther(process.env[`${prefix}_NATIVE_PER_TX_ETH`] || "0.001");
+  const nativeDaily = ethers.parseEther(process.env[`${prefix}_NATIVE_DAILY_ETH`] || "0.005");
 
   const Wallet = await ethers.getContractFactory("AgentWallet", deployer);
   const wallet = await Wallet.deploy(owner, agent, nativePerTx, nativeDaily);
@@ -110,6 +116,7 @@ async function deployPublic(chainId, name) {
     network: name,
     chainId: Number(chainId),
     contractAddress: await wallet.getAddress(),
+    contractVersion: Number(await wallet.VERSION()),
     deployBlock: receipt.blockNumber,
     deployTxHash: receipt.hash,
     owner,
@@ -131,7 +138,7 @@ async function main() {
   } else if (PUBLIC_CHAIN_IDS[chainId]) {
     record = await deployPublic(chainId, PUBLIC_CHAIN_IDS[chainId]);
   } else {
-    throw new Error(`Unsupported chain id ${chainId}. Only 31337 (local) and 84532 (Base Sepolia) are allowed.`);
+    throw new Error(`Unsupported chain id ${chainId}. Only 31337 (local), 84532 (Base Sepolia) and 11155111 (Ethereum Sepolia) are allowed.`);
   }
 
   const file = writeDeployment(record);

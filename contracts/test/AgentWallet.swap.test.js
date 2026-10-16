@@ -1,6 +1,7 @@
 const { expect } = require('chai');
 const { ethers } = require('hardhat');
 const { loadFixture, time } = require('@nomicfoundation/hardhat-network-helpers');
+const { agentTransfer } = require('./helpers/approvals');
 
 describe('Owner approved policy bounded swaps (local router fixture)', function () {
   async function fixture() {
@@ -22,8 +23,8 @@ describe('Owner approved policy bounded swaps (local router fixture)', function 
     expect(await a.balanceOf(wallet.target)).to.equal(9900); expect(await b.balanceOf(wallet.target)).to.equal(200);
     expect(await a.allowance(wallet.target,router.target)).to.equal(0);
     expect(await wallet.spentPerDay(a.target,await wallet.currentDay())).to.equal(100);
-    await expect(wallet.connect(agent).executeTransfer(id,a.target,recipient.address,1)).to.be.revertedWithCustomError(wallet,'IntentAlreadyExecuted');
-    await wallet.connect(agent).executeTransfer(ethers.id('transfer'),a.target,recipient.address,100);
+    await expect(agentTransfer(wallet.connect(agent), id,a.target,recipient.address,1)).to.be.revertedWithCustomError(wallet,'IntentAlreadyExecuted');
+    await agentTransfer(wallet.connect(agent), ethers.id('transfer'),a.target,recipient.address,100);
     await expect(wallet.executeSwap(ethers.id('overdaily'),params)).to.be.revertedWithCustomError(wallet,'DailyLimitExceeded');
   });
   it('agent cannot swap or authorize a router', async () => {

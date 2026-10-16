@@ -36,6 +36,17 @@
       "inputs": [
         {
           "internalType": "uint256",
+          "name": "deadline",
+          "type": "uint256"
+        }
+      ],
+      "name": "ApprovalExpired",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
           "name": "amount",
           "type": "uint256"
         },
@@ -56,6 +67,39 @@
     {
       "inputs": [],
       "name": "ExpectedPause",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "grantDigest",
+          "type": "bytes32"
+        }
+      ],
+      "name": "GrantExhausted",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "validUntil",
+          "type": "uint256"
+        }
+      ],
+      "name": "GrantExpired",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "grantDigest",
+          "type": "bytes32"
+        }
+      ],
+      "name": "GrantIsRevoked",
       "type": "error"
     },
     {
@@ -86,6 +130,17 @@
       "type": "error"
     },
     {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "intentId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "IntentIsCancelled",
+      "type": "error"
+    },
+    {
       "inputs": [],
       "name": "InvalidAddress",
       "type": "error"
@@ -98,6 +153,11 @@
     {
       "inputs": [],
       "name": "InvalidLimits",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "InvalidOwnerSignature",
       "type": "error"
     },
     {
@@ -204,6 +264,11 @@
     },
     {
       "inputs": [],
+      "name": "SimulationSucceeded",
+      "type": "error"
+    },
+    {
+      "inputs": [],
       "name": "SwapExpired",
       "type": "error"
     },
@@ -221,6 +286,11 @@
         }
       ],
       "name": "TokenNotEnabled",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "UnboundedGrant",
       "type": "error"
     },
     {
@@ -302,6 +372,63 @@
         }
       ],
       "name": "EmergencyWithdrawal",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "grantDigest",
+          "type": "bytes32"
+        }
+      ],
+      "name": "GrantRevoked",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "grantDigest",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "intentId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "runs",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "spent",
+          "type": "uint256"
+        }
+      ],
+      "name": "GrantRunExecuted",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "intentId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "IntentCancelled",
       "type": "event"
     },
     {
@@ -550,12 +677,51 @@
     },
     {
       "inputs": [],
+      "name": "APPROVE_TRANSFER_TYPEHASH",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "AUTHORIZE_TASK_TYPEHASH",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
       "name": "NATIVE_TOKEN",
       "outputs": [
         {
           "internalType": "address",
           "name": "",
           "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "VERSION",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
         }
       ],
       "stateMutability": "view",
@@ -578,6 +744,117 @@
           "type": "address"
         }
       ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "proposalId",
+              "type": "string"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "intentId",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "address",
+              "name": "token",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "recipient",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "deadline",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct AgentWallet.TransferApproval",
+          "name": "a",
+          "type": "tuple"
+        }
+      ],
+      "name": "approvalDigest",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "intentId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "cancelIntent",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "intentId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "cancelledIntents",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "cancelled",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "intentId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "recipient",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "checkTransfer",
+      "outputs": [],
       "stateMutability": "view",
       "type": "function"
     },
@@ -627,6 +904,126 @@
         }
       ],
       "name": "emergencyWithdraw",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "proposalId",
+              "type": "string"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "intentId",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "address",
+              "name": "token",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "recipient",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "deadline",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct AgentWallet.TransferApproval",
+          "name": "a",
+          "type": "tuple"
+        },
+        {
+          "internalType": "bytes",
+          "name": "ownerSignature",
+          "type": "bytes"
+        }
+      ],
+      "name": "executeApprovedTransfer",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "taskId",
+              "type": "string"
+            },
+            {
+              "internalType": "address",
+              "name": "token",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "recipient",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "amountPerRun",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maxRuns",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maxTotal",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "validUntil",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "scheduleHash",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "uint256",
+              "name": "executionWindowSeconds",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct AgentWallet.TaskGrant",
+          "name": "g",
+          "type": "tuple"
+        },
+        {
+          "internalType": "bytes",
+          "name": "ownerSignature",
+          "type": "bytes"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "intentId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "executeGrantTransfer",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -698,34 +1095,6 @@
           "internalType": "bytes32",
           "name": "intentId",
           "type": "bytes32"
-        },
-        {
-          "internalType": "address",
-          "name": "token",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "recipient",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "amount",
-          "type": "uint256"
-        }
-      ],
-      "name": "executeTransfer",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "bytes32",
-          "name": "intentId",
-          "type": "bytes32"
         }
       ],
       "name": "executedIntents",
@@ -734,6 +1103,129 @@
           "internalType": "bool",
           "name": "executed",
           "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "taskId",
+              "type": "string"
+            },
+            {
+              "internalType": "address",
+              "name": "token",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "recipient",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "amountPerRun",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maxRuns",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maxTotal",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "validUntil",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "scheduleHash",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "uint256",
+              "name": "executionWindowSeconds",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct AgentWallet.TaskGrant",
+          "name": "g",
+          "type": "tuple"
+        }
+      ],
+      "name": "grantDigest",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "grantDigest",
+          "type": "bytes32"
+        }
+      ],
+      "name": "grantRevoked",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "revoked",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "grantDigest",
+          "type": "bytes32"
+        }
+      ],
+      "name": "grantRuns",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "runs",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "grantDigest",
+          "type": "bytes32"
+        }
+      ],
+      "name": "grantSpent",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
         }
       ],
       "stateMutability": "view",
@@ -859,6 +1351,19 @@
     {
       "inputs": [
         {
+          "internalType": "bytes32",
+          "name": "grantDigest_",
+          "type": "bytes32"
+        }
+      ],
+      "name": "revokeGrant",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
           "internalType": "address",
           "name": "newAgent",
           "type": "address"
@@ -929,6 +1434,34 @@
         }
       ],
       "name": "setTokenPolicy",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "intentId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "recipient",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "simulateTransfer",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"

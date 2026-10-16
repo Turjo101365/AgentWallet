@@ -1,6 +1,7 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers");
+const { signApproval, agentTransfer } = require("./helpers/approvals");
 
 const ETH = ethers.ZeroAddress;
 const e = (v) => ethers.parseEther(v);
@@ -78,10 +79,10 @@ describe("AgentWallet", function () {
     it("rotates and revokes the agent with events", async function () {
       const { wallet, agent, bob, alice } = await loadFixture(deployFixture);
       await expect(wallet.setAgent(bob.address)).to.emit(wallet, "AgentUpdated").withArgs(agent.address, bob.address);
-      await expect(wallet.connect(agent).executeTransfer(intent("a"), ETH, alice.address, e("0.001")))
+      await expect(agentTransfer(wallet.connect(agent), intent("a"), ETH, alice.address, e("0.001")))
         .to.be.revertedWithCustomError(wallet, "NotAgent");
       await expect(wallet.revokeAgent()).to.emit(wallet, "AgentUpdated").withArgs(bob.address, ethers.ZeroAddress);
-      await expect(wallet.connect(bob).executeTransfer(intent("b"), ETH, alice.address, e("0.001")))
+      await expect(agentTransfer(wallet.connect(bob), intent("b"), ETH, alice.address, e("0.001")))
         .to.be.revertedWithCustomError(wallet, "NotAgent");
     });
 
@@ -106,7 +107,7 @@ describe("AgentWallet", function () {
       const { wallet, agent, alice } = await loadFixture(deployFixture);
       const id = intent("pay-alice-1");
       const day = await wallet.currentDay();
-      const tx = wallet.connect(agent).executeTransfer(id, ETH, alice.address, e("0.005"));
+      const tx = agentTransfer(wallet.connect(agent), id, ETH, alice.address, e("0.005"));
       await expect(tx).to.changeEtherBalances([wallet, alice], [-e("0.005"), e("0.005")]);
       await expect(tx).to.emit(wallet, "TransferExecuted").withArgs(id, ETH, alice.address, e("0.005"), day, e("0.005"));
       expect(await wallet.executedIntents(id)).to.equal(true);
@@ -117,12 +118,12 @@ describe("AgentWallet", function () {
     it("rejects non-allowlisted, removed, zero or self recipients", async function () {
       const { wallet, agent, alice, bob } = await loadFixture(deployFixture);
       const a = wallet.connect(agent);
-      await expect(a.executeTransfer(intent("1"), ETH, bob.address, e("0.001")))
+      await expect(agentTransfer(a, intent("1"), ETH, bob.address, e("0.001")))
         .to.be.revertedWithCustomError(wallet, "RecipientNotAllowed").withArgs(bob.address);
       await wallet.setRecipient(alice.address, false);
-      await expect(a.executeTransfer(intent("2"), ETH, alice.address, e("0.001")))
+      await expect(agentTransfer(a, intent("2"), ETH, alice.address, e("0.001")))
         .to.be.revertedWithCustomError(wallet, "RecipientNotAllowed");
-      await expect(a.executeTransfer(intent("3"), ETH, ethers.ZeroAddress, e("0.001")))
+      await expect(agentTransfer(a, intent("3"), ETH, ethers.ZeroAddress, e("0.001")))
         .to.be.revertedWithCustomError(wallet, "RecipientNotAllowed");
       await expect(wallet.setRecipient(ethers.ZeroAddress, true)).to.be.revertedWithCustomError(wallet, "InvalidAddress");
       await expect(wallet.setRecipient(await wallet.getAddress(), true)).to.be.revertedWithCustomError(wallet, "InvalidAddress");
@@ -131,53 +132,53 @@ describe("AgentWallet", function () {
     it("enforces the per-transaction cap at the exact boundary", async function () {
       const { wallet, agent, alice } = await loadFixture(deployFixture);
       const a = wallet.connect(agent);
-      await expect(a.executeTransfer(intent("ok"), ETH, alice.address, e("0.01"))).to.not.be.reverted;
-      await expect(a.executeTransfer(intent("over"), ETH, alice.address, e("0.01") + 1n))
+      await expect(agentTransfer(a, intent("ok"), ETH, alice.address, e("0.01"))).to.not.be.reverted;
+      await expect(agentTransfer(a, intent("over"), ETH, alice.address, e("0.01") + 1n))
         .to.be.revertedWithCustomError(wallet, "PerTxLimitExceeded").withArgs(e("0.01") + 1n, e("0.01"));
     });
 
     it("enforces the daily cap and resets it on the next UTC day", async function () {
       const { wallet, agent, alice } = await loadFixture(deployFixture);
       const a = wallet.connect(agent);
-      for (let i = 0; i < 5; i++) await a.executeTransfer(intent(`d${i}`), ETH, alice.address, e("0.01"));
-      await expect(a.executeTransfer(intent("d5"), ETH, alice.address, 1n))
+      for (let i = 0; i < 5; i++) await agentTransfer(a, intent(`d${i}`), ETH, alice.address, e("0.01"));
+      await expect(agentTransfer(a, intent("d5"), ETH, alice.address, 1n))
         .to.be.revertedWithCustomError(wallet, "DailyLimitExceeded").withArgs(1n, 0n);
       const day = await wallet.currentDay();
       await time.increaseTo((day + 1n) * 86400n + 1n);
-      await expect(a.executeTransfer(intent("d6"), ETH, alice.address, e("0.01"))).to.not.be.reverted;
+      await expect(agentTransfer(a, intent("d6"), ETH, alice.address, e("0.01"))).to.not.be.reverted;
     });
 
     it("reports zero remaining when the owner lowers the cap below today's spend", async function () {
       const { wallet, agent, alice } = await loadFixture(deployFixture);
-      await wallet.connect(agent).executeTransfer(intent("x"), ETH, alice.address, e("0.01"));
+      await agentTransfer(wallet.connect(agent), intent("x"), ETH, alice.address, e("0.01"));
       await wallet.setTokenPolicy(ETH, true, e("0.005"), e("0.005"));
       expect(await wallet.remainingDailyAllowance(ETH)).to.equal(0n);
-      await expect(wallet.connect(agent).executeTransfer(intent("y"), ETH, alice.address, 1n))
+      await expect(agentTransfer(wallet.connect(agent), intent("y"), ETH, alice.address, 1n))
         .to.be.revertedWithCustomError(wallet, "DailyLimitExceeded").withArgs(1n, 0n);
     });
 
     it("rejects zero amount, zero intent and replayed intents", async function () {
       const { wallet, agent, alice } = await loadFixture(deployFixture);
       const a = wallet.connect(agent);
-      await expect(a.executeTransfer(intent("z"), ETH, alice.address, 0)).to.be.revertedWithCustomError(wallet, "InvalidAmount");
-      await expect(a.executeTransfer(ethers.ZeroHash, ETH, alice.address, 1)).to.be.revertedWithCustomError(wallet, "ZeroIntent");
+      await expect(agentTransfer(a, intent("z"), ETH, alice.address, 0)).to.be.revertedWithCustomError(wallet, "InvalidAmount");
+      await expect(agentTransfer(a, ethers.ZeroHash, ETH, alice.address, 1)).to.be.revertedWithCustomError(wallet, "ZeroIntent");
       const id = intent("once");
-      await a.executeTransfer(id, ETH, alice.address, e("0.001"));
-      await expect(a.executeTransfer(id, ETH, alice.address, e("0.001")))
+      await agentTransfer(a, id, ETH, alice.address, e("0.001"));
+      await expect(agentTransfer(a, id, ETH, alice.address, e("0.001")))
         .to.be.revertedWithCustomError(wallet, "IntentAlreadyExecuted").withArgs(id);
     });
 
     it("rejects transfers above the available balance", async function () {
       const { wallet, owner, agent, alice } = await loadFixture(deployFixture);
       await wallet.withdraw(ETH, owner.address, e("0.995"));
-      await expect(wallet.connect(agent).executeTransfer(intent("big"), ETH, alice.address, e("0.01")))
+      await expect(agentTransfer(wallet.connect(agent), intent("big"), ETH, alice.address, e("0.01")))
         .to.be.revertedWithCustomError(wallet, "InsufficientBalance").withArgs(e("0.01"), e("0.005"));
     });
 
     it("rejects a disabled asset", async function () {
       const { wallet, agent, alice } = await loadFixture(deployFixture);
       await wallet.setTokenPolicy(ETH, false, 0, 0);
-      await expect(wallet.connect(agent).executeTransfer(intent("off"), ETH, alice.address, 1n))
+      await expect(agentTransfer(wallet.connect(agent), intent("off"), ETH, alice.address, 1n))
         .to.be.revertedWithCustomError(wallet, "TokenNotEnabled").withArgs(ETH);
     });
 
@@ -187,7 +188,7 @@ describe("AgentWallet", function () {
       const rec = await Rec.deploy();
       await wallet.setRecipient(await rec.getAddress(), true);
       const id = intent("rejected");
-      await expect(wallet.connect(agent).executeTransfer(id, ETH, await rec.getAddress(), e("0.001")))
+      await expect(agentTransfer(wallet.connect(agent), id, ETH, await rec.getAddress(), e("0.001")))
         .to.be.revertedWithCustomError(wallet, "NativeTransferFailed");
       expect(await wallet.executedIntents(id)).to.equal(false);
       expect(await wallet.spentPerDay(ETH, await wallet.currentDay())).to.equal(0n);
@@ -198,7 +199,7 @@ describe("AgentWallet", function () {
     it("transfers an enabled token within its own limits", async function () {
       const { wallet, token, agent, alice } = await loadFixture(deployFixture);
       const t = await token.getAddress();
-      const tx = wallet.connect(agent).executeTransfer(intent("t1"), t, alice.address, usdc("100"));
+      const tx = agentTransfer(wallet.connect(agent), intent("t1"), t, alice.address, usdc("100"));
       await expect(tx).to.changeTokenBalances(token, [wallet, alice], [-usdc("100"), usdc("100")]);
       await expect(tx).to.emit(wallet, "TransferExecuted");
       expect(await wallet.spentPerDay(t, await wallet.currentDay())).to.equal(usdc("100"));
@@ -209,13 +210,13 @@ describe("AgentWallet", function () {
       const { wallet, token, agent, alice } = await loadFixture(deployFixture);
       const t = await token.getAddress();
       const a = wallet.connect(agent);
-      await expect(a.executeTransfer(intent("t-over"), t, alice.address, usdc("100") + 1n))
+      await expect(agentTransfer(a, intent("t-over"), t, alice.address, usdc("100") + 1n))
         .to.be.revertedWithCustomError(wallet, "PerTxLimitExceeded");
-      await a.executeTransfer(intent("t2"), t, alice.address, usdc("100"));
-      await a.executeTransfer(intent("t3"), t, alice.address, usdc("100"));
-      await expect(a.executeTransfer(intent("t4"), t, alice.address, usdc("51")))
+      await agentTransfer(a, intent("t2"), t, alice.address, usdc("100"));
+      await agentTransfer(a, intent("t3"), t, alice.address, usdc("100"));
+      await expect(agentTransfer(a, intent("t4"), t, alice.address, usdc("51")))
         .to.be.revertedWithCustomError(wallet, "DailyLimitExceeded").withArgs(usdc("51"), usdc("50"));
-      await expect(a.executeTransfer(intent("eth-still-ok"), ETH, alice.address, e("0.01"))).to.not.be.reverted;
+      await expect(agentTransfer(a, intent("eth-still-ok"), ETH, alice.address, e("0.01"))).to.not.be.reverted;
     });
 
     it("rejects tokens that were never enabled", async function () {
@@ -223,7 +224,7 @@ describe("AgentWallet", function () {
       const Token = await ethers.getContractFactory("MockERC20");
       const other = await Token.deploy("Other", "OTH", 18);
       await other.mint(await wallet.getAddress(), e("10"));
-      await expect(wallet.connect(agent).executeTransfer(intent("o"), await other.getAddress(), alice.address, 1n))
+      await expect(agentTransfer(wallet.connect(agent), intent("o"), await other.getAddress(), alice.address, 1n))
         .to.be.revertedWithCustomError(wallet, "TokenNotEnabled");
     });
 
@@ -242,7 +243,7 @@ describe("AgentWallet", function () {
       await bad.mint(await wallet.getAddress(), 1000n);
       await wallet.setTokenPolicy(await bad.getAddress(), true, 100n, 100n);
       const id = intent("false-token");
-      await expect(wallet.connect(agent).executeTransfer(id, await bad.getAddress(), alice.address, 10n))
+      await expect(agentTransfer(wallet.connect(agent), id, await bad.getAddress(), alice.address, 10n))
         .to.be.revertedWithCustomError(wallet, "SafeERC20FailedOperation");
       expect(await wallet.executedIntents(id)).to.equal(false);
     });
@@ -253,7 +254,7 @@ describe("AgentWallet", function () {
       const t = await NoRet.deploy();
       await t.mint(await wallet.getAddress(), 1000n);
       await wallet.setTokenPolicy(await t.getAddress(), true, 100n, 100n);
-      await wallet.connect(agent).executeTransfer(intent("noret"), await t.getAddress(), alice.address, 10n);
+      await agentTransfer(wallet.connect(agent), intent("noret"), await t.getAddress(), alice.address, 10n);
       expect(await t.balanceOf(alice.address)).to.equal(10n);
     });
   });
@@ -262,12 +263,12 @@ describe("AgentWallet", function () {
     it("pause blocks agent transfers but not deposits or owner withdrawals", async function () {
       const { wallet, owner, agent, alice } = await loadFixture(deployFixture);
       await wallet.pause();
-      await expect(wallet.connect(agent).executeTransfer(intent("p"), ETH, alice.address, 1n))
+      await expect(agentTransfer(wallet.connect(agent), intent("p"), ETH, alice.address, 1n))
         .to.be.revertedWithCustomError(wallet, "EnforcedPause");
       await expect(wallet.deposit({ value: e("0.1") })).to.emit(wallet, "Deposited");
       await expect(wallet.withdraw(ETH, owner.address, e("0.1"))).to.emit(wallet, "Withdrawn");
       await wallet.unpause();
-      await expect(wallet.connect(agent).executeTransfer(intent("p2"), ETH, alice.address, 1n)).to.not.be.reverted;
+      await expect(agentTransfer(wallet.connect(agent), intent("p2"), ETH, alice.address, 1n)).to.not.be.reverted;
     });
 
     it("emergencyStop pauses and revokes the agent atomically", async function () {
@@ -306,7 +307,13 @@ describe("AgentWallet", function () {
       await wallet.setRecipient(addr, true);
       const before = await ethers.provider.getBalance(await wallet.getAddress());
 
-      await attacker.connect(owner).run(intent("outer"), e("0.01"));
+      // Both calls carry valid owner signatures and fit the caps, so only the re-entrancy guard can stop the second.
+      const outer = await signApproval(wallet, owner, { intentId: intent("outer"), token: ETH, recipient: addr, amount: e("0.01") });
+      const inner = await signApproval(wallet, owner, { intentId: intent("reentry"), token: ETH, recipient: addr, amount: e("0.01") });
+      await attacker.connect(owner).run(
+        wallet.interface.encodeFunctionData("executeApprovedTransfer", [outer.approval, outer.signature]),
+        wallet.interface.encodeFunctionData("executeApprovedTransfer", [inner.approval, inner.signature]),
+      );
 
       expect(await attacker.reentryAttempted()).to.equal(true);
       expect(await attacker.reentryBlocked()).to.equal(true);
@@ -323,7 +330,7 @@ describe("AgentWallet", function () {
       for (let i = 0; i < 40; i++) {
         seed = (seed * 1103515245 + 12345) % 2 ** 31;
         const amount = BigInt(seed % 12_000_000) * 1_000_000_000n; // 0 .. 0.012 ETH
-        const tx = a.executeTransfer(intent(`r${i}`), ETH, alice.address, amount);
+        const tx = agentTransfer(a, intent(`r${i}`), ETH, alice.address, amount);
         const ok = amount > 0n && amount <= e("0.01") && expected + amount <= e("0.05");
         if (ok) {
           await tx;
@@ -338,7 +345,7 @@ describe("AgentWallet", function () {
 
     it("the owner key cannot move funds through the agent path", async function () {
       const { wallet, owner, alice } = await loadFixture(deployFixture);
-      await expect(wallet.connect(owner).executeTransfer(intent("own"), ETH, alice.address, 1n))
+      await expect(agentTransfer(wallet.connect(owner), intent("own"), ETH, alice.address, 1n))
         .to.be.revertedWithCustomError(wallet, "NotAgent");
     });
   });
