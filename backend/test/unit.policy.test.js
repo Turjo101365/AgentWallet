@@ -1,5 +1,6 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
+import path from 'node:path';
 import { ethers } from 'ethers';
 import { evaluatePolicy } from '../src/services/policyService.js';
 import { parseAmount } from '../src/lib/units.js';
@@ -110,11 +111,26 @@ describe('configuration guards', () => {
   const base = { CHAIN_ID: '31337', DEPLOYMENT_FILE: 'nonexistent.json', LOG_LEVEL: 'silent' };
   const HARDHAT_KEY_1 = ethers.HDNodeWallet.fromPhrase('test test test test test test test test test test test junk', undefined, "m/44'/60'/0'/0/1").privateKey;
 
-  test('only local and Base Sepolia chains are accepted', () => {
-    for (const chainId of ['1', '8453', '11155111', '137']) {
+  test('only local, Base Sepolia and Ethereum Sepolia are accepted; every mainnet is refused', () => {
+    for (const chainId of ['1', '8453', '137', '10', '42161', '56', '17000']) {
       assert.throws(() => loadConfig({ ...base, CHAIN_ID: chainId }), /Unsupported chain id/);
     }
     assert.equal(loadConfig({ ...base, CHAIN_ID: '84532' }).chainId, 84532);
+    assert.equal(loadConfig({ ...base, CHAIN_ID: '11155111' }).chainId, 11155111);
+  });
+
+  test('Ethereum Sepolia gets the same public-network key guards as Base Sepolia', () => {
+    const key = ethers.Wallet.createRandom().privateKey;
+    const sepolia = { ...base, CHAIN_ID: '11155111' };
+    assert.throws(() => loadConfig({ ...sepolia, AGENT_PRIVATE_KEY: HARDHAT_KEY_1, ALLOW_PUBLIC_TESTNET_EXECUTION: 'true' }), /publicly known/);
+    assert.throws(() => loadConfig({ ...sepolia, AGENT_PRIVATE_KEY: key }), /ALLOW_PUBLIC_TESTNET_EXECUTION/);
+    assert.throws(() => loadConfig({ ...sepolia, LOCAL_DEV_AGENT_INDEX: '1' }), /only allowed on the local chain/);
+    const c = loadConfig({ ...sepolia, AGENT_PRIVATE_KEY: key, ALLOW_PUBLIC_TESTNET_EXECUTION: 'true' });
+    assert.equal(c.executor.enabled, true);
+    assert.equal(c.network.explorerBaseUrl, 'https://sepolia.etherscan.io');
+    const { DEPLOYMENT_FILE: _ignored, ...noFile } = sepolia;
+    const own = loadConfig(noFile).deploymentFile;
+    assert.ok(own.endsWith(`deployments${path.sep}sepolia.json`), own);
   });
 
   test('publicly known Hardhat keys are refused on public networks', () => {

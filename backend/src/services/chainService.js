@@ -5,8 +5,11 @@ import { ethers } from 'ethers';
 import { unavailable } from '../lib/errors.js';
 import { explorerTxUrl, explorerAddressUrl } from '../config/networks.js';
 
-const ABI_FILE = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../shared/abi/AgentWallet.json');
-export const AGENT_WALLET_ABI = JSON.parse(fs.readFileSync(ABI_FILE, 'utf8')).abi;
+const ABI_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../shared/abi');
+/** Current (v2) interface. A superset of v1's errors and events, so it also decodes v1 receipts and logs. */
+export const AGENT_WALLET_ABI = JSON.parse(fs.readFileSync(path.join(ABI_DIR, 'AgentWallet.json'), 'utf8')).abi;
+/** Frozen v1 interface (the deployed Ethereum Sepolia contract); v1 executes through executeTransfer. */
+export const AGENT_WALLET_V1_ABI = JSON.parse(fs.readFileSync(path.join(ABI_DIR, 'AgentWallet.v1.json'), 'utf8')).abi;
 export const agentWalletInterface = new ethers.Interface(AGENT_WALLET_ABI);
 
 const ERC20_ABI = [
@@ -25,8 +28,9 @@ export function createChainService(config, { provider: injectedProvider } = {}) 
     injectedProvider ||
     new ethers.JsonRpcProvider(config.rpcUrl, { chainId: config.chainId, name: network.key }, { staticNetwork: true });
   const contract = config.contractAddress ? new ethers.Contract(config.contractAddress, AGENT_WALLET_ABI, provider) : null;
+  const legacyContract = config.contractAddress ? new ethers.Contract(config.contractAddress, AGENT_WALLET_V1_ABI, provider) : null;
 
-  const status = { ready: false, checkedAt: null, error: null, rpcChainId: null };
+  const status = { ready: false, checkedAt: null, error: null, rpcChainId: null, contractVersion: null };
   let ownerCache = { value: null, at: 0 };
 
   function requireContract() {
@@ -46,6 +50,7 @@ export function createChainService(config, { provider: injectedProvider } = {}) 
       const code = await provider.getCode(config.contractAddress);
       if (!code || code === '0x') throw new Error(`No contract code at ${config.contractAddress}`);
       await contract.owner();
+      status.contractVersion = await detectVersion();
       for (const token of config.tokens) {
         if (token.native) continue;
         const erc20 = new ethers.Contract(token.address, ERC20_ABI, provider);
@@ -62,6 +67,25 @@ export function createChainService(config, { provider: injectedProvider } = {}) 
       status.error = err.shortMessage || err.message;
     }
     return { ...status };
+  }
+
+  /**
+   * v2 exposes VERSION(); the frozen v1 has no such function, so the call reverts. Any other failure
+   * (RPC down, timeout) is rethrown rather than guessed, so the chain is reported not ready.
+   */
+  async function detectVersion() {
+    try {
+      return Number(await contract.VERSION());
+    } catch (err) {
+      if (err.code === 'CALL_EXCEPTION' || err.code === 'BAD_DATA') return 1;
+      throw err;
+    }
+  }
+
+  /** The contract to send agent executions through: v1 calls executeTransfer, v2 the signed entry points. */
+  function executionContract() {
+    requireContract();
+    return status.contractVersion === 1 ? legacyContract : contract;
   }
 
   function requireReady() {
@@ -161,6 +185,8 @@ export function createChainService(config, { provider: injectedProvider } = {}) 
     config,
     provider,
     contract,
+    executionContract,
+    contractVersion: () => status.contractVersion,
     network,
     status,
     verify,

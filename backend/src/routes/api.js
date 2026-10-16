@@ -29,6 +29,8 @@ export function createApiRouter(deps) {
       walletRpcUrl: config.network.isPublic ? config.network.defaultRpcUrl : config.rpcUrl,
       contractAddress: config.contractAddress,
       contractConfigured: Boolean(config.contractAddress),
+      // 1 = frozen v1 (agent key trusted on-chain), 2 = owner signatures verified on-chain; null until the chain is verified.
+      contractVersion: chain.contractVersion(),
       executorAddress: config.executor.address,
       executorEnabled: config.executor.enabled,
       tokens: config.tokens,
