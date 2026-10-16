@@ -1,0 +1,164 @@
+{
+  "config": {
+    "argv": [
+      "C:\\nvm4w\\nodejs\\node.exe",
+      "D:\\AgentWallet\\frontend\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config",
+      "C:\\Users\\utech\\AppData\\Local\\Temp/claude/D--/0e70ca3f-5934-436a-bd0d-ad13e31794a4/scratchpad/showcase.config.mjs"
+    ],
+    "configFile": "C:\\Users\\utech\\AppData\\Local\\Temp\\claude\\D--\\0e70ca3f-5934-436a-bd0d-ad13e31794a4\\scratchpad\\showcase.config.mjs",
+    "rootDir": "D:/AgentWallet/frontend/tests/browser",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "D:/AgentWallet/evidence/local-v2/recordings/showcase",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "D:/AgentWallet/frontend/tests/browser",
+        "testIgnore": [],
+        "testMatch": [
+          "/v2\\.showcase\\.live\\.spec\\.js$/"
+        ],
+        "timeout": 900000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "D:\\AgentWallet\\evidence\\local-v2\\recordings\\showcase",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "D:\\AgentWallet\\frontend\\tests\\browser",
+        "snapshotDir": "D:\\AgentWallet\\frontend\\tests\\browser",
+        "testIgnore": [],
+        "testMatch": {},
+        "timeout": 900000,
+        "use": {
+          "headless": true,
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "video": {
+            "mode": "on",
+            "size": {
+              "width": 1440,
+              "height": 900
+            }
+          },
+          "screenshot": "off",
+          "trace": "off"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "D:/AgentWallet/evidence/local-v2/showcase/playwright-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "v2.showcase.live.spec.js",
+      "file": "v2.showcase.live.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "LOCAL v2 showcase: AI drafting, owner approval, autonomous grant run, on-chain revocation and blocked attacks",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 900000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 98924,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-16T22:15:54.722Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "D:\\AgentWallet\\evidence\\local-v2\\recordings\\showcase\\v2.showcase.live-LOCAL-v2--ba177-ocation-and-blocked-attacks\\video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "908e510884d3fe8d622a-e2f59918381d6a63e8ff",
+          "file": "v2.showcase.live.spec.js",
+          "line": 154,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-16T22:15:52.845Z",
+    "duration": 110755.69200000001,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

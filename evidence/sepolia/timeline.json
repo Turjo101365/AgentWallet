@@ -1,0 +1,196 @@
+{
+  "video": "recordings\\raw\\agentwallet-sepolia-raw.webm",
+  "chainId": 11155111,
+  "rehearsal": false,
+  "wallet": "test-only EIP-1193 bridge (not MetaMask)",
+  "steps": [
+    {
+      "id": "deploy",
+      "title": "Owner tops up deployer and agent; deployer deploys AgentWallet",
+      "start": 0.025,
+      "keep": "end",
+      "end": 74.875,
+      "screenshot": "screenshots/01-deploy.png"
+    },
+    {
+      "id": "explorer-deploy",
+      "title": "Deployment on the public block explorer",
+      "start": 74.972,
+      "keep": null,
+      "end": 131.46,
+      "screenshot": "screenshots/02-explorer-deploy.png"
+    },
+    {
+      "id": "connect",
+      "title": "Wallet connection, network check and SIWE sign-in",
+      "start": 154.901,
+      "keep": null,
+      "end": 161.199,
+      "screenshot": "screenshots/03-connect.png"
+    },
+    {
+      "id": "allowlist",
+      "title": "Owner allowlists the recipient on-chain",
+      "start": 161.304,
+      "keep": "ends",
+      "end": 185.739,
+      "screenshot": "screenshots/04-allowlist.png"
+    },
+    {
+      "id": "deposit",
+      "title": "Owner deposits 0.0004 ETH into the wallet",
+      "start": 185.846,
+      "keep": "ends",
+      "end": 198.099,
+      "screenshot": "screenshots/05-deposit.png"
+    },
+    {
+      "id": "ai-transfer",
+      "title": "AI agent receives an instruction, plans and drafts a transfer",
+      "start": 198.169,
+      "keep": null,
+      "end": 219.436,
+      "screenshot": "screenshots/06-ai-transfer.png"
+    },
+    {
+      "id": "approve",
+      "title": "Risk checks pass; owner reviews and signs the exact transfer (EIP-712); agent key executes",
+      "start": 219.527,
+      "keep": "ends",
+      "end": 267.778,
+      "screenshot": "screenshots/07-approve.png"
+    },
+    {
+      "id": "ai-rejection",
+      "title": "AI agent drafts an over-cap transfer; the policy engine rejects it (nothing sent)",
+      "start": 267.881,
+      "keep": null,
+      "end": 290.373,
+      "screenshot": "screenshots/08-ai-rejection.png"
+    },
+    {
+      "id": "auto-limit",
+      "title": "Owner sets the auto-approval limit to 0.0001 ETH",
+      "start": 290.442,
+      "keep": null,
+      "end": 295.321,
+      "screenshot": "screenshots/09-auto-limit.png"
+    },
+    {
+      "id": "ai-schedule",
+      "title": "AI agent drafts a scheduled payment",
+      "start": 295.388,
+      "keep": null,
+      "end": 313.093,
+      "screenshot": "screenshots/10-ai-schedule.png"
+    },
+    {
+      "id": "grant",
+      "title": "Owner signs the bounded task grant; the scheduler executes autonomously",
+      "start": 313.172,
+      "keep": "ends",
+      "end": 488.559,
+      "screenshot": "screenshots/11-grant.png"
+    },
+    {
+      "id": "controls",
+      "title": "Security controls: pause, unpause, emergency stop",
+      "start": 488.653,
+      "keep": "ends",
+      "end": 543.266,
+      "screenshot": "screenshots/12-controls.png"
+    },
+    {
+      "id": "withdraw",
+      "title": "Owner withdraws the remaining balance",
+      "start": 543.325,
+      "keep": "ends",
+      "end": 553.345,
+      "screenshot": "screenshots/13-withdraw.png"
+    },
+    {
+      "id": "history",
+      "title": "Transaction history and hash-chained audit log",
+      "start": 553.411,
+      "keep": null,
+      "end": 561.072,
+      "screenshot": "screenshots/14-history.png"
+    },
+    {
+      "id": "explorer-txs",
+      "title": "Agent transfers and emergency stop on the public explorer",
+      "start": 561.131,
+      "keep": null,
+      "end": 627.338,
+      "screenshot": "screenshots/15-explorer-txs.png"
+    }
+  ],
+  "transactions": [
+    {
+      "label": "top-up deployer",
+      "hash": "0x15a0af74a4699276674af409d99ee8c55b6f51d41f64ebbf8a69a745e40b6378",
+      "blockscout": "https://eth-sepolia.blockscout.com/tx/0x15a0af74a4699276674af409d99ee8c55b6f51d41f64ebbf8a69a745e40b6378",
+      "etherscan": "https://sepolia.etherscan.io/tx/0x15a0af74a4699276674af409d99ee8c55b6f51d41f64ebbf8a69a745e40b6378"
+    },
+    {
+      "label": "top-up agent",
+      "hash": "0xdc3cec9386e058646587d45aa8fcf6ef8d3b6911631c5a217503b43549ab1cb9",
+      "blockscout": "https://eth-sepolia.blockscout.com/tx/0xdc3cec9386e058646587d45aa8fcf6ef8d3b6911631c5a217503b43549ab1cb9",
+      "etherscan": "https://sepolia.etherscan.io/tx/0xdc3cec9386e058646587d45aa8fcf6ef8d3b6911631c5a217503b43549ab1cb9"
+    },
+    {
+      "label": "deploy",
+      "hash": "0x7d7492bfd7414f25b8f7a9a06200d3f1e958433b6d349443313108fa10ae1ad3",
+      "blockscout": "https://eth-sepolia.blockscout.com/tx/0x7d7492bfd7414f25b8f7a9a06200d3f1e958433b6d349443313108fa10ae1ad3",
+      "etherscan": "https://sepolia.etherscan.io/tx/0x7d7492bfd7414f25b8f7a9a06200d3f1e958433b6d349443313108fa10ae1ad3"
+    },
+    {
+      "label": "owner setRecipient",
+      "hash": "0xf6306fe567bd2286a4f066529896cc444cd29a77d07b1a84944f3b5d59b36299",
+      "blockscout": "https://eth-sepolia.blockscout.com/tx/0xf6306fe567bd2286a4f066529896cc444cd29a77d07b1a84944f3b5d59b36299",
+      "etherscan": "https://sepolia.etherscan.io/tx/0xf6306fe567bd2286a4f066529896cc444cd29a77d07b1a84944f3b5d59b36299"
+    },
+    {
+      "label": "owner deposit",
+      "hash": "0xe593d6d3c778ed09476cf1997e90699bd4b7909d433a0653dd64388512968ba1",
+      "blockscout": "https://eth-sepolia.blockscout.com/tx/0xe593d6d3c778ed09476cf1997e90699bd4b7909d433a0653dd64388512968ba1",
+      "etherscan": "https://sepolia.etherscan.io/tx/0xe593d6d3c778ed09476cf1997e90699bd4b7909d433a0653dd64388512968ba1"
+    },
+    {
+      "label": "owner-approved transfer (AI-drafted)",
+      "hash": "0x2c83a855d812b3f278720f3f5a572d358a520e4fbfd4f65fd666e77ad22e37fb",
+      "blockscout": "https://eth-sepolia.blockscout.com/tx/0x2c83a855d812b3f278720f3f5a572d358a520e4fbfd4f65fd666e77ad22e37fb",
+      "etherscan": "https://sepolia.etherscan.io/tx/0x2c83a855d812b3f278720f3f5a572d358a520e4fbfd4f65fd666e77ad22e37fb"
+    },
+    {
+      "label": "autonomous transfer (AI-drafted task, grant-approved)",
+      "hash": "0xedeb6b97380d3b0615639ca0940402789310f16154501ea54990418d48e3cec3",
+      "blockscout": "https://eth-sepolia.blockscout.com/tx/0xedeb6b97380d3b0615639ca0940402789310f16154501ea54990418d48e3cec3",
+      "etherscan": "https://sepolia.etherscan.io/tx/0xedeb6b97380d3b0615639ca0940402789310f16154501ea54990418d48e3cec3"
+    },
+    {
+      "label": "owner pause",
+      "hash": "0x2a2eeb5084f9dba38e177d2b4528b7242356c5dcb51796c203fa5b9a3bbd211b",
+      "blockscout": "https://eth-sepolia.blockscout.com/tx/0x2a2eeb5084f9dba38e177d2b4528b7242356c5dcb51796c203fa5b9a3bbd211b",
+      "etherscan": "https://sepolia.etherscan.io/tx/0x2a2eeb5084f9dba38e177d2b4528b7242356c5dcb51796c203fa5b9a3bbd211b"
+    },
+    {
+      "label": "owner unpause",
+      "hash": "0x00b0dc316138f8cef8b329e4ff91a469612a8207317615442012bfee21f2f3d0",
+      "blockscout": "https://eth-sepolia.blockscout.com/tx/0x00b0dc316138f8cef8b329e4ff91a469612a8207317615442012bfee21f2f3d0",
+      "etherscan": "https://sepolia.etherscan.io/tx/0x00b0dc316138f8cef8b329e4ff91a469612a8207317615442012bfee21f2f3d0"
+    },
+    {
+      "label": "owner emergencyStop",
+      "hash": "0xfe627133719dc4493552259d250ebb7fe31fb86ead7e2034569eea99ede53a8d",
+      "blockscout": "https://eth-sepolia.blockscout.com/tx/0xfe627133719dc4493552259d250ebb7fe31fb86ead7e2034569eea99ede53a8d",
+      "etherscan": "https://sepolia.etherscan.io/tx/0xfe627133719dc4493552259d250ebb7fe31fb86ead7e2034569eea99ede53a8d"
+    },
+    {
+      "label": "owner withdraw",
+      "hash": "0x6c8fb074172a800c3d85eaa2eb54b5675dcf3e204fd7c7c276e67104d6a5cff5",
+      "blockscout": "https://eth-sepolia.blockscout.com/tx/0x6c8fb074172a800c3d85eaa2eb54b5675dcf3e204fd7c7c276e67104d6a5cff5",
+      "etherscan": "https://sepolia.etherscan.io/tx/0x6c8fb074172a800c3d85eaa2eb54b5675dcf3e204fd7c7c276e67104d6a5cff5"
+    }
+  ]
+}

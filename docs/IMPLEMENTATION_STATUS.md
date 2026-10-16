@@ -1,6 +1,14 @@
 # Implementation Status
 
-Updated 2026-10-15 after repository reconnaissance and local verification. The working tree contains substantial uncommitted Phase 1 and Phase 2 work; it has not been committed or deployed. Test details are in [TEST_RESULTS.md](TEST_RESULTS.md).
+> **Current status (2026-10-17).**
+> - **Public, contract v1:** the Ethereum Sepolia run of 2026-10-16. Contract `0x8A44…956a6`, 11 transactions, AI-drafted owner-approved and autonomous transfers. Evidence: `evidence/sepolia/`, Deliverable 06.
+> - **Local only, contract v2:** on-chain verification of the owner's EIP-712 approvals and task grants, the signed execution deadline, grant run and total counters, and on-chain grant and intent revocation. Tested on local Hardhat chains, including real MetaMask and live gpt-4.1-mini; not deployed. See [CONTRACT_V2.md](CONTRACT_V2.md).
+> - **Backend fixes for audit findings F1 and F3:** expiry and signature re-verification at execution, for both contract versions.
+> - **Swaps:** a contract primitive only (owner-only, unwired). There is no rebalancing.
+> - **Docker:** not verified.
+> - The sections below are the 2026-10-15 record.
+
+Updated 2026-10-15 after repository reconnaissance and local verification. Test details are in [TEST_RESULTS.md](TEST_RESULTS.md).
 
 ## Implemented and locally verified
 

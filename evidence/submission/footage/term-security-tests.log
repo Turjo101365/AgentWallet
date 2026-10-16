@@ -1,0 +1,28 @@
+▶ API security boundaries (audit findings C1, C2, H1, H3)
+  ✔ every state-changing endpoint rejects unauthenticated requests (128.6425ms)
+  ✔ a signed-in non-owner cannot create, approve, pause or resume (237.4335ms)
+  ✔ a non-owner cannot approve even with a valid typed-data signature of their own (414.0337ms)
+  ✔ client-supplied wallet state and recipients are rejected by strict schemas (C1) (103.7053ms)
+  ✔ malformed amounts and addresses are refused before reaching the policy engine (366.6976ms)
+  ✔ approve requires an Idempotency-Key and a well-formed signature (371.7607ms)
+  ✔ sign-in nonces are single use and bound to the issued message (178.2629ms)
+  ✔ SIWE domain follows an allowed console origin and ignores foreign ones (MetaMask domain check) (112.2772ms)
+  ✔ logout revokes the session token (138.3151ms)
+  ✔ off-chain pause blocks proposals and evaluation; resume is owner-only and audited (H3) (308.8318ms)
+  ✔ on-chain pause blocks proposals at the policy layer (392.9039ms)
+  ✔ transaction tracking ignores client metadata and rejects non-wallet transactions (527.3179ms)
+  ✔ CORS only allows configured origins (26.6024ms)
+  ✔ errors are safe: no stack traces, consistent shape, request id (25.5713ms)
+  ✔ config and health never expose the executor private key (30.6438ms)
+✔ API security boundaries (audit findings C1, C2, H1, H3) (17276.3204ms)
+▶ rate limiting
+  ✔ auth endpoints return 429 after 20 requests per minute (117.3694ms)
+✔ rate limiting (3451.2531ms)
+ℹ tests 16
+ℹ suites 2
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 23084.3401

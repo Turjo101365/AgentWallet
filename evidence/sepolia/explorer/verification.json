@@ -1,0 +1,153 @@
+{
+  "recordedAt": "2026-10-16T10:22:13.469Z",
+  "explorer": "https://eth-sepolia.blockscout.com",
+  "video": "recordings/raw/explorer-verification.webm",
+  "adRequestsBlocked": true,
+  "allConfirmed": true,
+  "items": [
+    {
+      "label": "AgentWallet contract",
+      "kind": "address",
+      "id": "0x8A44716Efabb6Ce401291B91D4427149CaF956a6",
+      "url": "https://eth-sepolia.blockscout.com/address/0x8A44716Efabb6Ce401291B91D4427149CaF956a6",
+      "explorerShows": "Contract",
+      "block": null,
+      "checkedAt": "2026-10-16T10:22:21.135Z",
+      "screenshot": "explorer/01-address-agentwallet-contract.png",
+      "start": 0,
+      "end": 12.24
+    },
+    {
+      "label": "top-up deployer",
+      "kind": "tx",
+      "id": "0x15a0af74a4699276674af409d99ee8c55b6f51d41f64ebbf8a69a745e40b6378",
+      "url": "https://eth-sepolia.blockscout.com/tx/0x15a0af74a4699276674af409d99ee8c55b6f51d41f64ebbf8a69a745e40b6378",
+      "explorerShows": "Success",
+      "block": "11926649",
+      "checkedAt": "2026-10-16T10:22:31.916Z",
+      "screenshot": "explorer/02-tx-top-up-deployer.png",
+      "start": 12.302,
+      "end": 22.038
+    },
+    {
+      "label": "top-up agent",
+      "kind": "tx",
+      "id": "0xdc3cec9386e058646587d45aa8fcf6ef8d3b6911631c5a217503b43549ab1cb9",
+      "url": "https://eth-sepolia.blockscout.com/tx/0xdc3cec9386e058646587d45aa8fcf6ef8d3b6911631c5a217503b43549ab1cb9",
+      "explorerShows": "Success",
+      "block": "11926651",
+      "checkedAt": "2026-10-16T10:22:41.617Z",
+      "screenshot": "explorer/03-tx-top-up-agent.png",
+      "start": 22.039,
+      "end": 31.734
+    },
+    {
+      "label": "deploy",
+      "kind": "tx",
+      "id": "0x7d7492bfd7414f25b8f7a9a06200d3f1e958433b6d349443313108fa10ae1ad3",
+      "url": "https://eth-sepolia.blockscout.com/tx/0x7d7492bfd7414f25b8f7a9a06200d3f1e958433b6d349443313108fa10ae1ad3",
+      "explorerShows": "Success",
+      "block": "11926653",
+      "checkedAt": "2026-10-16T10:22:51.056Z",
+      "screenshot": "explorer/04-tx-deploy.png",
+      "start": 31.734,
+      "end": 41.174
+    },
+    {
+      "label": "owner setRecipient",
+      "kind": "tx",
+      "id": "0xf6306fe567bd2286a4f066529896cc444cd29a77d07b1a84944f3b5d59b36299",
+      "url": "https://eth-sepolia.blockscout.com/tx/0xf6306fe567bd2286a4f066529896cc444cd29a77d07b1a84944f3b5d59b36299",
+      "explorerShows": "Success",
+      "block": "11926663",
+      "checkedAt": "2026-10-16T10:23:00.869Z",
+      "screenshot": "explorer/05-tx-owner-setrecipient.png",
+      "start": 41.174,
+      "end": 50.984
+    },
+    {
+      "label": "owner deposit",
+      "kind": "tx",
+      "id": "0xe593d6d3c778ed09476cf1997e90699bd4b7909d433a0653dd64388512968ba1",
+      "url": "https://eth-sepolia.blockscout.com/tx/0xe593d6d3c778ed09476cf1997e90699bd4b7909d433a0653dd64388512968ba1",
+      "explorerShows": "Success",
+      "block": "11926664",
+      "checkedAt": "2026-10-16T10:23:10.328Z",
+      "screenshot": "explorer/06-tx-owner-deposit.png",
+      "start": 50.984,
+      "end": 60.455
+    },
+    {
+      "label": "owner-approved transfer (AI-drafted)",
+      "kind": "tx",
+      "id": "0x2c83a855d812b3f278720f3f5a572d358a520e4fbfd4f65fd666e77ad22e37fb",
+      "url": "https://eth-sepolia.blockscout.com/tx/0x2c83a855d812b3f278720f3f5a572d358a520e4fbfd4f65fd666e77ad22e37fb",
+      "explorerShows": "Success",
+      "block": "11926668",
+      "checkedAt": "2026-10-16T10:23:19.979Z",
+      "screenshot": "explorer/07-tx-owner-approved-transfer-ai-drafted-.png",
+      "start": 60.455,
+      "end": 70.099
+    },
+    {
+      "label": "autonomous transfer (AI-drafted task, grant-approved)",
+      "kind": "tx",
+      "id": "0xedeb6b97380d3b0615639ca0940402789310f16154501ea54990418d48e3cec3",
+      "url": "https://eth-sepolia.blockscout.com/tx/0xedeb6b97380d3b0615639ca0940402789310f16154501ea54990418d48e3cec3",
+      "explorerShows": "Success",
+      "block": "11926686",
+      "checkedAt": "2026-10-16T10:23:29.677Z",
+      "screenshot": "explorer/08-tx-autonomous-transfer-ai-drafted-task-gran.png",
+      "start": 70.099,
+      "end": 79.794
+    },
+    {
+      "label": "owner pause",
+      "kind": "tx",
+      "id": "0x2a2eeb5084f9dba38e177d2b4528b7242356c5dcb51796c203fa5b9a3bbd211b",
+      "url": "https://eth-sepolia.blockscout.com/tx/0x2a2eeb5084f9dba38e177d2b4528b7242356c5dcb51796c203fa5b9a3bbd211b",
+      "explorerShows": "Success",
+      "block": "11926689",
+      "checkedAt": "2026-10-16T10:23:39.392Z",
+      "screenshot": "explorer/09-tx-owner-pause.png",
+      "start": 79.795,
+      "end": 89.514
+    },
+    {
+      "label": "owner unpause",
+      "kind": "tx",
+      "id": "0x00b0dc316138f8cef8b329e4ff91a469612a8207317615442012bfee21f2f3d0",
+      "url": "https://eth-sepolia.blockscout.com/tx/0x00b0dc316138f8cef8b329e4ff91a469612a8207317615442012bfee21f2f3d0",
+      "explorerShows": "Success",
+      "block": "11926691",
+      "checkedAt": "2026-10-16T10:23:49.167Z",
+      "screenshot": "explorer/10-tx-owner-unpause.png",
+      "start": 89.514,
+      "end": 99.283
+    },
+    {
+      "label": "owner emergencyStop",
+      "kind": "tx",
+      "id": "0xfe627133719dc4493552259d250ebb7fe31fb86ead7e2034569eea99ede53a8d",
+      "url": "https://eth-sepolia.blockscout.com/tx/0xfe627133719dc4493552259d250ebb7fe31fb86ead7e2034569eea99ede53a8d",
+      "explorerShows": "Success",
+      "block": "11926692",
+      "checkedAt": "2026-10-16T10:23:58.595Z",
+      "screenshot": "explorer/11-tx-owner-emergencystop.png",
+      "start": 99.283,
+      "end": 108.712
+    },
+    {
+      "label": "owner withdraw",
+      "kind": "tx",
+      "id": "0x6c8fb074172a800c3d85eaa2eb54b5675dcf3e204fd7c7c276e67104d6a5cff5",
+      "url": "https://eth-sepolia.blockscout.com/tx/0x6c8fb074172a800c3d85eaa2eb54b5675dcf3e204fd7c7c276e67104d6a5cff5",
+      "explorerShows": "Success",
+      "block": "11926693",
+      "checkedAt": "2026-10-16T10:24:08.243Z",
+      "screenshot": "explorer/12-tx-owner-withdraw.png",
+      "start": 108.712,
+      "end": 118.353
+    }
+  ]
+}

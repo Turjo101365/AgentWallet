@@ -1,0 +1,49 @@
+
+
+  Owner approved policy bounded swaps (local router fixture)
+    ✔ executes real ERC20 movements, retains output, clears allowance and consumes shared cap/intent (972ms)
+    ✔ agent cannot swap or authorize a router
+    ✔ rejects revoked router, disabled assets, zero floor, same asset, expiry and excessive deadline (41ms)
+    ✔ rejects fabricated router output and rolls back spend/intent/allowance/token transfers (59ms)
+    ✔ rejects replay, per-transaction overflow and paused execution
+
+  AgentWallet
+    deployment and roles
+      ✔ sets owner, agent and the native ETH policy from constructor args (86ms)
+      ✔ rejects an agent equal to the owner at construction (51ms)
+      ✔ allows deploying with no agent and ETH disabled (43ms)
+      ✔ only the owner can manage agent, recipients, policies, pause and withdrawals (55ms)
+      ✔ cannot set the agent to the owner, the pending owner or zero
+      ✔ rotates and revokes the agent with events (39ms)
+      ✔ uses two-step ownership and the agent can never accept ownership
+      ✔ disables renounceOwnership
+    native ETH transfers
+      ✔ transfers to an allowlisted recipient and emits TransferExecuted (103ms)
+      ✔ rejects non-allowlisted, removed, zero or self recipients
+      ✔ enforces the per-transaction cap at the exact boundary
+      ✔ enforces the daily cap and resets it on the next UTC day
+      ✔ reports zero remaining when the owner lowers the cap below today's spend
+      ✔ rejects zero amount, zero intent and replayed intents
+      ✔ rejects transfers above the available balance
+      ✔ rejects a disabled asset
+      ✔ reverts with NativeTransferFailed when the recipient rejects ETH, leaving state untouched (53ms)
+    ERC-20 transfers
+      ✔ transfers an enabled token within its own limits
+      ✔ tracks token limits independently of ETH limits
+      ✔ rejects tokens that were never enabled
+      ✔ refuses policies for non-contract tokens, the wallet itself, or invalid limits
+      ✔ reverts when a token returns false (SafeERC20) and keeps the intent unused (41ms)
+      ✔ supports tokens whose transfer returns no value
+    pause, emergency and withdrawals
+      ✔ pause blocks agent transfers but not deposits or owner withdrawals
+      ✔ emergencyStop pauses and revokes the agent atomically
+      ✔ emergencyWithdraw requires the paused state and validates inputs
+      ✔ rejects zero deposits
+    adversarial
+      ✔ blocks re-entrancy from a malicious agent+recipient contract (70ms)
+      ✔ keeps spend within the daily cap under a randomized sequence of attempts (172ms)
+      ✔ the owner key cannot move funds through the agent path
+
+
+  35 passing (2s)
+

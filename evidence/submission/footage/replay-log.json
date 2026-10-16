@@ -1,0 +1,552 @@
+{
+  "createdAt": "2026-10-16T15:20:59.541Z",
+  "note": "Post-run read-only replay of the public Sepolia run database (copy). Times are seconds from the start of each video.",
+  "recordings": {
+    "replay-owner": {
+      "video": "replay-owner.webm",
+      "role": "owner",
+      "segments": [
+        {
+          "id": "signin",
+          "start": 5.89,
+          "end": 13.71
+        },
+        {
+          "id": "overview",
+          "start": 13.71,
+          "end": 49.65
+        },
+        {
+          "id": "agent",
+          "start": 49.65,
+          "end": 98.6
+        },
+        {
+          "id": "proposals",
+          "start": 98.6,
+          "end": 141.66
+        },
+        {
+          "id": "automation",
+          "start": 141.66,
+          "end": 156.34
+        },
+        {
+          "id": "transactions",
+          "start": 156.34,
+          "end": 170.61
+        },
+        {
+          "id": "audit",
+          "start": 170.61,
+          "end": 185.03
+        },
+        {
+          "id": "controls",
+          "start": 185.03,
+          "end": 215.09
+        },
+        {
+          "id": "security",
+          "start": 215.09,
+          "end": 225.22
+        }
+      ],
+      "marks": [
+        {
+          "id": "signin-card",
+          "t": 5.96,
+          "rect": {
+            "x": 1033,
+            "y": 188,
+            "w": 467,
+            "h": 43
+          }
+        },
+        {
+          "id": "treasury",
+          "t": 13.73,
+          "rect": {
+            "x": 260,
+            "y": 349,
+            "w": 500,
+            "h": 376
+          }
+        },
+        {
+          "id": "stats",
+          "t": 13.74,
+          "rect": {
+            "x": 780,
+            "y": 349,
+            "w": 240,
+            "h": 178
+          }
+        },
+        {
+          "id": "killswitch",
+          "t": 13.75,
+          "rect": {
+            "x": 1300,
+            "y": 349,
+            "w": 360,
+            "h": 434
+          }
+        },
+        {
+          "id": "command-center",
+          "t": 20.85,
+          "rect": {
+            "x": 260,
+            "y": 110,
+            "w": 1020,
+            "h": 480
+          }
+        },
+        {
+          "id": "risk-engine",
+          "t": 26.46,
+          "rect": {
+            "x": 260,
+            "y": 110,
+            "w": 500,
+            "h": 509
+          }
+        },
+        {
+          "id": "autonomy",
+          "t": 32.06,
+          "rect": {
+            "x": 780,
+            "y": 110,
+            "w": 500,
+            "h": 509
+          }
+        },
+        {
+          "id": "transactions",
+          "t": 37.63,
+          "rect": {
+            "x": 260,
+            "y": 501,
+            "w": 1020,
+            "h": 528
+          }
+        },
+        {
+          "id": "activity",
+          "t": 43.2,
+          "rect": {
+            "x": 1300,
+            "y": 110,
+            "w": 360,
+            "h": 651
+          }
+        },
+        {
+          "id": "conv-transfer-turn",
+          "t": 56.34,
+          "rect": {
+            "x": 616,
+            "y": 527,
+            "w": 960,
+            "h": 400
+          }
+        },
+        {
+          "id": "conv-transfer-tool",
+          "t": 58.84,
+          "rect": {
+            "x": 636,
+            "y": 308,
+            "w": 920,
+            "h": 466
+          }
+        },
+        {
+          "id": "conv-transfer-actions",
+          "t": 64.3,
+          "rect": {
+            "x": 636,
+            "y": 851,
+            "w": 920,
+            "h": 56
+          }
+        },
+        {
+          "id": "conv-rejected-turn",
+          "t": 71.29,
+          "rect": {
+            "x": 616,
+            "y": 454,
+            "w": 960,
+            "h": 473
+          }
+        },
+        {
+          "id": "conv-rejected-tool",
+          "t": 73.74,
+          "rect": {
+            "x": 636,
+            "y": 235,
+            "w": 920,
+            "h": 466
+          }
+        },
+        {
+          "id": "conv-rejected-actions",
+          "t": 79.21,
+          "rect": {
+            "x": 636,
+            "y": 851,
+            "w": 920,
+            "h": 56
+          }
+        },
+        {
+          "id": "conv-schedule-turn",
+          "t": 86.21,
+          "rect": {
+            "x": 616,
+            "y": 483,
+            "w": 960,
+            "h": 444
+          }
+        },
+        {
+          "id": "conv-schedule-tool",
+          "t": 88.68,
+          "rect": {
+            "x": 636,
+            "y": 110,
+            "w": 920,
+            "h": 674
+          }
+        },
+        {
+          "id": "conv-schedule-actions",
+          "t": 94.15,
+          "rect": {
+            "x": 636,
+            "y": 851,
+            "w": 920,
+            "h": 56
+          }
+        },
+        {
+          "id": "confirmed-0",
+          "t": 105.79,
+          "rect": {
+            "x": 260,
+            "y": 110,
+            "w": 1400,
+            "h": 843
+          }
+        },
+        {
+          "id": "confirmed-0-checks",
+          "t": 107.43,
+          "rect": {
+            "x": 288,
+            "y": 110,
+            "w": 666,
+            "h": 469
+          }
+        },
+        {
+          "id": "confirmed-0-exec",
+          "t": 112.4,
+          "rect": {
+            "x": 288,
+            "y": 110,
+            "w": 1344,
+            "h": 84
+          }
+        },
+        {
+          "id": "confirmed-1",
+          "t": 117.45,
+          "rect": {
+            "x": 260,
+            "y": 211,
+            "w": 1400,
+            "h": 817
+          }
+        },
+        {
+          "id": "confirmed-1-checks",
+          "t": 119.08,
+          "rect": {
+            "x": 288,
+            "y": 381,
+            "w": 666,
+            "h": 443
+          }
+        },
+        {
+          "id": "confirmed-1-exec",
+          "t": 124.02,
+          "rect": {
+            "x": 288,
+            "y": 844,
+            "w": 1344,
+            "h": 84
+          }
+        },
+        {
+          "id": "rejected-card",
+          "t": 130.55,
+          "rect": {
+            "x": 260,
+            "y": 756,
+            "w": 1400,
+            "h": 707
+          }
+        },
+        {
+          "id": "rejected-checks",
+          "t": 132.2,
+          "rect": {
+            "x": 288,
+            "y": 491,
+            "w": 666,
+            "h": 417
+          }
+        },
+        {
+          "id": "rejected-alert",
+          "t": 137.65,
+          "rect": {
+            "x": 288,
+            "y": 928,
+            "w": 1344,
+            "h": 72
+          }
+        },
+        {
+          "id": "task",
+          "t": 146.27,
+          "rect": {
+            "x": 260,
+            "y": 838,
+            "w": 1400,
+            "h": 159
+          }
+        },
+        {
+          "id": "task-runs",
+          "t": 151.32,
+          "rect": {
+            "x": 260,
+            "y": 838,
+            "w": 1400,
+            "h": 251
+          }
+        },
+        {
+          "id": "tx-0x2c83a855",
+          "t": 162,
+          "rect": {
+            "x": 288,
+            "y": 502,
+            "w": 1344,
+            "h": 114
+          }
+        },
+        {
+          "id": "tx-0xedeb6b97",
+          "t": 166.66,
+          "rect": {
+            "x": 288,
+            "y": 388,
+            "w": 1344,
+            "h": 114
+          }
+        },
+        {
+          "id": "audit-badge",
+          "t": 175.21,
+          "rect": {
+            "x": 384,
+            "y": 343,
+            "w": 178,
+            "h": 23
+          }
+        },
+        {
+          "id": "audit-row",
+          "t": 180.28,
+          "rect": {
+            "x": 288,
+            "y": 110,
+            "w": 1344,
+            "h": 969
+          }
+        },
+        {
+          "id": "emergency-card",
+          "t": 189.13,
+          "rect": {
+            "x": 260,
+            "y": 317,
+            "w": 1400,
+            "h": 319
+          }
+        },
+        {
+          "id": "policy-settings",
+          "t": 195.73,
+          "rect": {
+            "x": 260,
+            "y": 110,
+            "w": 1400,
+            "h": 341
+          }
+        },
+        {
+          "id": "limits",
+          "t": 200.76,
+          "rect": {
+            "x": 260,
+            "y": 273,
+            "w": 1400,
+            "h": 217
+          }
+        },
+        {
+          "id": "allowlist",
+          "t": 205.81,
+          "rect": {
+            "x": 260,
+            "y": 514,
+            "w": 1400,
+            "h": 226
+          }
+        },
+        {
+          "id": "agent-key",
+          "t": 210.85,
+          "rect": {
+            "x": 260,
+            "y": 764,
+            "w": 1400,
+            "h": 264
+          }
+        },
+        {
+          "id": "health",
+          "t": 220.21,
+          "rect": {
+            "x": 972,
+            "y": 341,
+            "w": 688,
+            "h": 252
+          }
+        },
+        {
+          "id": "authority",
+          "t": 220.21,
+          "rect": {
+            "x": 260,
+            "y": 616,
+            "w": 1400,
+            "h": 303
+          }
+        }
+      ]
+    },
+    "replay-viewer": {
+      "video": "replay-viewer.webm",
+      "role": "viewer",
+      "segments": [
+        {
+          "id": "signin",
+          "start": 2.9,
+          "end": 10.1
+        },
+        {
+          "id": "viewer-overview",
+          "start": 10.1,
+          "end": 15.13
+        },
+        {
+          "id": "viewer-controls",
+          "start": 15.13,
+          "end": 24.26
+        },
+        {
+          "id": "viewer-agent",
+          "start": 24.26,
+          "end": 32.37
+        },
+        {
+          "id": "viewer-treasury",
+          "start": 32.37,
+          "end": 40.44
+        }
+      ],
+      "marks": [
+        {
+          "id": "signin-card",
+          "t": 2.93,
+          "rect": {
+            "x": 1033,
+            "y": 188,
+            "w": 467,
+            "h": 43
+          }
+        },
+        {
+          "id": "role-badge",
+          "t": 13.63,
+          "rect": {
+            "x": 1612,
+            "y": 16,
+            "w": 64,
+            "h": 32
+          }
+        },
+        {
+          "id": "viewer-alert",
+          "t": 19.24,
+          "rect": {
+            "x": 260,
+            "y": 317,
+            "w": 1400,
+            "h": 49
+          }
+        },
+        {
+          "id": "viewer-emergency",
+          "t": 19.25,
+          "rect": {
+            "x": 260,
+            "y": 390,
+            "w": 1400,
+            "h": 319
+          }
+        },
+        {
+          "id": "viewer-agent-alert",
+          "t": 28.36,
+          "rect": {
+            "x": 260,
+            "y": 482,
+            "w": 1400,
+            "h": 49
+          }
+        },
+        {
+          "id": "viewer-withdraw",
+          "t": 36.44,
+          "rect": {
+            "x": 1000,
+            "y": 902,
+            "w": 632,
+            "h": 16
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "name": "security-tests",
+  "title": "Backend permission & authorization tests (local test chain)",
+  "command": "node --test --test-reporter=spec test/api.security.test.js",
+  "cwd": "backend",
+  "startedAt": "2026-10-16T15:28:42.856Z",
+  "exitCode": 0,
+  "seconds": 23.2,
+  "videoProcessStart": 3.14,
+  "videoProcessEnd": 26.36
+}

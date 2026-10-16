@@ -1,0 +1,32 @@
+Owner-approval verification · public Ethereum Sepolia run (read-only)
+proposal 2556bd41-3031-4b39-893e-a9b6389b0b95 · source AGENT · approval_kind OWNER_SIGNATURE · data: copy of backend/data/sepolia
+
+EIP-712 typed data the owner signed  (primaryType ApproveTransfer)
+  domain     "AgentWallet Operator Approval" v1 · chainId 11155111 · verifyingContract 0x8A44716Efabb6Ce401291B91D4427149CaF956a6
+  proposalId 2556bd41-3031-4b39-893e-a9b6389b0b95
+  intentId   0x2e1cc84883750425f4117183444caa13886ea5a40c61a52c4fff6f5c8d46567c
+  token      0x0000000000000000000000000000000000000000  (native ETH)
+  recipient  0x82446B165d0d55051af76e3aD7852B0F3141904e
+  amount     100000000000000 wei  (0.0001 ETH)
+  deadline   1792145839  (2026-10-16T10:17:19.000Z)
+  signature  0xd284bbefbbd786f6cafe…e8f6051b
+
+Authorization
+✓ EIP-712 signer recovered = contract owner()  0x10A0d3247a1446fD30ba40D14e4272206278b5ba · owner() 0x10A0d3247a1446fD30ba40D14e4272206278b5ba
+✓ backend recorded approved_by = recovered signer  0x10A0…b5ba
+✓ same signature in hash-chained audit entry #6 PROPOSAL_APPROVED
+
+Execution on Ethereum Sepolia  0x2c83a855d812b3f278720f3f5a572d358a520e4fbfd4f65fd666e77ad22e37fb
+✓ receipt status SUCCESS · block 11926668
+✓ sent by the AGENT key, not the owner  0x30D53BD30B6D60E7c49829D6Df79b5B7E4CBBD1D
+✓ method executeTransfer(intent, token, recipient, amount)
+✓ on-chain intentId = signed intentId  0x2e1cc84883750425…
+✓ on-chain recipient = signed recipient  0x8244…904e
+✓ on-chain amount = signed amount  0.0001 ETH
+✓ mined before the signed deadline  2026-10-16T10:08:00.000Z
+
+Note: the owner signature is verified off-chain by the backend; the contract does not check it. On-chain, the contract
+enforces that only the agent key can call executeTransfer, to an allowlisted recipient, within caps, once per intent.
+Public-run signing used a test-only EIP-1193 bridge holding the owner key (not MetaMask).
+
+OWNER AUTHORIZATION VERIFIED

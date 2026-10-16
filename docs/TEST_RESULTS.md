@@ -1,5 +1,21 @@
 # Test Results
 
+> **Update 2026-10-17 (contract v2 and audit fixes F1–F3, local only).** A clean sequential run on a frozen tree gave:
+>
+> | Suite | Result |
+> |---|---|
+> | Contracts | 53/53 |
+> | Backend | 145/145 |
+> | Frontend | 32/32 |
+> | Browser | 4/4 |
+> | End-to-end | 8/8 |
+> | RL | 25/25 |
+> | Real MetaMask (local Hardhat, v2) | 11/11 |
+> | Live gpt-4.1-mini | 19/19 (47/47 graded checks) |
+>
+> Details and red-before-green evidence: [SECURITY_SELF_ASSESSMENT.md §11](SECURITY_SELF_ASSESSMENT.md) and
+> [CONTRACT_V2.md](CONTRACT_V2.md). The sections below are the earlier record and describe v1.
+
 Recorded 2026-10-15 on Windows, branch `feature/phase-1-secure-foundation`, with the uncommitted Phase 1 and Phase 2 working tree preserved.
 
 | Suite | Command | Result | Coverage |

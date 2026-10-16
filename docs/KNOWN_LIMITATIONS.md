@@ -1,9 +1,12 @@
 # Known Limitations
 
-As of the end of Phase 2 (2026-10-15).
+As of the end of Phase 2 (2026-10-15), with 2026-10-17 additions:
+- **Contract v2 is local only.** The public Sepolia contract is v1. On it, the owner's approval and task grants are verified by the backend, not the contract, so a stolen agent key could spend within the caps to allowlisted recipients until `emergencyStop`. v2 closes this on-chain but is not deployed ([CONTRACT_V2.md](CONTRACT_V2.md)).
+- **On v2, a grant's schedule is enforced off-chain.** The contract enforces its signature, expiry, remaining runs and total, and revocation.
+- **Public signing used a test-only wallet bridge.** Real MetaMask was verified on local Hardhat chains (11/11 on v2).
 
 ## LLM agent
-- **No real model was exercised in this environment.** No API key or local model server was available. The agent loop, tool validation, policy integration, memory and failure handling are verified with a scripted test provider, and the Anthropic wire format with an injected-fetch contract test. *How well a real model understands the example commands is unmeasured.* Set `ANTHROPIC_API_KEY` (or an OpenAI-compatible endpoint) and run the console to evaluate it; an eval set is the next step.
+- **Real-model coverage is limited.** gpt-4.1-mini was exercised by the live safety suite (19/19 assertions × 4 runs, `LIVE_LLM_VERIFICATION.md`) and drafted both public Sepolia transfers. Beyond those, how well a real model understands arbitrary commands is unmeasured; a broader eval set is the next step.
 - **Strict tool schemas use nullable type unions** (`["string","null"]`). Accepted by the JSON Schema used, but not verified against the live Anthropic strict-mode validator.
 - **One provider per process;** no automatic provider failover beyond Anthropic's server-side refusal fallback.
 - **No streaming:** each turn returns when complete (at most 8 model calls by default).
@@ -31,12 +34,12 @@ As of the end of Phase 2 (2026-10-15).
 
 ## Chain and contract (unchanged from Phase 1)
 - **Daily caps use UTC calendar days**, so up to 2× the cap can move within 24 hours around midnight.
-- **Not deployed on Base Sepolia.** Needs explicit approval and testnet ETH.
+- **Deployed on Ethereum Sepolia, not on Base Sepolia.** The Sepolia run (2026-10-16) is in `evidence/sepolia/`. Base Sepolia is prepared and rehearsed but not executed (faucet constraints). The Sepolia contract is now emergency-stopped (paused, agent revoked); any new public demonstration needs owner transactions and explicit approval.
 - **Fee-on-transfer and rebasing tokens** are not accounted for.
 - **The indexer rewinds 12 blocks** on a reorg; deeper reorgs are not handled.
 
 ## Environment
 - **Memory:** the dev machine had about 0.6 GB free RAM. Under that pressure a backend process once failed to start (V8 "out of memory: Zone" while compiling PGlite WASM). On constrained hosts use PostgreSQL via `DATABASE_URL`.
-- **Not browser-tested:** frontend pages were checked by component tests and production build only, not with MetaMask in a browser (dev servers could not be started from this session).
+- **Browser coverage:** the console is tested with Playwright through a test wallet bridge (3 flows) and with the real MetaMask 13.52.0 extension on a local chain (11/11 rows on 2026-10-15; 10 PASS + 1 BLOCKED-by-paid-LLM on 2026-10-16). The public Sepolia run used the test-only bridge, not MetaMask.
 - **Docker** images and compose are written but unbuilt; Docker is not installed. The RL image now installs PyTorch CPU to load checkpoints.
 - **No dependency vulnerability scan** (`npm audit`, `pip-audit`) has been run.

@@ -1,0 +1,11 @@
+{
+  "name": "audit",
+  "title": "Audit hash-chain verification · public Sepolia run database (copy)",
+  "command": "node submission/tools/verify-audit-chain.mjs",
+  "cwd": ".",
+  "startedAt": "2026-10-16T15:28:05.429Z",
+  "exitCode": 0,
+  "seconds": 8.5,
+  "videoProcessStart": 3.23,
+  "videoProcessEnd": 11.69
+}

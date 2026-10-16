@@ -1,0 +1,261 @@
+{
+  "label": "LOCAL HARDHAT (chain 31337), AgentWallet contract v2, not deployed publicly",
+  "createdAt": "2026-10-16T22:18:14.246Z",
+  "files": [
+    {
+      "path": "live-llm-report.json",
+      "bytes": 21109,
+      "sha256": "0446f27a1df10a669291a9db5b945c2849bd6c6f10061c4120cf9c3fbba40bd7"
+    },
+    {
+      "path": "metamask/report.json",
+      "bytes": 11421,
+      "sha256": "c73a3018d4b8a8a35b6bd9430819c16ecc82be12790bd2dbbfae3207bb6eeeaa"
+    },
+    {
+      "path": "metamask/report.md",
+      "bytes": 9137,
+      "sha256": "bf328df3a0a5b3c957b4d09267d2f734ba0910dc463914a9e500a8bb49e6258d"
+    },
+    {
+      "path": "metamask/row-1-connect-reject.png",
+      "bytes": 33262,
+      "sha256": "e7dcdaf6d54cd32bc41d5466f3fdbf4c151d9276cc5731601e7d70ad073af62f"
+    },
+    {
+      "path": "metamask/row-1-connect.png",
+      "bytes": 33308,
+      "sha256": "eafc864fac36a54198621f03eefd4a6f00ec82ac8d44f995454f21eb7862dd34"
+    },
+    {
+      "path": "metamask/row-1-console.png",
+      "bytes": 138023,
+      "sha256": "f1f9b716f98cbda222d9bf2ec16005e81b637b0585317e8e2c451bfb84d41c8d"
+    },
+    {
+      "path": "metamask/row-10-console.png",
+      "bytes": 185513,
+      "sha256": "e84c18d31b7bcbb0a69263ac96e7691abe83c7f26088a772c0dc3360faaabe48"
+    },
+    {
+      "path": "metamask/row-10-permissions-1.png",
+      "bytes": 33758,
+      "sha256": "875582aff79ff975c229d58d68f50feb0dcdfdc97d24df433c6b046968f9cd3e"
+    },
+    {
+      "path": "metamask/row-10-permissions-2.png",
+      "bytes": 24396,
+      "sha256": "a1ff07fd6d165216913424fcffcc53b96fcb3239f8b578afe334ff0a565aaf7f"
+    },
+    {
+      "path": "metamask/row-10-sign-in.png",
+      "bytes": 73878,
+      "sha256": "bcd6c4a805c263938485dac75469c0d7bd851dfdeb26f2381b281ae14b3f8e02"
+    },
+    {
+      "path": "metamask/row-11-console.png",
+      "bytes": 145455,
+      "sha256": "3219f01d79bd98ee7922366f0cb2e5efc48ebfbdda65aee5b211cdbe3a73ee2d"
+    },
+    {
+      "path": "metamask/row-11-other-network-1.png",
+      "bytes": 40379,
+      "sha256": "ea351fa9f0b37b64fd73d48477eb619dbaac21c374d03ef27ae1fc2bc0942a50"
+    },
+    {
+      "path": "metamask/row-2-console.png",
+      "bytes": 139669,
+      "sha256": "3d1e8cd9ae87f44266b3ccf1c1042091dc140a4aa682247106f2f1af1e93b04e"
+    },
+    {
+      "path": "metamask/row-2-network-1.png",
+      "bytes": 36611,
+      "sha256": "5b72db25b23cb1b30bb969bcc5966be2d071d3409d8902016fa488b95441cd0a"
+    },
+    {
+      "path": "metamask/row-3-console.png",
+      "bytes": 147736,
+      "sha256": "33db787d3263c5121a3072d2e6c14a50799ef7bc1a16e0317f04749ae4990e0f"
+    },
+    {
+      "path": "metamask/row-3-sign-in.png",
+      "bytes": 74151,
+      "sha256": "e06bb68131009d7b4ac1f82d9649993e428411c0453fe22a6750645193302fae"
+    },
+    {
+      "path": "metamask/row-4-console.png",
+      "bytes": 164208,
+      "sha256": "b3e85bdc6a0c572004c595101ab45a676fdae5a868e24d3449895b3b09ad98e1"
+    },
+    {
+      "path": "metamask/row-4-typed-data.png",
+      "bytes": 87300,
+      "sha256": "984078b1ab428e58b665e43c1a63213b7be55269cdf4a7eb06ee9ca744a44b7f"
+    },
+    {
+      "path": "metamask/row-5-console.png",
+      "bytes": 160861,
+      "sha256": "bdf3b5aec281ce6d356daca1ec609cdf884c42f73dff735781d3c78a1d39c3f1"
+    },
+    {
+      "path": "metamask/row-5-typed-data-reject.png",
+      "bytes": 87056,
+      "sha256": "5d95dc8c8843769b7624ac59fcd0dcb2c97eea75c380eede251c991264cf0745"
+    },
+    {
+      "path": "metamask/row-6-console.png",
+      "bytes": 149797,
+      "sha256": "a41eaa4d0c5bcb18437d6793ec27efbdb1c30efe2fc755d56c2cf8f98b11e556"
+    },
+    {
+      "path": "metamask/row-6-pause.png",
+      "bytes": 57686,
+      "sha256": "fc5993b78545ce2cce407e04db987a17a9a46c98a7c3af58bb620ca8423ef0c8"
+    },
+    {
+      "path": "metamask/row-6-unpause.png",
+      "bytes": 57805,
+      "sha256": "0a5797d6d34103257cef50359df5e179aeec39f616d45a1d5554d9275478cf54"
+    },
+    {
+      "path": "metamask/row-7-console.png",
+      "bytes": 116339,
+      "sha256": "efe7372102eebb48f0c184b4cf3235295d42ed77111dec3cd901bf017a53cf15"
+    },
+    {
+      "path": "metamask/row-7-deposit.png",
+      "bytes": 59755,
+      "sha256": "17b65d2cef094bbfbe8466fc0433bddbb87453be7ed42de03de192435532127e"
+    },
+    {
+      "path": "metamask/row-8-console.png",
+      "bytes": 136640,
+      "sha256": "7622c21228dbeea16598515d94311dd2f9d98b04eedd0a50bffc800c1c9a15f6"
+    },
+    {
+      "path": "metamask/row-8-grant.png",
+      "bytes": 93427,
+      "sha256": "813d23a502233e594037e40307ee973d1824e8204a8971761048e344b8039417"
+    },
+    {
+      "path": "metamask/row-9-console.png",
+      "bytes": 158469,
+      "sha256": "c9666fc8f04ce96fc16675dd3733019604bf12f43ba28c65a4900d545b56fbea"
+    },
+    {
+      "path": "metamask/row-9-typed-data.png",
+      "bytes": 86861,
+      "sha256": "a8708cf7b099aa3424fb6ec1f1720e7c68b3e1fba1a604cfab58c917d91eef4d"
+    },
+    {
+      "path": "README.md",
+      "bytes": 3487,
+      "sha256": "baed485928bf8ff0551b5ab455b9453abe6c740f996b33f48088ed6f3f97339d"
+    },
+    {
+      "path": "recordings/metamask/page@0217faba9e6cf078aef3810041de45dc.webm",
+      "bytes": 754976,
+      "sha256": "3773f50d8c488fe18f228d8dc5ef42a2c112e984ed25f71fe757aafa82ea0a71"
+    },
+    {
+      "path": "recordings/metamask/page@09c2d0b6c3ee5eda6133a9b58ccdd0a2.webm",
+      "bytes": 438209,
+      "sha256": "07f1acc4b7e3ed369eadee9f58b81d77bf0e88f0a9be87da2f1e35e919d7f730"
+    },
+    {
+      "path": "recordings/metamask/page@0c806e65200a35700529886124917be5.webm",
+      "bytes": 656386,
+      "sha256": "a62a55f7fcdfc6c5dccb70a83486945bf729c9cd7d9e92c59b587d4a43710f5a"
+    },
+    {
+      "path": "recordings/metamask/page@12dc9488d0287619a50c2ee82df869b4.webm",
+      "bytes": 464296,
+      "sha256": "3ef3e5223b883fa2b4a494c5b242d42f9851d9de321362ab5c7954323c6bfd18"
+    },
+    {
+      "path": "recordings/metamask/page@15136476da30bded4d773e87d8941a11.webm",
+      "bytes": 1644228,
+      "sha256": "d968db07c1c310efbe3d46b6cf86fae0e006aad14c56888eae39fce622d6b809"
+    },
+    {
+      "path": "recordings/metamask/page@1c37896937d26f7205762956dcc3dc62.webm",
+      "bytes": 666223,
+      "sha256": "c7eec6d230dde39b4ec0b9006aa97960bb4f6d8c5400920bc9bcba00e694b7eb"
+    },
+    {
+      "path": "recordings/metamask/page@1d8b8e68bd58fd1a652a7d8d6f1febd9.webm",
+      "bytes": 71840081,
+      "sha256": "5a93eb94b78be457c81eb9a1a97f5a96d7e48b695bcddcccb56e50db10dee144"
+    },
+    {
+      "path": "recordings/metamask/page@45469a7b7709362ca886688983f19713.webm",
+      "bytes": 569080,
+      "sha256": "573d31a2c757148667c05daa7a279fb39da76bb8bccbc9a72177002f27cdd9b3"
+    },
+    {
+      "path": "recordings/metamask/page@6dab4d0008eaed8ecd88557c21bf7522.webm",
+      "bytes": 324672,
+      "sha256": "cb748ed725e7fc9a1302bcbc39e798c84e837218dca9f09bbaaddbdb095e8bb0"
+    },
+    {
+      "path": "recordings/metamask/page@838173d50dc95e0ec2180379753cecc6.webm",
+      "bytes": 708784,
+      "sha256": "8da086a1d52172c338fd58ab1398d249ce3b38b56395c6f8c7321c3eda93a841"
+    },
+    {
+      "path": "recordings/metamask/page@9a762673e53d9750b182d61537aa1bb4.webm",
+      "bytes": 659558,
+      "sha256": "490d9e66318a8caa3bb0e8463ffc632faa32c5f82464a0782c2332e407a3fa12"
+    },
+    {
+      "path": "recordings/metamask/page@9eaa567c245eee09bbfa333bb23915e7.webm",
+      "bytes": 1727,
+      "sha256": "0d69d859299ea4da96c1907b7a8fd8abf8c53b9602f249de6834caf574c23fb6"
+    },
+    {
+      "path": "recordings/metamask/page@d5378369cbdb8d8e3d9ca957e684b9ca.webm",
+      "bytes": 1082212,
+      "sha256": "c8784efdeb70eefe8bd9f3c8def11f69a6d67839bf02b1330a4405bd0f237b7e"
+    },
+    {
+      "path": "recordings/metamask/page@da42fea64d90105810698fbecedc10c4.webm",
+      "bytes": 903117,
+      "sha256": "1c69729d414f05612268a3dc23ed5d5604cca326ddaa4a00701189a3bd93d13b"
+    },
+    {
+      "path": "recordings/metamask/page@e8d9d5d93502e76602269d9cd0341115.webm",
+      "bytes": 1727,
+      "sha256": "07bf3cad93d50540f105637419ca65f8941bc4aa56ea92968e07c72386439bce"
+    },
+    {
+      "path": "recordings/metamask/page@ffd56dea6f5282e28b2fb2544659b249.webm",
+      "bytes": 20051174,
+      "sha256": "494e4e23669c43ed69611d389ed9e5d9d307762fb3fab5deb228fd9c792048ae"
+    },
+    {
+      "path": "recordings/showcase/.last-run.json",
+      "bytes": 45,
+      "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903"
+    },
+    {
+      "path": "recordings/showcase/v2.showcase.live-LOCAL-v2--ba177-ocation-and-blocked-attacks/video.webm",
+      "bytes": 16961649,
+      "sha256": "9471b5c381d3fb9bf94bb6e195ea2831028800f53db47b62f7d66d87bb141d36"
+    },
+    {
+      "path": "showcase/final.png",
+      "bytes": 157941,
+      "sha256": "ce8b1b725caed4f406538029f13a0a656be156d81dae46e4a5ab635751b5e180"
+    },
+    {
+      "path": "showcase/playwright-results.json",
+      "bytes": 4502,
+      "sha256": "5341f518912c6689fbd73a336b09cc7f57766e4804c2a00e01449eae8fa58d29"
+    },
+    {
+      "path": "showcase/showcase-evidence.json",
+      "bytes": 3134,
+      "sha256": "1ced85986d80c31d966dc667d9fb2c4d9c5dcdc205baddbbd35c8bdd9b2e4a1f"
+    }
+  ]
+}

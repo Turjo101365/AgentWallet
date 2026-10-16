@@ -1,7 +1,13 @@
 # AgentWallet Architecture
 
-Status as of Phase 2 (2026-10-15). For what is verified and what is not, see
+Status as of Phase 2 (2026-10-15), updated 2026-10-17 for contract v2. For what is verified and what is not, see
 [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md).
+
+> **Two contract versions exist.** **v1** is deployed on Ethereum Sepolia (`0x8A44…956a6`, the 11-transaction
+> public run). Its agent key may call `executeTransfer` with no signature; the owner's EIP-712 approval is
+> checked by the backend. **v2** (the current `contracts/src`, local only, not deployed) verifies the owner's
+> approval or task grant on-chain. The backend supports both and detects which one it is talking to.
+> Details: [CONTRACT_V2.md](CONTRACT_V2.md).
 
 ## 1. Principle
 
@@ -10,12 +16,14 @@ AgentWallet separates **who plans**, **who authorizes** and **who can move funds
 | Role | Holder | Can do | Cannot do |
 |---|---|---|---|
 | Owner (custodian) | Operator's own wallet (MetaMask). Never seen by the backend. | Set limits, allowlist, agent, pause, withdraw. Approve single transfers (EIP-712). Sign bounded task grants (EIP-712). Loosen policy settings. | — |
-| Agent (executor) | Backend credential provider: encrypted keystore, env key, or Hardhat dev key (local only) | Call `executeTransfer` only: allowlisted recipient, enabled asset, per-tx and daily caps, once per intent id | Change any setting, withdraw, become owner |
+| Agent (executor) | Backend credential provider: encrypted keystore, env key, or Hardhat dev key (local only) | v1: call `executeTransfer`. v2: call `executeApprovedTransfer` / `executeGrantTransfer` **with the owner's signature, verified on-chain**. Both: allowlisted recipient, enabled asset, per-tx and daily caps, once per intent id | Change any setting, withdraw, become owner; on v2 also move funds without an owner signature |
 | LLM planner | Anthropic (`claude-opus-5-5`) or any OpenAI-compatible endpoint | Read tools; draft transfers and tasks; tighten policy; pause automation; cancel tasks | Sign, approve, resume automation, loosen limits, use non-allowlisted addresses, see keys |
 | RL timing advisor | Python service with trained PPO/DQN checkpoints | Advise WAIT or EXECUTE_NOW inside an authorized execution window | Choose recipient or amount, skip the deadline, bypass policy |
 
 Security does not depend on either model being correct. Trusted backend code enforces policy,
-and the smart contract enforces the hard limits again on-chain.
+and the smart contract enforces the hard limits again on-chain. On v2 the contract also enforces the owner's
+signature, the signed deadline and the grant bounds, so a compromised backend or agent key cannot move funds
+the owner did not sign for.
 
 ## 2. Components
 
@@ -42,7 +50,7 @@ Backend (Express, backend/src)
   │
   ├──▶ RL timing service (FastAPI, rl-engine/)   trained checkpoints or "unavailable"
   ├──▶ LLM provider (HTTPS)                      optional
-  └──▶ EVM JSON-RPC (Hardhat 31337 or Base Sepolia 84532) ─ AgentWallet.sol, price feeds
+  └──▶ EVM JSON-RPC (Hardhat 31337, Ethereum Sepolia 11155111 or Base Sepolia 84532) ─ AgentWallet.sol (v1 or v2), price feeds
 ```
 
 ## 3. Paths to a transfer
@@ -60,11 +68,30 @@ riskEngine: snapshot(block N) + allowlist + reservations + settings + prices
   -> checks: AUTOMATION_ACTIVE (tasks), AGENT_ACTIVE, CONTRACT_ACTIVE, EXECUTOR_AUTHORIZED,
              TOKEN_SUPPORTED, RECIPIENT_VALID, RECIPIENT_ALLOWLISTED, RECIPIENT_TYPE, AMOUNT_POSITIVE,
              PER_TX_LIMIT, DAILY_LIMIT, BALANCE_AND_RESERVE, USD_DAILY_LIMIT, GAS_PRICE, EXECUTOR_GAS
-  -> SIMULATION (staticCall + estimateGas from the executor)
+  -> SIMULATION (staticCall + estimateGas from the executor: v1 executeTransfer; v2 simulateTransfer before
+                signing (full checks and the real send, then always reverts), then the exact signed
+                executeApprovedTransfer / executeGrantTransfer)
   -> explanation { outcome: REJECTED | DEFERRED | ESCALATED | AUTO_APPROVED | ALLOWED_PENDING_APPROVAL, headline, blockedBy }
 ```
 
 The assessment runs at creation, again at approval (owner or grant), and again in executor pre-flight.
+
+**Executor pre-flight authorization** happens immediately before signing, on both contract versions, in
+`executorService.checkAuthorization`. A failure fails the proposal and nothing is signed. The checks:
+
+| Check | Fails with |
+|---|---|
+| The proposal's chain, contract and intent id derive from its id | `AUTHORIZATION_SCOPE_MISMATCH` |
+| The signed execution deadline has not passed, including after restart recovery | `APPROVAL_EXPIRED` |
+| The stored owner signature recovers to the recorded approver over the row as stored | `APPROVAL_SIGNATURE_INVALID` |
+| The approver is still `owner()` | `APPROVER_NOT_OWNER` |
+| Grant runs: the task is not cancelled or expired | `GRANT_REVOKED` |
+| Grant runs: the grant has not expired | `GRANT_EXPIRED` |
+| Grant runs: the grant typed data is rebuilt from the task columns and equals the stored copy | `GRANT_SIGNATURE_INVALID` |
+| Grant runs: the signature recovers to the authorizer, who is still the owner | `GRANT_SIGNATURE_INVALID`, `APPROVER_NOT_OWNER` |
+| Grant runs: the proposal's token, recipient and amount equal the grant's | `GRANT_SIGNATURE_INVALID` |
+
+The scheduler applies the same grant rebuild before auto-approving a run; a mismatch escalates the run to the owner (`TASK_GRANT_INVALID` in the audit log).
 
 ## 4. Autonomous tasks
 
@@ -87,7 +114,8 @@ scheduler tick (every SCHEDULER_TICK_MS):
 - `run_key` uniqueness;
 - the claim compare-and-set;
 - one proposal per run attempt, plus the proposal state machine;
-- the contract's `executedIntents`.
+- the contract's `executedIntents`;
+- on v2, the contract's per-grant run and total counters.
 
 **Recovery:** expired leases are re-acquired. Runs left `CLAIMED` by a crashed process are linked to their proposal or retried, with the grant reservation released. The executor resumes approved and submitted transactions.
 

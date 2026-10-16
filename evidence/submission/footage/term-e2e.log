@@ -1,0 +1,72 @@
+▶ local-chain end-to-end
+  ✔ health is ok with a verified chain, database and executor (29.0599ms)
+  ✔ owner signs in with SIWE and gets the owner role from the contract (124.1923ms)
+  ✔ a real agent transfer: proposal -> EIP-712 approval -> executor -> verified receipt (1362.1109ms)
+  ✔ the indexer records the TransferExecuted event in verified history (19.229ms)
+  ✔ trained RL checkpoints serve genuine timing inference through the backend (2560.8643ms)
+  ✔ autonomous scheduled payment: signed grant -> background scheduler -> RL timing -> agent tx -> confirmed (10032.6059ms)
+  ✔ portfolio valuation uses the deployed (synthetic) price feeds (117.7006ms)
+  ✔ state and sessions survive a backend restart; the audit chain verifies (3302.4324ms)
+
+E2E_EVIDENCE {
+  "rlEngine": {
+    "status": "ok",
+    "task": "execution_timing",
+    "policies": {
+      "PPO": "available",
+      "DQN": "available"
+    }
+  },
+  "contract": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+  "owner": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+  "agentExecutor": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+  "recipient": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+  "proposalId": "a1b099fb-1636-4eaa-bd54-3c05bcefd33e",
+  "intentId": "0xd157a454c178327a82597ffa110663433f48f94abfbf71f0781c3214ca4e86fb",
+  "txHash": "0x270fedd47c6c615233b3c13c0e59b35e2cc1df6e1d5647e6c8fc9529eeeb2a17",
+  "blockNumber": 10,
+  "gasUsed": "93881",
+  "recipientDeltaWei": "7500000000000000",
+  "walletBalanceBeforeEth": "5.0",
+  "walletBalanceAfterEth": "4.9925",
+  "simulationGasEstimate": "99015",
+  "rlTiming": {
+    "agentType": "PPO",
+    "modelVersion": "ppo-timing-bf448d29024c-s42-t200000",
+    "advice": "WAIT",
+    "samples": 4,
+    "actionProbabilities": [
+      0.999262273311615,
+      0.0007377726724371314
+    ]
+  },
+  "autonomousRun": {
+    "taskId": "aa795b16-8314-417e-be40-a818d66f9b63",
+    "runStatus": "CONFIRMED",
+    "decision": "AUTO_APPROVED",
+    "timing": {
+      "status": "deadline",
+      "advice": "EXECUTE_NOW"
+    },
+    "txHash": "0x8574c169aaad0f7e388e32dff19bf2979d8dfce6f05e2d4016f5fe5ec4852a3a",
+    "blockNumber": 11,
+    "gasUsed": "76793"
+  },
+  "portfolio": {
+    "totalUsd": "24970.00",
+    "allocation": [
+      "ETH 59.95%",
+      "mUSDC 40.05%"
+    ]
+  },
+  "auditEntries": 15
+}
+✔ local-chain end-to-end (30031.4959ms)
+ℹ tests 8
+ℹ suites 1
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 30474.3177
