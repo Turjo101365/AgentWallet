@@ -1,0 +1,4 @@
+# Evidence files are listed with SHA-256 hashes in their MANIFEST.json files and re-verified by submission/tools.
+# Never convert their line endings on checkout or commit, so every clone reproduces the published hashes byte for byte.
+evidence/** -text
+submission/06-execution-evidence/** -text
