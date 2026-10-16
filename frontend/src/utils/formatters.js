@@ -28,3 +28,28 @@ export function formatDateTime(unixOrIso) {
   const d = typeof unixOrIso === 'number' ? new Date(unixOrIso * 1000) : new Date(unixOrIso);
   return d.toLocaleString();
 }
+
+/** Gas price with a readable unit. Testnet prices can be far below 1 gwei, so tiny values switch to wei. */
+export function formatGas(gwei) {
+  const n = Number(gwei);
+  if (gwei === null || gwei === undefined || gwei === '' || !Number.isFinite(n)) return '—';
+  if (n === 0) return '0 gwei';
+  if (n >= 1) return `${n.toFixed(2).replace(/\.?0+$/, '')} gwei`;
+  if (n >= 0.001) return `${Number(n.toPrecision(3))} gwei`;
+  return `${Number((n * 1e9).toPrecision(3))} wei`;
+}
+
+/** Ratio of two decimal strings as a 0-100 percentage, for display only (meters). */
+export function percentOf(part, whole) {
+  const p = Number(part);
+  const w = Number(whole);
+  if (!Number.isFinite(p) || !Number.isFinite(w) || w <= 0) return 0;
+  return Math.max(0, Math.min(100, (p / w) * 100));
+}
+
+export function humanizeAction(action) {
+  return String(action || '')
+    .toLowerCase()
+    .replace(/_/g, ' ')
+    .replace(/^\w/, (c) => c.toUpperCase());
+}

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { parseUnits, isAddress } from 'ethers';
-import { Card, CardHeader, CardContent } from '../components/ui/Card.jsx';
+import { Card, CardHeader, CardContent, PageHeader } from '../components/ui/Card.jsx';
 import { Button } from '../components/ui/Button.jsx';
 import { Alert } from '../components/ui/Alert.jsx';
 import { Badge } from '../components/ui/Badge.jsx';
@@ -12,7 +12,7 @@ import { useOwnerTx } from '../hooks/useOwnerTx.js';
 import { post, put, describeError } from '../lib/api.js';
 import { truncateAddress, formatAmount } from '../utils/formatters.js';
 
-const input = 'w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-mono focus:outline-none focus:ring-1 focus:ring-primary';
+const input = 'field';
 const DECIMAL = /^(0|[1-9]\d*)(\.\d+)?$/;
 
 function LimitRow({ token, onSave, disabled }) {
@@ -20,7 +20,7 @@ function LimitRow({ token, onSave, disabled }) {
   const [daily, setDaily] = useState(token.formatted.dailyLimit);
   const [enabled, setEnabled] = useState(token.enabled);
   return (
-    <div className="grid grid-cols-12 gap-2 items-end text-xs py-2 border-b border-slate-50 last:border-0">
+    <div className="grid grid-cols-12 gap-3 items-end text-xs py-3 border-b border-slate-100 last:border-0">
       <div className="col-span-12 sm:col-span-2 font-semibold font-mono">{token.symbol}</div>
       <label className="col-span-5 sm:col-span-3 space-y-1 text-slate-500"><span>Per-tx cap</span><input className={input} value={perTx} onChange={(e) => setPerTx(e.target.value)} /></label>
       <label className="col-span-5 sm:col-span-3 space-y-1 text-slate-500"><span>Daily cap</span><input className={input} value={daily} onChange={(e) => setDaily(e.target.value)} /></label>
@@ -94,35 +94,55 @@ export function Controls() {
   if (!s) return <div className="text-sm text-slate-500">Loading on-chain state…</div>;
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-extrabold tracking-tight text-on-surface">Risk controls</h1>
-        <p className="text-sm text-slate-500 mt-1">On-chain controls are owner transactions signed in your wallet and enforced by the contract.</p>
-      </div>
+      <PageHeader eyebrow="Risk engine · owner-signed" title="Risk controls">
+        On-chain controls are owner transactions signed in your wallet and enforced by the contract.
+      </PageHeader>
       {!isOwner && <Alert variant="warning">You are signed in as a viewer. Only the contract owner ({truncateAddress(s.owner)}) can change controls.</Alert>}
       <TxStatus tx={tx} />
       {error && <Alert variant="error">{error}</Alert>}
 
-      <Card>
-        <CardHeader title="Emergency controls" />
-        <CardContent className="flex flex-wrap gap-3 items-center text-xs">
-          <span>Contract: {s.paused ? <Badge variant="error">Paused</Badge> : <Badge variant="success">Active</Badge>}</span>
-          <Button variant="secondary" disabled={busy} onClick={() => tx.send(s.paused ? 'Unpause contract' : 'Pause contract', ({ wallet: w }) => (s.paused ? w.unpause() : w.pause())).then(done)}>
-            {s.paused ? 'Unpause contract' : 'Pause contract'}
-          </Button>
-          <Button variant="danger" disabled={busy} icon="emergency" onClick={() => tx.send('Emergency stop', ({ wallet: w }) => w.emergencyStop()).then(done)}>
-            Emergency stop (pause + revoke agent)
-          </Button>
-          <span className="ml-auto">Off-chain agent: {s.agentPaused?.paused ? <Badge variant="error">Paused</Badge> : <Badge variant="success">Active</Badge>}</span>
-          <Button variant="secondary" disabled={!isOwner || offChainBusy} onClick={() => offChain(s.agentPaused?.paused ? '/agent/resume' : '/agent/pause')}>
-            {s.agentPaused?.paused ? 'Resume agent' : 'Pause agent'}
-          </Button>
+      <Card tone="blush" className="overflow-hidden">
+        <CardHeader
+          eyebrow="Emergency · owner-signed on-chain"
+          title="Pause, unpause & emergency stop"
+          subtitle="These are contract transactions signed in your wallet. The agent key cannot undo them."
+          badge={s.paused ? <Badge variant="error" pulse>Contract paused</Badge> : <Badge variant="success">Contract active</Badge>}
+        />
+        <CardContent className="pt-5 grid md:grid-cols-3 gap-3">
+          <div className="rounded-3xl bg-white/70 p-5 flex flex-col justify-between gap-4">
+            <div>
+              <div className="font-display text-xl">{s.paused ? 'Resume transfers' : 'Pause transfers'}</div>
+              <p className="text-[12.5px] text-slate-600 mt-1">{s.paused ? 'Re-enables agent transfers for the current agent key.' : 'Every agent transfer reverts until you unpause. Funds stay in the contract.'}</p>
+            </div>
+            <Button variant="secondary" disabled={busy} icon={s.paused ? 'play_arrow' : 'pause'} onClick={() => tx.send(s.paused ? 'Unpause contract' : 'Pause contract', ({ wallet: w }) => (s.paused ? w.unpause() : w.pause())).then(done)}>
+              {s.paused ? 'Unpause contract' : 'Pause contract'}
+            </Button>
+          </div>
+          <div className="rounded-3xl bg-ink text-white p-5 flex flex-col justify-between gap-4">
+            <div>
+              <div className="font-display text-xl">Emergency stop</div>
+              <p className="text-[12.5px] text-white/70 mt-1">Pauses the contract and revokes the agent key in one transaction. A new agent must be set before transfers can resume.</p>
+            </div>
+            <Button variant="danger" disabled={busy} icon="emergency" onClick={() => tx.send('Emergency stop', ({ wallet: w }) => w.emergencyStop()).then(done)}>
+              Emergency stop (pause + revoke agent)
+            </Button>
+          </div>
+          <div className="rounded-3xl bg-white/70 p-5 flex flex-col justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2"><span className="font-display text-xl">Off-chain agent</span>{s.agentPaused?.paused ? <Badge variant="error">Paused</Badge> : <Badge variant="success">Active</Badge>}</div>
+              <p className="text-[12.5px] text-slate-600 mt-1">Stops the backend from drafting or executing anything. No gas, no wallet signature; the on-chain caps still apply.</p>
+            </div>
+            <Button variant="secondary" disabled={!isOwner || offChainBusy} onClick={() => offChain(s.agentPaused?.paused ? '/agent/resume' : '/agent/pause')}>
+              {s.agentPaused?.paused ? 'Resume agent' : 'Pause agent'}
+            </Button>
+          </div>
         </CardContent>
       </Card>
 
       <PolicySettingsCard />
 
       <Card>
-        <CardHeader title="Spending limits" subtitle="Per asset, enforced on-chain by executeTransfer" />
+        <CardHeader title="Spending limits" subtitle="Per asset, enforced on-chain on every agent transfer" />
         <CardContent>
           {s.tokens.map((t) => (
             <LimitRow key={`${t.address}-${t.perTxLimit}-${t.dailyLimit}-${t.enabled}`} token={t} disabled={busy} onSave={saveLimits} />
@@ -152,7 +172,7 @@ export function Controls() {
       </Card>
 
       <Card>
-        <CardHeader title="Agent key" subtitle="The only key allowed to call executeTransfer. Must differ from the owner." />
+        <CardHeader title="Agent key" subtitle={config?.contractVersion >= 2 ? "The only key allowed to submit transfers, and only with your on-chain-verified signature or grant. Must differ from the owner." : "The only key allowed to call executeTransfer (contract v1: your approval is checked by the backend). Must differ from the owner."} />
         <CardContent className="space-y-3 text-xs">
           <div>
             Current agent: <span className="font-mono">{s.agent}</span>{' '}

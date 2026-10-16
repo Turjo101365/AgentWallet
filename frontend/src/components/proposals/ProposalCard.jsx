@@ -67,41 +67,42 @@ export function ProposalCard({ proposal, recipientLabel, onChanged, compact = fa
   const sim = proposal.simulation;
   return (
     <Card highlight={awaiting && !expired}>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-5">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <StatusBadge status={expired ? 'EXPIRED' : proposal.status} />
-              <span className="text-[11px] font-mono text-slate-400">#{proposal.id.slice(0, 8)} · {proposal.source}</span>
+              <span className="text-[11px] font-mono text-slate-500">#{proposal.id.slice(0, 8)} · {proposal.source}</span>
             </div>
-            <div className="mt-2 text-lg font-bold text-on-surface font-mono">
-              {formatAmount(proposal.amountFormatted, proposal.token.decimals)} {proposal.token.symbol}
+            <div className="mt-3 flex items-baseline gap-2">
+              <span className="numeral text-[40px] text-ink">{formatAmount(proposal.amountFormatted, proposal.token.decimals)}</span>
+              <span className="font-display text-xl text-slate-600">{proposal.token.symbol}</span>
             </div>
-            <div className="text-xs text-slate-500 mt-0.5">
+            <div className="text-[13px] text-slate-500 mt-1">
               to <span className="font-mono text-slate-700" title={proposal.recipient}>{truncateAddress(proposal.recipient, 10, 6)}</span>
               {recipientLabel ? <span className="ml-1">({recipientLabel})</span> : null}
             </div>
-            {proposal.memo && <div className="text-xs text-slate-500 mt-1">“{proposal.memo}”</div>}
+            {proposal.memo && <div className="text-[13px] text-slate-600 mt-1 italic">“{proposal.memo}”</div>}
           </div>
           {awaiting && (
-            <div className="text-right text-xs font-mono text-slate-600">
-              <div>{expired ? 'Approval window closed' : `Expires in ${Math.floor(remaining / 60)}m ${String(remaining % 60).padStart(2, '0')}s`}</div>
+            <div className={`text-right text-xs font-mono rounded-full px-3 py-1.5 ${expired ? 'bg-slate-100 text-slate-600' : 'bg-butter text-butter-deep'}`}>
+              <div>{expired ? 'Signed deadline passed' : `Deadline in ${Math.floor(remaining / 60)}m ${String(remaining % 60).padStart(2, '0')}s`}</div>
             </div>
           )}
         </div>
 
         {!compact && (
-          <div className="grid md:grid-cols-2 gap-4">
-            <div>
-              <div className="text-[11px] font-bold uppercase text-slate-400 mb-1.5">Policy checks (block {proposal.policyResult?.blockNumber ?? '—'})</div>
+          <div className="grid md:grid-cols-2 gap-3">
+            <div className="rounded-3xl bg-slate-50 p-4">
+              <div className="eyebrow text-slate-500 mb-2.5">Policy checks (block {proposal.policyResult?.blockNumber ?? '—'})</div>
               <PolicyChecks result={proposal.policyResult} />
             </div>
-            <div className="space-y-2 text-xs">
-              <div className="text-[11px] font-bold uppercase text-slate-400">Pre-flight simulation</div>
+            <div className="space-y-2 text-xs rounded-3xl bg-slate-50 p-4">
+              <div className="eyebrow text-slate-500">Pre-flight simulation</div>
               {sim?.success ? (
                 <div className="font-mono text-slate-700 space-y-0.5">
-                  <div>Static call: succeeded</div>
-                  <div>Gas estimate: {sim.gasEstimate}</div>
+                  <div>{sim.gasBasis === 'pre-signature' ? 'Full dry run before signing (simulateTransfer): succeeded' : `Static call${sim.method ? ` (${sim.method})` : ''}: succeeded`}</div>
+                  <div>Gas estimate: {sim.gasEstimate}{sim.gasBasis === 'pre-signature' ? ' (before signing; re-estimated exactly at execution)' : ''}</div>
                   <div>Max network fee: {formatAmount(sim.maxNetworkFeeEth, 8)} ETH (paid by the agent key)</div>
                 </div>
               ) : sim ? (
@@ -109,14 +110,14 @@ export function ProposalCard({ proposal, recipientLabel, onChanged, compact = fa
               ) : (
                 <div className="text-slate-500">Not simulated (policy failed first)</div>
               )}
-              <div className="text-[11px] font-bold uppercase text-slate-400 pt-2">On-chain intent id</div>
+              <div className="eyebrow text-slate-500 pt-2">On-chain intent id</div>
               <div className="font-mono break-all text-slate-600">{proposal.intentId}</div>
             </div>
           </div>
         )}
 
         {exec && (
-          <div className="text-xs bg-slate-50 border border-slate-200 rounded-lg p-3 space-y-1 font-mono">
+          <div className={`text-xs rounded-2xl p-3.5 space-y-1 font-mono ${exec.status === 'CONFIRMED' ? 'bg-mint-soft text-mint-deep' : exec.status === 'FAILED' ? 'bg-blush-soft text-blush-deep' : 'bg-slate-50 text-slate-700'}`}>
             <div>Execution: {exec.status}{exec.errorCode ? ` — ${exec.errorCode}: ${exec.errorMessage}` : ''}</div>
             {exec.txHash && (
               <div className="break-all">
@@ -143,7 +144,14 @@ export function ProposalCard({ proposal, recipientLabel, onChanged, compact = fa
         {error && <Alert variant="error">{describeError(error)}</Alert>}
 
         {awaiting && !expired && (
-          <div className="flex gap-2 justify-end">
+          <div className="text-xs text-slate-600" data-testid="signed-deadline">
+            Execution deadline (signed): <span className="font-mono">{formatDateTime(proposal.expiresAt)}</span>. Your signature authorizes this
+            exact transfer only until then; if it has not executed by that time it fails and is never extended.
+          </div>
+        )}
+
+        {awaiting && !expired && (
+          <div className="flex flex-wrap gap-2 justify-end items-center pt-1">
             {!isOwner && <span className="text-xs text-slate-500 self-center">Only the contract owner can approve.</span>}
             <Button variant="secondary" onClick={reject} disabled={!isOwner || Boolean(working)}>
               {working === 'reject' ? 'Rejecting…' : 'Reject'}

@@ -329,20 +329,34 @@ test('docs/METAMASK_DEMO.md checklist with the real MetaMask extension', async (
   await row(9, 'AI agent drafts a proposal; owner approves it', async (r) => {
     if (process.env.LIVE_LLM !== '1') throw new Blocked('needs LIVE_LLM=1 and LLM_* in backend/.env (paid API call)');
     await navigate('/agent');
+    const chat = page.waitForResponse((res) => res.url().endsWith('/api/agent/chat') && res.request().method() === 'POST', { timeout: 90000 });
     await page.getByPlaceholder('Ask the agent…').fill('Send 0.005 ETH to my approved supplier.');
     await page.getByRole('button', { name: 'Send', exact: true }).click();
     r.evidence.popupDuringAgentRun = await popupAppears(mm, 45000);
     if (r.evidence.popupDuringAgentRun) throw new Error('MetaMask opened a request while the agent was working');
+    const turn = (await (await chat).json()).data;
+    const drafted = (turn.actions || []).find((x) => x.type === 'proposal');
+    if (!drafted || drafted.status !== 'AWAITING_APPROVAL') throw new Error(`Agent turn ${turn.status} did not draft an awaiting proposal`);
+    r.evidence.agentProposalId = drafted.id;
+    r.evidence.agentModel = turn.status;
     await navigate('/proposals');
-    // The card badge reads "Awaiting approval" (status AWAITING_APPROVAL).
-    await expect(page.getByText('Awaiting approval', { exact: true }).first()).toBeVisible({ timeout: 30000 });
-    await page.getByRole('button', { name: 'Approve & sign' }).first().click();
-    await popup(r, 'typed-data', { approve: true, mustShow: [/ApproveTransfer/, addr(contract), '5000000000000000', addr(fixture.payeeA.address)] });
-    await expect(page.getByText('Execution: CONFIRMED').first()).toBeVisible({ timeout: 60000 });
-    const txHash = (await page.getByText(/^Tx: 0x/).first().textContent()).match(/0x[0-9a-f]{64}/i)[0];
+    // Scope everything to the card of the proposal the agent drafted, never the first card on the page.
+    const card = page.getByText(`#${drafted.id.slice(0, 8)}`, { exact: false }).locator('xpath=ancestor::div[contains(@class,"space-y-5")][1]');
+    await expect(card.getByText('Awaiting approval', { exact: true })).toBeVisible({ timeout: 30000 });
+    await card.getByRole('button', { name: 'Approve & sign' }).click();
+    await popup(r, 'typed-data', { approve: true, mustShow: [/ApproveTransfer/, addr(contract), '5000000000000000', addr(fixture.payeeA.address), drafted.id] });
+    await expect(card.getByText('Execution: CONFIRMED')).toBeVisible({ timeout: 60000 });
+    const txHash = (await card.getByText(/^Tx: 0x/).textContent()).match(/0x[0-9a-f]{64}/i)[0];
     const receipt = await chain.provider.getTransactionReceipt(txHash);
-    Object.assign(r.evidence, { txHash, block: receipt.blockNumber, status: receipt.status });
+    const tx = await chain.provider.getTransaction(txHash);
+    const iface = new ethers.Interface(JSON.parse(fs.readFileSync(path.join(root, 'shared', 'abi', 'AgentWallet.json'), 'utf8')).abi);
+    const call = iface.parseTransaction({ data: tx.data });
+    const executed = receipt.logs.map((l) => { try { return iface.parseLog(l); } catch { return null; } }).find((e) => e?.name === 'TransferExecuted');
+    Object.assign(r.evidence, { txHash, block: receipt.blockNumber, status: receipt.status, method: call.name, signedProposalId: call.args[0]?.proposalId ?? null, amountWei: executed?.args.amount.toString() ?? null });
     expect(receipt.status).toBe(1);
+    expect(call.name).toBe('executeApprovedTransfer');
+    expect(call.args[0].proposalId).toBe(drafted.id);
+    expect(executed.args.amount).toBe(ethers.parseEther('0.005'));
   });
 
   await row(10, 'Switch account in MetaMask', async (r) => {

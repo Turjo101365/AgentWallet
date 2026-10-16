@@ -74,6 +74,8 @@ export async function launchWithMetaMask({ extensionDir, headless = false, offli
     channel: 'chromium', // Playwright's Chromium: still honours --load-extension (branded Chrome no longer does).
     headless,
     viewport: { width: 1360, height: 900 },
+    // Opt-in screen recording for the submission clips (off by default). Onboarding pages are discarded afterwards.
+    ...(process.env.AW_RECORD_DIR ? { recordVideo: { dir: process.env.AW_RECORD_DIR, size: { width: 1360, height: 900 } } } : {}),
     args: [
       `--disable-extensions-except=${extensionDir}`, `--load-extension=${extensionDir}`,
       // Local only: nothing resolves except localhost, 127.0.0.1 and the console's icon font. Without this,

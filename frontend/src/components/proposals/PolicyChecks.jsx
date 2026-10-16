@@ -7,7 +7,7 @@ export function PolicyChecks({ result }) {
     <ul className="space-y-1.5 text-xs">
       {result.checks.map((c) => (
         <li key={c.id} className="flex items-start gap-2">
-          <span className={`material-symbols-outlined text-base ${c.passed ? 'text-emerald-600' : 'text-rose-600'}`}>
+          <span aria-hidden="true" className={`material-symbols-outlined text-base ${c.passed ? 'text-mint-deep' : 'text-blush-deep'}`}>
             {c.passed ? 'check_circle' : 'cancel'}
           </span>
           <span>

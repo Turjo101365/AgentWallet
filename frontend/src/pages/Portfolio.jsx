@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, CardHeader, CardContent } from '../components/ui/Card.jsx';
+import { Card, CardHeader, CardContent, PageHeader } from '../components/ui/Card.jsx';
 import { Button } from '../components/ui/Button.jsx';
 import { Alert } from '../components/ui/Alert.jsx';
 import { Badge } from '../components/ui/Badge.jsx';
@@ -8,13 +8,13 @@ import { usePolling } from '../hooks/usePolling.js';
 import { get, put, describeError } from '../lib/api.js';
 import { formatAmount, truncateAddress, formatDateTime } from '../utils/formatters.js';
 
-const input = 'w-20 px-2 py-1 bg-slate-50 border border-slate-200 rounded text-xs font-mono';
+const input = 'w-20 px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono focus:outline-none focus:bg-white focus:border-ink';
 const SEVERITY = { warning: 'warning', info: 'info', error: 'error' };
 
 function Bar({ pct, target }) {
   return (
-    <div className="relative h-2 bg-slate-100 rounded w-32">
-      <div className="absolute inset-y-0 left-0 bg-primary rounded" style={{ width: `${Math.min(100, pct || 0)}%` }} />
+    <div className="relative h-2 bg-slate-100 rounded-full w-32">
+      <div className="absolute inset-y-0 left-0 bg-ink rounded-full" style={{ width: `${Math.min(100, pct || 0)}%` }} />
       {target !== null && target !== undefined && <div className="absolute -top-1 -bottom-1 w-0.5 bg-slate-700" style={{ left: `${Math.min(100, target)}%` }} title={`target ${target}%`} />}
     </div>
   );
@@ -43,18 +43,25 @@ export function Portfolio() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-extrabold tracking-tight text-on-surface">Portfolio</h1>
-        <p className="text-sm text-slate-500 mt-1">Balances read on-chain. USD values only where a price feed is configured; every price shows its source and age.</p>
-      </div>
+      <PageHeader eyebrow="Asset management" title="Portfolio">
+        Balances read on-chain. USD values only where a price feed is configured; every price shows its source and age.
+      </PageHeader>
       {overview.error && <Alert variant="error">{describeError(overview.error)}</Alert>}
       {o && (
         <>
-          <div className="grid sm:grid-cols-4 gap-4">
-            <Card><CardContent><div className="text-[11px] uppercase text-slate-400">Total value</div><div className="text-2xl font-bold font-mono">{o.totalUsd ? `$${formatAmount(o.totalUsd, 2)}` : '—'}</div><div className="text-[11px] text-slate-400">{o.valuationNote}</div></CardContent></Card>
-            <Card><CardContent><div className="text-[11px] uppercase text-slate-400">Largest allocation</div><div className="text-2xl font-bold font-mono">{o.exposure.largestAllocationPct ?? '—'}%</div></CardContent></Card>
-            <Card><CardContent><div className="text-[11px] uppercase text-slate-400">Agent daily capacity</div><div className="text-2xl font-bold font-mono">${formatAmount(o.exposure.agentDailyCapacityUsd, 2)}</div><div className="text-[11px] text-slate-400">{o.exposure.agentDailyCapacityPctOfPortfolio ?? '—'}% of portfolio (sum of daily caps)</div></CardContent></Card>
-            <Card><CardContent><div className="text-[11px] uppercase text-slate-400">Executor gas runway</div><div className="text-2xl font-bold font-mono">{o.exposure.executorTxRunway ?? '—'}</div><div className="text-[11px] text-slate-400">transfers at current gas ({formatAmount(o.exposure.executorGasEth, 6)} ETH)</div></CardContent></Card>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {[
+              ['mint', 'Total value', o.totalUsd ? `$${formatAmount(o.totalUsd, 2)}` : '—', o.valuationNote],
+              ['sky', 'Largest allocation', `${o.exposure.largestAllocationPct ?? '—'}%`, 'Share of the valued portfolio'],
+              ['butter', 'Agent daily capacity', `$${formatAmount(o.exposure.agentDailyCapacityUsd, 2)}`, `${o.exposure.agentDailyCapacityPctOfPortfolio ?? '—'}% of portfolio (sum of daily caps)`],
+              ['lilac', 'Executor gas runway', o.exposure.executorTxRunway === null || o.exposure.executorTxRunway === undefined ? '—' : new Intl.NumberFormat('en', { notation: 'compact', maximumFractionDigits: 1 }).format(o.exposure.executorTxRunway), `transfers at current gas (${formatAmount(o.exposure.executorGasEth, 6)} ETH)`],
+            ].map(([tone, label, value, hint]) => (
+              <Card key={label} tone={tone} className="p-5 sm:p-6">
+                <div className="eyebrow opacity-70">{label}</div>
+                <div className="numeral text-[34px] sm:text-[44px] mt-4 break-words">{value}</div>
+                <div className="text-[12px] opacity-75 mt-2 leading-snug">{hint}</div>
+              </Card>
+            ))}
           </div>
 
           <Card>

@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Card, CardHeader, CardContent } from '../components/ui/Card.jsx';
+import { Card, CardHeader, CardContent, PageHeader } from '../components/ui/Card.jsx';
 import { Button } from '../components/ui/Button.jsx';
 import { Alert } from '../components/ui/Alert.jsx';
 import { Badge } from '../components/ui/Badge.jsx';
 import { useApp } from '../app/providers.jsx';
 import { useRecipients, labelFor } from '../hooks/useData.js';
 import { usePolling } from '../hooks/usePolling.js';
+import { useOwnerTx } from '../hooks/useOwnerTx.js';
 import { get, post, describeError } from '../lib/api.js';
 import { truncateAddress, formatDateTime } from '../utils/formatters.js';
 
-const input = 'w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-mono focus:outline-none focus:ring-1 focus:ring-primary';
+const input = 'field';
 const TASK_VARIANT = { ACTIVE: 'success', PENDING_AUTHORIZATION: 'warning', PAUSED: 'warning', CANCELLED: 'neutral', COMPLETED: 'neutral', EXPIRED: 'neutral', FAILED: 'error' };
 const RUN_VARIANT = { CONFIRMED: 'success', EXECUTING: 'warning', ESCALATED: 'warning', DEFERRED: 'warning', PENDING: 'warning', CLAIMED: 'warning', RETRY_WAIT: 'warning', FAILED: 'error', SKIPPED: 'neutral' };
 const toUnix = (local) => Math.floor(new Date(local).getTime() / 1000);
@@ -92,7 +93,12 @@ function NewTaskForm({ recipients, onCreated }) {
 }
 
 function TaskCard({ task, recipients, onChanged }) {
-  const { isOwner, getSigner } = useApp();
+  const { config, isOwner, getSigner } = useApp();
+  const ownerTx = useOwnerTx();
+  // Contract v2 verifies grants on-chain, so cancelling off-chain alone would leave the signed grant usable
+  // by a compromised agent key until it expires. This revokes it on-chain (owner transaction), then cancels.
+  const canRevokeOnChain = config?.contractVersion >= 2 && Boolean(task.grantDigest) && task.grantRevokedOnChain !== true
+    && ['ACTIVE', 'PAUSED', 'CANCELLED'].includes(task.status);
   const [detail, setDetail] = useState(null);
   const [busy, setBusy] = useState(null);
   const [error, setError] = useState(null);
@@ -111,6 +117,12 @@ function TaskCard({ task, recipients, onChanged }) {
     }
   }
 
+  const revokeOnChain = () => act('revoke', async () => {
+    const receipt = await ownerTx.send('Revoke task grant', ({ wallet }) => wallet.revokeGrant(task.grantDigest));
+    if (!receipt) throw ownerTx.state.error || new Error('Revocation transaction was not confirmed');
+    if (task.status !== 'CANCELLED') await post(`/tasks/${task.id}/cancel`, { reason: 'Grant revoked on-chain by owner' });
+  });
+
   const authorize = () => act('authorize', async () => {
     const signer = await getSigner();
     const { domain, types, message } = task.grantTypedData;
@@ -127,12 +139,14 @@ function TaskCard({ task, recipients, onChanged }) {
             <div className="text-xs text-slate-500 font-mono">{task.amountFormatted} {task.token.symbol} → {labelFor(recipients, task.recipient) || truncateAddress(task.recipient)} · {task.scheduleDescription}{task.condition ? ` · when gas < ${task.condition.gwei} gwei` : ''}</div>
             <div className="text-xs text-slate-500">Runs {task.runsCount}{task.maxRuns ? `/${task.maxRuns}` : ''} · next {task.nextRunAt ? formatDateTime(task.nextRunAt) : '—'} · valid until {formatDateTime(task.validUntil)}{task.useRlTiming ? ` · RL timing within ${task.executionWindowSeconds / 60} min` : ''}</div>
             {task.statusReason && <div className="text-xs text-amber-800 mt-1">{task.statusReason}</div>}
+            {task.grantRevokedOnChain && <div className="text-xs text-slate-600 mt-1">Grant revoked on-chain: the contract will refuse every remaining run.</div>}
           </div>
           <div className="flex gap-2 items-start flex-wrap">
             {task.status === 'PENDING_AUTHORIZATION' && <Button size="sm" disabled={!isOwner || busy} onClick={authorize} icon="draw">{busy === 'authorize' ? 'Sign in wallet…' : 'Sign grant'}</Button>}
             {task.status === 'ACTIVE' && <Button size="sm" variant="secondary" disabled={!isOwner || busy} onClick={() => act('pause', () => post(`/tasks/${task.id}/pause`, {}))}>Pause</Button>}
             {task.status === 'PAUSED' && <Button size="sm" variant="secondary" disabled={!isOwner || busy} onClick={() => act('resume', () => post(`/tasks/${task.id}/resume`, {}))}>Resume</Button>}
             {['PENDING_AUTHORIZATION', 'ACTIVE', 'PAUSED'].includes(task.status) && <Button size="sm" variant="danger" disabled={!isOwner || busy} onClick={() => act('cancel', () => post(`/tasks/${task.id}/cancel`, {}))}>Cancel</Button>}
+            {canRevokeOnChain && <Button size="sm" variant="danger" disabled={!isOwner || busy} onClick={revokeOnChain} icon="block">{busy === 'revoke' ? 'Confirm in wallet…' : 'Revoke grant on-chain'}</Button>}
             <Button size="sm" variant="secondary" onClick={async () => setDetail(detail ? null : await get(`/tasks/${task.id}`))}>{detail ? 'Hide runs' : 'Runs'}</Button>
           </div>
         </div>
@@ -140,6 +154,11 @@ function TaskCard({ task, recipients, onChanged }) {
           <div className="text-[11px] text-slate-500">Signing authorizes up to {task.maxRuns ?? '∞'} runs of exactly {task.amountFormatted} {task.token.symbol} to this one address until {formatDateTime(task.validUntil)}. Runs above your auto-approval limit still need approval.</div>
         )}
         {error && <Alert variant="error">{error}</Alert>}
+        {detail?.onChainGrant && (
+          <div className="text-[11px] text-slate-500 font-mono">
+            On-chain grant: {detail.onChainGrant.runs} run{detail.onChainGrant.runs === 1 ? '' : 's'} executed{detail.onChainGrant.revoked ? ' · REVOKED' : ''} · digest {truncateAddress(task.grantDigest, 10, 6)}
+          </div>
+        )}
         {detail && (
           <div className="space-y-1.5 text-xs">
             {detail.runs.length === 0 && <div className="text-slate-400">No runs yet.</div>}
@@ -183,16 +202,18 @@ export function Automation() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap justify-between gap-3 items-start">
-        <div>
-          <h1 className="text-2xl font-extrabold tracking-tight text-on-surface">Automation</h1>
-          <p className="text-sm text-slate-500 mt-1">Scheduled, recurring and conditional payments under signed, bounded grants.</p>
-        </div>
-        <div className="flex items-center gap-3">
+      <PageHeader
+        eyebrow="Autonomous operations"
+        title="Automation"
+        actions={
+          <>
           {automation.data && (paused ? <Badge variant="error">Automation paused</Badge> : <Badge variant="success">Automation on</Badge>)}
           <Button variant={paused ? 'primary' : 'danger'} disabled={!isOwner} onClick={toggle} icon={paused ? 'play_arrow' : 'pause'}>{paused ? 'Resume automation' : 'Stop all automated payments'}</Button>
-        </div>
-      </div>
+          </>
+        }
+      >
+        Scheduled, recurring and conditional payments under signed, bounded grants. A signed grant bounds the recipient, amount, run count and validity; runs within your auto-approval limit execute with no further signature.
+      </PageHeader>
       {paused && automation.data?.reason && <Alert variant="warning">Paused: {automation.data.reason} ({automation.data.by})</Alert>}
       {error && <Alert variant="error">{error}</Alert>}
       <NewTaskForm recipients={recipients.data || []} onCreated={() => tasks.refresh()} />
