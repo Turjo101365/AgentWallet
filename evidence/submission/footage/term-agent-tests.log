@@ -1,0 +1,25 @@
+▶ LLM agent: natural language -> tools -> policy -> approval (scripted provider)
+  ✔ "Send 0.005 ETH to my approved supplier" -> allowlist lookup -> plan -> proposal -> owner approval -> confirmed transfer (6747.2081ms)
+  ✔ the provider receives strict tool schemas and the data-not-instructions system rules (1451.2955ms)
+  ✔ an invented (non-allowlisted) recipient is rejected by trusted code, and no proposal is created (1267.4745ms)
+  ✔ prompt injection inside a recipient label cannot redirect funds (1445.3281ms)
+  ✔ action tools are refused before record_plan, and malformed tool input has no side effects (1108.8438ms)
+  ✔ regression (live gpt-4.1-mini trace): an action refused before record_plan is reported as not applied (1084.1733ms)
+  ✔ missing parameters lead to a clarification question instead of a guess (1122.3791ms)
+  ✔ a clarification in a mixed tool batch blocks every action regardless of ordering (1010.5154ms)
+  ✔ "Pay ... every Monday" creates an inactive weekly task that needs the owner grant (1302.2565ms)
+  ✔ the agent can tighten policy and stop automation, but cannot loosen anything (1143.9738ms)
+  ✔ refusal and truncated responses run no tools; an unconfigured LLM is reported unavailable (2069.1534ms)
+  ✔ conversation history is replayed append-only on the next turn (1105.586ms)
+✔ LLM agent: natural language -> tools -> policy -> approval (scripted provider) (23258.0447ms)
+▶ Anthropic provider wire contract (no network: injected fetch)
+  ✔ sends strict tools, the default refusal fallback and tool_result blocks; maps stop reasons (34.988ms)
+✔ Anthropic provider wire contract (no network: injected fetch) (35.2107ms)
+ℹ tests 13
+ℹ suites 2
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 24401.0936

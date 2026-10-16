@@ -1,0 +1,143 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080" font-family="Fustat, Inter, Segoe UI, sans-serif" xml:space="preserve">
+  <!-- AgentWallet architecture v2 (editable). Six layers, verified against the code on 2026-10-17:
+       frontend/src, backend/src/{routes,services,llm,lib}, contracts/src/AgentWallet.sol. Every <g> has an id. -->
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#3a3a35"/></marker>
+    <marker id="ag" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#0e5236"/></marker>
+    <marker id="ab" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#153f66"/></marker>
+    <style>
+      text{white-space:pre}
+      .badge{font-family:Fustat,sans-serif;font-size:14px;font-weight:800;fill:#fff}
+      .h{font-family:'Faculty Glyphic',Georgia,serif;font-size:44px;fill:#121411}
+      .lead{font-size:16px;fill:#4f4f48}
+      .zone{font-family:'JetBrains Mono',Consolas,monospace;font-size:13px;font-weight:700;letter-spacing:.08em;fill:#3a3a35}
+      .t{font-size:20px;font-weight:700;fill:#121411}
+      .s{font-size:14px;fill:#4f4f48}
+      .m{font-family:'JetBrains Mono',Consolas,monospace;font-size:12.5px;fill:#2b2f2a}
+      .w{fill:#fff} .wm{fill:#9fdcb8} .wd{fill:#c9c9c2}
+      .lbl{font-family:'JetBrains Mono',Consolas,monospace;font-size:12.5px;font-weight:700}
+      .no{font-family:'JetBrains Mono',Consolas,monospace;font-size:12.5px;fill:#86270f;font-weight:700}
+    </style>
+  </defs>
+  <rect width="1920" height="1080" fill="#ecece6"/>
+  <text x="48" y="70" class="h">AgentWallet: how a payment flows</text>
+  <text x="50" y="100" class="lead">The AI plans and drafts · deterministic code checks · the owner authorizes · only the agent key executes · the contract enforces · everything is logged.</text>
+
+  <!-- zone frames -->
+  <g id="zone1"><rect x="40" y="150" width="316" height="640" rx="26" fill="#f6f6f2" stroke="#d6d6cf"/><text x="62" y="180" class="zone">1 · USER &amp; FRONTEND</text></g>
+  <g id="zone2"><rect x="368" y="150" width="342" height="640" rx="26" fill="#f6f6f2" stroke="#d6d6cf"/><text x="390" y="180" class="zone">2 · AI REASONING &amp; TOOL CALLS</text></g>
+  <g id="zone3"><rect x="722" y="150" width="342" height="640" rx="26" fill="#f6f6f2" stroke="#d6d6cf"/><text x="744" y="180" class="zone">3 · DETERMINISTIC RISK CHECKS</text></g>
+  <g id="zone4"><rect x="1076" y="150" width="392" height="640" rx="26" fill="#f6f6f2" stroke="#d6d6cf"/><text x="1098" y="180" class="zone">4 · AUTHORIZATION &amp; BOUNDED AUTONOMY</text></g>
+  <g id="zone5"><rect x="1480" y="150" width="400" height="640" rx="26" fill="#f6f6f2" stroke="#d6d6cf"/><text x="1502" y="180" class="zone">5 · ON-CHAIN EXECUTION</text></g>
+  <g id="zone6"><rect x="40" y="812" width="1840" height="236" rx="26" fill="#f6f6f2" stroke="#d6d6cf"/><text x="62" y="842" class="zone">6 · LOGGING &amp; VERIFICATION</text></g>
+
+  <!-- 1 -->
+  <g id="wallet"><rect x="58" y="200" width="280" height="180" rx="20" fill="#f5ebc0"/>
+    <text x="78" y="234" class="t">Owner wallet</text><text x="78" y="257" class="s">MetaMask / any EIP-1193 wallet</text>
+    <text x="78" y="285" class="m">holds the owner key</text><text x="78" y="304" class="m">SIWE sign-in</text><text x="78" y="323" class="m">EIP-712 approvals + grants</text><text x="78" y="342" class="m">owner transactions</text>
+    <text x="78" y="366" class="s" style="font-size:12.5px;fill:#5e4a06">public run: test-only bridge</text></g>
+  <g id="console"><rect x="58" y="398" width="280" height="252" rx="20" class="w"/>
+    <text x="78" y="432" class="t">React console</text><text x="78" y="455" class="s">React 18 · Vite · Tailwind</text>
+    <text x="78" y="484" class="m">owner / viewer role,</text><text x="78" y="503" class="m">  read from owner()</text><text x="78" y="522" class="m">AI command center</text><text x="78" y="541" class="m">approvals · automation</text><text x="78" y="560" class="m">risk + emergency controls</text><text x="78" y="579" class="m">PUBLIC vs LOCAL banner</text>
+    <text x="78" y="620" class="s">never holds a private key</text></g>
+  <g id="viewer"><rect x="58" y="668" width="280" height="104" rx="20" fill="#eeeee9"/>
+    <text x="78" y="702" class="t">Viewer wallet</text><text x="78" y="726" class="s">any other address</text><text x="78" y="752" class="m">read-only · 403 on writes</text></g>
+
+  <!-- 2 -->
+  <g id="api"><rect x="386" y="200" width="306" height="112" rx="20" class="w"/>
+    <text x="406" y="234" class="t">Node / Express API</text><text x="406" y="262" class="m">SIWE sessions · strict zod</text><text x="406" y="281" class="m">rate limits · idempotency keys</text><text x="406" y="300" class="m">owner-only mutations</text></g>
+  <g id="orchestrator"><rect x="386" y="330" width="306" height="150" rx="20" fill="#121411"/>
+    <text x="406" y="364" class="t w">Agent orchestrator</text><text x="406" y="387" class="s wd">agentChatService · tool loop</text>
+    <text x="406" y="414" class="m wm">record_plan before any action</text><text x="406" y="433" class="m wm">strict schemas + zod re-check</text><text x="406" y="452" class="m wm">refusal / truncation → no tools</text></g>
+  <g id="llm"><rect x="386" y="498" width="306" height="92" rx="20" fill="#fff" stroke="#84847b" stroke-dasharray="6 5"/>
+    <text x="406" y="530" class="t">gpt-4.1-mini</text><text x="406" y="553" class="s">external OpenAI-compatible API</text><text x="406" y="575" class="m">output is untrusted</text></g>
+  <g id="tools"><rect x="386" y="608" width="306" height="164" rx="20" class="w"/>
+    <text x="406" y="640" class="t">Typed tools</text>
+    <text x="406" y="664" class="m">read: list_recipients, …</text><text x="406" y="683" class="m">draft: propose_transfer,</text><text x="406" y="702" class="m">       schedule_payment</text><text x="406" y="721" class="m">tighten: set_reserve_floor,</text><text x="406" y="740" class="m">  pause_automation, cancel_task</text>
+    <text x="406" y="762" class="no">no sign · approve · execute · loosen</text></g>
+
+  <!-- 3 -->
+  <g id="risk"><rect x="740" y="200" width="306" height="336" rx="20" fill="#d6efdf"/>
+    <text x="760" y="234" class="t">Risk engine</text><text x="760" y="257" class="s">riskEngine.assessTransfer</text>
+    <text x="760" y="286" class="m">block-pinned chain snapshot</text><text x="760" y="305" class="m">agent + contract active</text><text x="760" y="324" class="m">token enabled on-chain</text><text x="760" y="343" class="m">recipient allowlisted</text><text x="760" y="362" class="m">per-tx + daily cap</text><text x="760" y="381" class="m">  incl. in-flight reservations</text><text x="760" y="400" class="m">balance + reserve floor</text><text x="760" y="419" class="m">gas price + executor gas</text><text x="760" y="438" class="m">static-call simulation</text>
+    <text x="760" y="474" class="s" style="fill:#0e5236;font-weight:700">runs at draft · at approval</text><text x="760" y="494" class="s" style="fill:#0e5236;font-weight:700">· again before broadcast</text>
+    <text x="760" y="520" class="s">the model cannot override it</text></g>
+  <g id="outcomes"><rect x="740" y="554" width="306" height="104" rx="20" class="w"/>
+    <text x="760" y="586" class="t">Outcome</text><text x="760" y="611" class="m">REJECTED · ESCALATED</text><text x="760" y="630" class="m">AUTO_APPROVED</text><text x="760" y="649" class="m">ALLOWED_PENDING_APPROVAL</text></g>
+  <g id="example"><rect x="740" y="676" width="306" height="96" rx="20" fill="#f5ddd5"/>
+    <text x="760" y="706" class="t" style="font-size:17px">Public example</text><text x="760" y="730" class="m">0.0003 ETH AI draft REJECTED</text><text x="760" y="749" class="m">PER_TX_LIMIT · BALANCE_AND_RESERVE</text><text x="760" y="766" class="m" style="font-size:11.5px;fill:#86270f">never signed, never broadcast</text></g>
+
+  <!-- 4 -->
+  <g id="approval"><rect x="1094" y="200" width="356" height="170" rx="20" fill="#d8e7f4"/>
+    <text x="1114" y="234" class="t">Owner approval</text><text x="1114" y="257" class="s">EIP-712 ApproveTransfer, one transfer</text>
+    <text x="1114" y="285" class="m">proposalId · intentId · token</text><text x="1114" y="304" class="m">recipient · amount · deadline</text>
+    <text x="1114" y="332" class="m" style="font-weight:700">backend verifies:</text><text x="1114" y="351" class="m" style="font-weight:700">  signer == contract owner()</text></g>
+  <g id="grant"><rect x="1094" y="388" width="356" height="122" rx="20" fill="#e4def5"/>
+    <text x="1114" y="422" class="t">Bounded task grant</text><text x="1114" y="445" class="s">EIP-712 AuthorizeTask, signed once</text>
+    <text x="1114" y="472" class="m">recipient · amountPerRun · maxRuns</text><text x="1114" y="491" class="m">maxTotal · validUntil · schedule</text></g>
+  <g id="scheduler"><rect x="1094" y="528" width="356" height="142" rx="20" fill="#e4def5"/>
+    <text x="1114" y="562" class="t">Scheduler</text>
+    <text x="1114" y="589" class="m">leases · exactly-once runs</text><text x="1114" y="608" class="m">AUTO_GRANT only if amount ≤</text><text x="1114" y="627" class="m">  owner's auto-approval limit</text><text x="1114" y="646" class="m">  otherwise ESCALATE to owner</text><text x="1114" y="662" class="m" style="font-size:11.5px">circuit breakers · hourly cap</text></g>
+  <g id="rl"><rect x="1094" y="688" width="356" height="84" rx="20" fill="#ecece6" stroke="#84847b" stroke-dasharray="6 5"/>
+    <text x="1114" y="716" class="t" style="font-size:17px;fill:#4f4f48">RL timing advisor (optional)</text><text x="1114" y="740" class="s" style="font-size:13px">opt-in per task · may only defer inside</text><text x="1114" y="759" class="s" style="font-size:13px">the window · local only · off in public run</text></g>
+
+  <!-- 5 -->
+  <g id="executor"><rect x="1498" y="200" width="364" height="150" rx="20" fill="#d8e7f4"/>
+    <text x="1518" y="234" class="t">Executor · agent key</text><text x="1518" y="257" class="s">the only hot key in the backend</text>
+    <text x="1518" y="285" class="m">re-runs risk before broadcast</text><text x="1518" y="304" class="m">executeTransfer(intent, token,</text><text x="1518" y="323" class="m">  recipient, amount)</text><text x="1518" y="342" class="m" style="font-size:11.5px">CONFIRMED only after a receipt</text></g>
+  <g id="contract"><rect x="1498" y="368" width="364" height="250" rx="20" fill="#121411"/>
+    <text x="1518" y="404" class="t w">AgentWallet.sol</text><text x="1518" y="427" class="s wd">Solidity 0.8.24 · OpenZeppelin</text>
+    <text x="1518" y="458" class="m wm">only the agent can executeTransfer</text><text x="1518" y="477" class="m wm">recipient allowlist</text><text x="1518" y="496" class="m wm">per-tx + UTC-day caps</text><text x="1518" y="515" class="m wm">each intent executes once</text><text x="1518" y="534" class="m wm">owner: pause · emergencyStop</text><text x="1518" y="553" class="m wm">owner ≠ agent · Ownable2Step</text>
+    <text x="1518" y="590" class="s wd">does not verify the EIP-712 approval;</text><text x="1518" y="608" class="s wd">it bounds whatever the agent sends</text></g>
+  <g id="sepolia"><rect x="1498" y="636" width="364" height="136" rx="20" fill="#fff" stroke="#153f66"/>
+    <text x="1518" y="668" class="t">Ethereum Sepolia</text><text x="1518" y="694" class="m">0x8A44716E…F956a6</text><text x="1518" y="713" class="m">11 transactions · all SUCCESS</text><text x="1518" y="732" class="m">1 owner-approved + 1 autonomous</text><text x="1518" y="751" class="m">now: paused · agent revoked</text></g>
+
+  <!-- 6 -->
+  <g id="db"><rect x="58" y="860" width="420" height="168" rx="20" class="w"/>
+    <text x="78" y="894" class="t">PostgreSQL / PGlite</text><text x="78" y="922" class="m">proposals · tasks · runs</text><text x="78" y="941" class="m">conversations · tool calls</text><text x="78" y="960" class="m">policy settings · chain events</text><text x="78" y="1000" class="s">restart-safe state</text></g>
+  <g id="audit"><rect x="496" y="860" width="540" height="168" rx="20" fill="#f5ebc0"/>
+    <text x="516" y="894" class="t">Hash-chained audit log</text><text x="516" y="922" class="m">hash = SHA-256(prev_hash ‖ entry) · append-only</text><text x="516" y="941" class="m">AI turns · approvals · grants · executions</text><text x="516" y="960" class="m">verified by /audit/verify + independent script</text><text x="516" y="1000" class="s">public run: 22 entries, chain valid · off-chain, not anchored</text></g>
+  <g id="indexer"><rect x="1054" y="860" width="380" height="168" rx="20" class="w"/>
+    <text x="1074" y="894" class="t">Indexer</text><text x="1074" y="922" class="m">contract events → history</text><text x="1074" y="941" class="m">receipt-verified only</text><text x="1074" y="960" class="m">explorer link per transaction</text></g>
+  <g id="explorers"><rect x="1452" y="860" width="410" height="168" rx="20" fill="#d8e7f4"/>
+    <text x="1472" y="894" class="t">Public explorers</text><text x="1472" y="922" class="m">Etherscan · Blockscout</text><text x="1472" y="941" class="m">anyone can re-check receipts</text><text x="1472" y="960" class="m">(verify-receipts.mjs: 11/11)</text></g>
+
+  <!-- flows -->
+  <g fill="none" stroke-width="2.6">
+    <path d="M198 380 V398" stroke="#3a3a35" marker-end="url(#a)"/>
+    <path d="M338 520 H362 V256 H386" stroke="#3a3a35" marker-end="url(#a)"/>
+    <path d="M539 312 V330" stroke="#3a3a35" marker-end="url(#a)"/>
+    <path d="M520 480 V498" stroke="#3a3a35" marker-end="url(#a)"/>
+    <path d="M560 498 V480" stroke="#3a3a35" marker-end="url(#a)"/>
+    <path d="M386 440 H376 V690 H386" stroke="#3a3a35" marker-end="url(#a)"/>
+    <path d="M692 680 H716 V300 H740" stroke="#0e5236" marker-end="url(#ag)"/>
+    <path d="M1046 285 H1094" stroke="#0e5236" marker-end="url(#ag)"/>
+    <path d="M1046 600 H1070 V600 H1094" stroke="#0e5236" marker-end="url(#ag)"/>
+    <path d="M248 200 V136 H1440 V200" stroke="#153f66" stroke-dasharray="7 5" marker-end="url(#ab)"/>
+    <path d="M1440 136 H1872 V470 H1862" stroke="#153f66" stroke-dasharray="7 5" marker-end="url(#ab)"/>
+    <path d="M1450 285 H1498" stroke="#153f66" marker-end="url(#ab)"/>
+    <path d="M1450 600 H1474 V330 H1498" stroke="#153f66" marker-end="url(#ab)"/>
+    <path d="M1272 688 V670" stroke="#84847b" stroke-dasharray="4 5" marker-end="url(#a)"/>
+    <path d="M1680 350 V368" stroke="#3a3a35" marker-end="url(#a)"/>
+    <path d="M1680 618 V636" stroke="#3a3a35" marker-end="url(#a)"/>
+    <path d="M1680 772 V860" stroke="#153f66" marker-end="url(#ab)"/>
+    <path d="M1540 772 V836 H1244 V860" stroke="#153f66" marker-end="url(#ab)"/>
+    <path d="M539 772 V836 H766 V860" stroke="#84847b" stroke-dasharray="4 5" marker-end="url(#a)"/>
+    <path d="M893 772 V860" stroke="#84847b" stroke-dasharray="4 5" marker-end="url(#a)"/>
+    <path d="M1272 772 V800 H1000 V860" stroke="#84847b" stroke-dasharray="4 5" marker-end="url(#a)"/>
+  </g>
+  <text x="300" y="129" class="lbl" style="fill:#153f66">owner signs EIP-712 (approval or grant) → backend   ·   owner transactions (limits, allowlist, pause, emergency stop) → contract</text>
+    <text x="1050" y="306" class="lbl" style="fill:#0e5236">pass</text>
+  <text x="1052" y="592" class="lbl" style="fill:#0e5236">runs</text>
+    <text x="1700" y="363" class="lbl" style="fill:#3a3a35">agent tx</text>
+  <text x="1700" y="806" class="lbl" style="fill:#153f66">receipt + events</text>
+  <text x="1284" y="684" class="lbl" style="fill:#84847b;font-size:11px">timing advice</text>
+  <text x="548" y="830" class="lbl" style="fill:#84847b;font-size:11.5px">every decision, approval and execution is logged</text>
+  <!-- numbered flow: 1 draft → 2 risk pass → 3 owner signs → 4 authorized → 5 agent tx → 6 receipt/events -->
+  <g class="step"><circle cx="716" cy="560" r="13" fill="#0e5236" stroke="#ecece6" stroke-width="3"/><text x="716" y="565" text-anchor="middle" class="badge">1</text></g>
+  <g class="step"><circle cx="1070" cy="285" r="13" fill="#0e5236" stroke="#ecece6" stroke-width="3"/><text x="1070" y="290" text-anchor="middle" class="badge">2</text></g>
+  <g class="step"><circle cx="274" cy="136" r="13" fill="#153f66" stroke="#ecece6" stroke-width="3"/><text x="274" y="141" text-anchor="middle" class="badge">3</text></g>
+  <g class="step"><circle cx="1474" cy="285" r="13" fill="#153f66" stroke="#ecece6" stroke-width="3"/><text x="1474" y="290" text-anchor="middle" class="badge">4</text></g>
+  <g class="step"><circle cx="1680" cy="359" r="13" fill="#121411" stroke="#ecece6" stroke-width="3"/><text x="1680" y="364" text-anchor="middle" class="badge">5</text></g>
+  <g class="step"><circle cx="1680" cy="812" r="13" fill="#153f66" stroke="#ecece6" stroke-width="3"/><text x="1680" y="817" text-anchor="middle" class="badge">6</text></g>
+</svg>

@@ -5,7 +5,7 @@ import { Alert } from '../ui/Alert.jsx';
 import { useApp } from '../../app/providers.jsx';
 import { post, describeError } from '../../lib/api.js';
 
-const input = 'w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-mono focus:outline-none focus:ring-1 focus:ring-primary';
+const input = 'field';
 
 /** Creates a transfer intent. The backend evaluates it against live on-chain limits and allowlist. */
 export function NewProposalForm({ recipients = [], onCreated }) {

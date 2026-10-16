@@ -3,16 +3,62 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    background-color: #121411;
+  }
   body {
-    background-color: #f8faf9;
-    color: #131b2e;
-    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+    background-color: #121411;
+    color: #121411;
+    font-family: 'Fustat', 'Inter', system-ui, sans-serif;
+    font-feature-settings: 'ss01';
+  }
+
+  /* Display type: Faculty Glyphic ships a single weight, so hierarchy comes from size, not boldness. */
+  h1, h2, h3, .font-display {
+    font-family: 'Faculty Glyphic', Georgia, serif;
+    font-weight: 400;
+    letter-spacing: -0.01em;
   }
 
   /* Force tabular numbers in financial numbers and addresses */
   .font-mono {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
     font-variant-numeric: tabular-nums;
+  }
+
+  :focus-visible {
+    outline: 2px solid #3a8a63;
+    outline-offset: 2px;
+  }
+
+  a {
+    text-underline-offset: 3px;
+  }
+}
+
+@layer components {
+  /* Big display numerals for balances and stat tiles. */
+  .numeral {
+    font-family: 'Faculty Glyphic', Georgia, serif;
+    font-variant-numeric: tabular-nums lining-nums;
+    letter-spacing: -0.02em;
+    line-height: 0.95;
+  }
+
+  .eyebrow {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  /* Diagonal hatching marks everything that runs on a local simulation chain. */
+  .sim-hatch {
+    background-image: repeating-linear-gradient(-45deg, rgba(94, 74, 6, 0.10) 0 8px, transparent 8px 16px);
+  }
+
+  .field {
+    @apply w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono transition-colors focus:outline-none focus:bg-white focus:border-ink focus:ring-0;
   }
 }
 
@@ -33,18 +79,33 @@
   -webkit-font-smoothing: antialiased;
 }
 
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
 /* Custom subtle scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #f4f9f6;
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: #cdcdc5;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #84847b;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

@@ -1,0 +1,29 @@
+10:03:53  ▶ Owner tops up deployer and agent; deployer deploys AgentWallet
+10:03:54  Chain 11155111 · owner balance 0.0697999997221022 ETH · budget 0.0109391945 ETH
+10:04:18  Top up deployer: 0x15a0af74a4699276674af409d99ee8c55b6f51d41f64ebbf8a69a745e40b6378 (block 11926649)
+10:04:42  Top up agent: 0xdc3cec9386e058646587d45aa8fcf6ef8d3b6911631c5a217503b43549ab1cb9 (block 11926651)
+10:05:05  Deployed AgentWallet 0x8A44716Efabb6Ce401291B91D4427149CaF956a6: 0x7d7492bfd7414f25b8f7a9a06200d3f1e958433b6d349443313108fa10ae1ad3
+10:05:05  AgentWallet contract: 0x8A44716Efabb6Ce401291B91D4427149CaF956a6 (caps 0.0002 ETH/tx, 0.0005 ETH/day)
+10:05:08  ▶ Deployment on the public block explorer
+10:06:28  ▶ Wallet connection, network check and SIWE sign-in
+10:06:35  ▶ Owner allowlists the recipient on-chain
+10:06:37  Owner wallet sent setRecipient: 0xf6306fe567bd2286a4f066529896cc444cd29a77d07b1a84944f3b5d59b36299
+10:06:59  ▶ Owner deposits 0.0004 ETH into the wallet
+10:07:01  Owner wallet sent deposit: 0xe593d6d3c778ed09476cf1997e90699bd4b7909d433a0653dd64388512968ba1
+10:07:11  ▶ AI agent receives an instruction, plans and drafts a transfer
+10:07:33  ▶ Risk checks pass; owner reviews and signs the exact transfer (EIP-712); agent key executes
+10:08:18  Owner-approved transfer executed: 0x2c83a855d812b3f278720f3f5a572d358a520e4fbfd4f65fd666e77ad22e37fb
+10:08:21  ▶ AI agent drafts an over-cap transfer; the policy engine rejects it (nothing sent)
+10:08:40  Policy rejected the over-cap draft: PER_TX_LIMIT, BALANCE_AND_RESERVE
+10:08:44  ▶ Owner sets the auto-approval limit to 0.0001 ETH
+10:08:49  ▶ AI agent drafts a scheduled payment
+10:09:06  ▶ Owner signs the bounded task grant; the scheduler executes autonomously
+10:11:58  Autonomous transfer executed under the grant: 0xedeb6b97380d3b0615639ca0940402789310f16154501ea54990418d48e3cec3
+10:12:02  ▶ Security controls: pause, unpause, emergency stop
+10:12:05  Owner wallet sent pause: 0x2a2eeb5084f9dba38e177d2b4528b7242356c5dcb51796c203fa5b9a3bbd211b
+10:12:22  Owner wallet sent unpause: 0x00b0dc316138f8cef8b329e4ff91a469612a8207317615442012bfee21f2f3d0
+10:12:44  Owner wallet sent emergencyStop: 0xfe627133719dc4493552259d250ebb7fe31fb86ead7e2034569eea99ede53a8d
+10:12:57  ▶ Owner withdraws the remaining balance
+10:12:58  Owner wallet sent withdraw: 0x6c8fb074172a800c3d85eaa2eb54b5675dcf3e204fd7c7c276e67104d6a5cff5
+10:13:07  ▶ Transaction history and hash-chained audit log
+10:13:14  ▶ Agent transfers and emergency stop on the public explorer

@@ -1,23 +1,49 @@
 # AgentWallet.sol
 
+> **Two versions.** This page describes **v2**, the current source. **v1** is the version deployed on Ethereum Sepolia
+> (`0x8A44…956a6`). Its source is frozen in [contracts/legacy/AgentWalletV1.sol](../contracts/legacy/AgentWalletV1.sol),
+> and its ABI and bytecode in [shared/abi/AgentWallet.v1.json](../shared/abi/AgentWallet.v1.json). v1's only agent entry
+> point is `executeTransfer(intentId, token, recipient, amount)`, with no signature. v2 is **not deployed**.
+> Comparison: [CONTRACT_V2.md](CONTRACT_V2.md).
+
 Source: [contracts/src/AgentWallet.sol](../contracts/src/AgentWallet.sol)
 - Solidity 0.8.24, evmVersion cancun, optimizer 200 runs
-- OpenZeppelin 5.6.1: Ownable2Step, Pausable, ReentrancyGuard, SafeERC20
+- OpenZeppelin 5.6.1: Ownable2Step, Pausable, ReentrancyGuard, SafeERC20, SignatureChecker (EOA + ERC-1271), MessageHashUtils
 - Not upgradeable (deliberate)
 
 ## Roles
 - **owner**: custodian. Two-step transfer; `renounceOwnership` reverts.
-- **agent**: may only call `executeTransfer`. It can never equal the owner or the pending owner, and it cannot accept ownership.
+- **agent**: may only call `executeApprovedTransfer` and `executeGrantTransfer`, each carrying an owner signature the contract verifies. It may also call the `simulateTransfer` and `checkTransfer` dry runs, which cannot move funds. It can never equal the owner or the pending owner, and it cannot accept ownership.
 
-## Agent entry point
+## Agent entry points (v2)
 
 ```solidity
-function executeTransfer(bytes32 intentId, address token, address recipient, uint256 amount)
+function executeApprovedTransfer(TransferApproval calldata a, bytes calldata ownerSignature)
     external onlyAgent whenNotPaused nonReentrant
+function executeGrantTransfer(TaskGrant calldata g, bytes calldata ownerSignature, bytes32 intentId)
+    external onlyAgent whenNotPaused nonReentrant
+function simulateTransfer(bytes32 intentId, address token, address recipient, uint256 amount)
+    external   // agent only; runs every check AND the real send, then ALWAYS reverts:
+               // SimulationSucceeded() = would succeed, otherwise the real error. Cannot move funds.
+function checkTransfer(bytes32 intentId, address token, address recipient, uint256 amount)
+    external view onlyAgent whenNotPaused   // limits only, no send; used for the pre-signature gas estimate
 ```
 
-`token == address(0)` means native ETH. The call reverts with a custom error unless all of these hold:
-- `intentId` is non-zero and has not been executed before;
+**`executeApprovedTransfer`** reverts unless:
+- `block.timestamp <= a.deadline` (`ApprovalExpired`);
+- `ownerSignature` is the current `owner()`'s EIP-712 signature over `a`: domain "AgentWallet Operator Approval", v1, this chain and this contract, type `ApproveTransfer` (`InvalidOwnerSignature`).
+
+**`executeGrantTransfer`** reverts unless:
+- `block.timestamp <= g.validUntil` (`GrantExpired`);
+- at least one of `maxRuns`/`maxTotal` is non-zero (`UnboundedGrant`);
+- the grant digest is not revoked (`GrantIsRevoked`);
+- the signature is `owner()`'s over `g`: domain "AgentWallet Task Authorization", type `AuthorizeTask` (`InvalidOwnerSignature`);
+- the grant's on-chain `grantRuns`/`grantSpent` stay within `maxRuns`/`maxTotal` (`GrantExhausted`).
+
+It emits `GrantRunExecuted(grantDigest, intentId, runs, spent)`.
+
+Both then apply the v1 transfer checks below, unchanged. `token == address(0)` means native ETH. The call reverts with a custom error unless all of these hold:
+- `intentId` is non-zero, has not been executed and was not cancelled by the owner (`IntentIsCancelled`);
 - `isRecipientAllowed[recipient]`;
 - `tokenPolicy(token).enabled`;
 - `0 < amount <= perTxLimit`;
@@ -37,14 +63,19 @@ State (`executedIntents`, `spentPerDay`) is written before the external transfer
 | `emergencyStop()` | Pause + revoke agent in one transaction |
 | `withdraw(token, to, amount)` | Owner withdrawal at any time |
 | `emergencyWithdraw(token, to, amount)` | Only while paused |
+| `revokeGrant(bytes32 grantDigest)` (v2) | The grant can never execute again |
+| `cancelIntent(bytes32 intentId)` (v2) | Voids a signed, not-yet-executed approval |
 
-**Views:** `tokenPolicy`, `remainingDailyAllowance`, `currentDay`, `walletBalance`, `tokenBalance`, `isRecipientAllowed`, `executedIntents`, `spentPerDay`.
+**Views:**
+- `tokenPolicy`, `remainingDailyAllowance`, `currentDay`, `walletBalance`, `tokenBalance`, `isRecipientAllowed`, `executedIntents`, `spentPerDay`.
+- v2 adds `VERSION` (= 2), `approvalDigest`, `grantDigest`, `grantRuns`, `grantSpent`, `grantRevoked` and `cancelledIntents`.
 
 ## Custom errors
 `NotAgent`, `InvalidAddress`, `AgentCannotBeOwner`, `RenounceDisabled`, `RecipientNotAllowed`,
 `TokenNotEnabled`, `InvalidAmount`, `InvalidLimits`, `InvalidToken`, `ZeroIntent`,
 `IntentAlreadyExecuted`, `PerTxLimitExceeded`, `DailyLimitExceeded`, `InsufficientBalance`,
-`NativeTransferFailed`, plus OpenZeppelin's `OwnableUnauthorizedAccount`, `EnforcedPause`,
+`NativeTransferFailed`. v2 adds `ApprovalExpired`, `InvalidOwnerSignature`, `GrantExpired`, `GrantIsRevoked`, `GrantExhausted`,
+`UnboundedGrant`, `IntentIsCancelled` and `SimulationSucceeded` (raised only by the always-reverting `simulateTransfer`). All of these come with OpenZeppelin's `OwnableUnauthorizedAccount`, `EnforcedPause`,
 `ExpectedPause`, `SafeERC20FailedOperation`.
 
 The backend decodes these errors from simulation failures and shows them in the UI.
@@ -74,9 +105,16 @@ The local deploy:
 
 Then run `cd contracts && npm run deploy:base_sepolia`. Without `CONFIRM_PUBLIC_DEPLOY=yes` the script refuses.
 
-After compiling, `npm run export-abi` refreshes [shared/abi/AgentWallet.json](../shared/abi/AgentWallet.json), which the backend loads.
+After compiling, `npm run export-abi` refreshes [shared/abi/AgentWallet.json](../shared/abi/AgentWallet.json), which the backend loads. It never touches `AgentWallet.v1.json`. The backend detects the deployed version via `VERSION()` and uses the v1 ABI for a v1 deployment.
 
 ## Tests
-`cd contracts && npx hardhat test`: 30 tests (see [TEST_RESULTS.md](TEST_RESULTS.md)).
+`cd contracts && npx hardhat test`. `AgentWallet.test.js` and `AgentWallet.swap.test.js` are the original suites; every agent transfer in them now carries an owner signature. `AgentWallet.v2.test.js` covers:
+- a compromised agent key;
+- forged and substituted fields;
+- cross-chain and cross-contract replay;
+- expired, cancelled, exhausted, unbounded and revoked authorizations;
+- ownership changes;
+- an ERC-1271 owner;
+- digest equality with the backend's typed data.
 The test-only contracts in `src/mocks/` (mock token, misbehaving tokens, reentrant agent, reverting
 recipient) must never be deployed to a public network as real assets.

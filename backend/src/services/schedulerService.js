@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
 import { ethers } from 'ethers';
 import { routeApproval, explainDecision } from './policyService.js';
-import { scheduleSchema, conditionSchema, firstOccurrence, nextOccurrence, grantTypedData, recoverGrantSigner, describeSchedule } from '../lib/schedule.js';
+import { scheduleSchema, conditionSchema, firstOccurrence, nextOccurrence, grantTypedData, recoverGrantSigner, verifyGrant, describeSchedule } from '../lib/schedule.js';
 import { normalizeAddress, sameAddress } from '../lib/address.js';
 import { parseAmount, formatAmount } from '../lib/units.js';
 import { nowSeconds } from '../lib/time.js';
@@ -284,12 +284,12 @@ export function createSchedulerService({ config, repos, chain, auth, proposals, 
       }
 
       const settings = await policySettings.get();
-      let grantValid = false;
-      try {
-        grantValid = sameAddress(recoverGrantSigner(task, task.grantSignature), task.authorizedBy);
-      } catch {
-        grantValid = false;
-      }
+      // Rebuilt from the task's columns, so a task edited after signing no longer verifies.
+      const grant = verifyGrant(task);
+      const grantValid = grant.valid
+        && sameAddress(proposal.recipient, task.recipient)
+        && sameAddress(proposal.token.address, task.token.address);
+      if (!grant.valid) await audit('scheduler', 'TASK_GRANT_INVALID', task.id, { runId: run.id, reason: grant.reason });
       const owner = await chain.getOwner();
       let route = routeApproval({ task, proposal, settings, grantValid, ownerMatches: sameAddress(owner, task.authorizedBy), now });
 
@@ -406,15 +406,41 @@ export function createSchedulerService({ config, repos, chain, auth, proposals, 
     return status;
   }
 
+  /** EIP-712 digest of the signed grant; on contract v2 this is the key for grantRuns/grantSpent/revokeGrant. */
+  function grantDigestOf(task) {
+    if (!task.grantSignature || !task.grantTypedData) return null;
+    const { domain, types, message } = task.grantTypedData;
+    return ethers.TypedDataEncoder.hash(domain, types, message);
+  }
+
   async function get(id) {
     const task = await repos.tasks.findById(id);
     if (!task) throw notFound('Task not found');
-    return { ...task, scheduleDescription: describeSchedule(task.schedule), amountFormatted: formatAmount(task.amountWei, task.token.decimals), runs: await repos.runs.listForTask(id) };
+    const grantDigest = grantDigestOf(task);
+    let onChainGrant = null;
+    if (grantDigest && chain.contractVersion() >= 2) {
+      const [runs, spent, revoked] = await Promise.all([chain.contract.grantRuns(grantDigest), chain.contract.grantSpent(grantDigest), chain.contract.grantRevoked(grantDigest)]);
+      onChainGrant = { runs: Number(runs), spentWei: spent.toString(), revoked: Boolean(revoked) };
+    }
+    return { ...task, grantDigest, onChainGrant, scheduleDescription: describeSchedule(task.schedule), amountFormatted: formatAmount(task.amountWei, task.token.decimals), runs: await repos.runs.listForTask(id) };
+  }
+
+  /** On v2, whether the signed grant was revoked on-chain (null when unknown or not applicable). */
+  async function grantRevokedOnChain(task, grantDigest) {
+    if (!grantDigest || chain.contractVersion() < 2 || !['ACTIVE', 'PAUSED', 'CANCELLED'].includes(task.status)) return null;
+    try {
+      return Boolean(await chain.contract.grantRevoked(grantDigest));
+    } catch {
+      return null;
+    }
   }
 
   async function list(filter) {
     const tasks = await repos.tasks.list(filter);
-    return tasks.map((t) => ({ ...t, scheduleDescription: describeSchedule(t.schedule), amountFormatted: formatAmount(t.amountWei, t.token.decimals) }));
+    return Promise.all(tasks.map(async (t) => {
+      const grantDigest = grantDigestOf(t);
+      return { ...t, grantDigest, grantRevokedOnChain: await grantRevokedOnChain(t, grantDigest), scheduleDescription: describeSchedule(t.schedule), amountFormatted: formatAmount(t.amountWei, t.token.decimals) };
+    }));
   }
 
   return {

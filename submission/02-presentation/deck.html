@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>AgentWallet: FinTechathon deck</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Faculty+Glyphic&family=Fustat:wght@400;500;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  @page { size: 1920px 1080px; margin: 0; }
+  :root { --ink:#121411; --canvas:#ecece6; --mint:#d6efdf; --mintd:#0e5236; --lilac:#e4def5; --lilacd:#3f2d78; --butter:#f5ebc0; --butterd:#5e4a06; --sky:#d8e7f4; --skyd:#153f66; --blush:#f5ddd5; --blushd:#86270f; --muted:#64645c; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #555; }
+  body { font-family: Fustat, Inter, sans-serif; color: var(--ink); }
+  .s { width: 1920px; height: 1080px; background: var(--canvas); position: relative; overflow: hidden; page-break-after: always; padding: 96px 120px; display: flex; flex-direction: column; }
+  .s.dark { background: var(--ink); color: #fff; }
+  h1, h2 { font-family: 'Faculty Glyphic', Georgia, serif; font-weight: 400; margin: 0; letter-spacing: -0.01em; }
+  h1 { font-size: 132px; line-height: .92; }
+  h2 { font-size: 76px; line-height: 1; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 20px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-bottom: 26px; }
+  .dark .eyebrow { color: rgba(255,255,255,.55); }
+  .lead { font-size: 32px; line-height: 1.4; color: #3a3a35; max-width: 1300px; margin-top: 28px; }
+  .dark .lead { color: rgba(255,255,255,.75); }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+  .grid { display: grid; gap: 28px; margin-top: 48px; flex: 1; min-height: 0; }
+  .grid.top { flex: 0 0 auto; align-items: start; }
+  .card { border-radius: 36px; padding: 36px 40px; background: #fff; box-shadow: 0 10px 30px -18px rgba(0,0,0,.25); }
+  .card h3 { font-family: 'Faculty Glyphic', serif; font-weight: 400; font-size: 40px; margin: 0 0 12px; }
+  .card p, .card li { font-size: 24px; line-height: 1.45; color: #3a3a35; margin: 0; }
+  .card ul { margin: 0; padding-left: 26px; }
+  .mint { background: var(--mint); } .lilac { background: var(--lilac); } .butter { background: var(--butter); } .sky { background: var(--sky); } .blush { background: var(--blush); } .inkc { background: var(--ink); color: #fff; } .inkc p, .inkc li { color: rgba(255,255,255,.75); }
+  .shot { border-radius: 28px; overflow: hidden; box-shadow: 0 20px 50px -20px rgba(0,0,0,.45); background: #fff; }
+  .shot img { width: 100%; height: 100%; object-fit: cover; object-position: top left; display: block; }
+  .tag { position: absolute; left: 18px; bottom: 18px; font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 700; letter-spacing: .08em; padding: 7px 13px; border-radius: 999px; }
+  .t-pub { background: var(--sky); color: var(--skyd); } .t-rep { background: var(--lilac); color: var(--lilacd); } .t-loc { background: var(--butter); color: var(--butterd); } .t-dia { background: #eeeee9; color: #3a3a35; }
+  .rel { position: relative; }
+  .num { font-family: 'Faculty Glyphic', serif; font-size: 96px; line-height: 1; }
+  table { border-collapse: collapse; width: 100%; font-size: 22px; }
+  td, th { padding: 12px 14px; border-bottom: 1px solid #d6d6cf; text-align: left; vertical-align: top; }
+  th { font-family: 'JetBrains Mono', monospace; font-size: 16px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  .ok { color: var(--mintd); font-weight: 700; } .no { color: var(--blushd); font-weight: 700; }
+  .foot { position: absolute; left: 120px; right: 120px; bottom: 44px; display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 16px; color: var(--muted); }
+  .dark .foot { color: rgba(255,255,255,.45); }
+  .pill { display: inline-block; padding: 8px 16px; border-radius: 999px; font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<!-- 1 Title -->
+<section class="s dark">
+  <div class="eyebrow">FinTechathon 2026 · Autonomous On-chain Wallet</div>
+  <h1 style="margin-top:120px">The AI plans.<br>You authorize.<br><span style="color:#9fdcb8">The contract enforces.</span></h1>
+  <p class="lead" style="margin-top:56px">AgentWallet: a policy-bounded AI treasury agent, executed on Ethereum Sepolia.</p>
+  <div style="margin-top:auto;display:flex;gap:16px;flex-wrap:wrap"><span class="pill" style="background:var(--sky);color:var(--skyd)">PUBLIC TESTNET · ETHEREUM SEPOLIA</span><span class="pill" style="background:rgba(255,255,255,.1);color:#fff">0x8A44716Efabb6Ce401291B91D4427149CaF956a6</span><span class="pill" style="background:var(--mint);color:var(--mintd)">11 / 11 transactions SUCCESS</span></div>
+  <div class="foot"><span>Team AgentWallet</span><span>01</span></div>
+</section>
+
+<!-- 2 Problem -->
+<section class="s">
+  <div class="eyebrow">The problem</div>
+  <h2>Give an AI a wallet, and it can lose the money.</h2>
+  <div class="grid top" style="grid-template-columns:repeat(3,1fr)">
+    <div class="card blush"><h3>Hallucination</h3><p>The model invents a recipient or an amount, and nobody notices before it's signed.</p></div>
+    <div class="card butter"><h3>Prompt injection</h3><p>Text hidden in a label, memo or web page redirects the payment.</p></div>
+    <div class="card lilac"><h3>Runaway autonomy</h3><p>A scheduled agent keeps spending after conditions change, with no owner in the loop.</p></div>
+  </div>
+  <p class="lead">Asking the model to be careful is not a control. The controls have to sit <b>outside</b> the model.</p>
+  <div class="foot"><span>AgentWallet</span><span>02</span></div>
+</section>
+
+<!-- 3 Solution -->
+<section class="s">
+  <div class="eyebrow">The solution · four independent layers</div>
+  <h2>Every payment crosses four gates.</h2>
+  <div class="grid top" style="grid-template-columns:repeat(4,1fr)">
+    <div class="card inkc"><h3 style="color:#9fdcb8">1 · AI plans</h3><p>gpt-4.1-mini turns plain English into typed tool calls. It has no tool that can sign, approve or loosen.</p></div>
+    <div class="card mint"><h3>2 · Policy checks</h3><p>14 block-pinned checks, including a pre-flight simulation, in trusted code on every path (15 for task runs).</p></div>
+    <div class="card sky"><h3>3 · Owner authorizes</h3><p>EIP-712 signature per transfer, or one bounded task grant with an auto-approval limit.</p></div>
+    <div class="card lilac"><h3>4 · Contract enforces</h3><p>Allowlist, per-tx and daily caps, one-time intents, pause and emergency stop, on-chain.</p></div>
+  </div>
+  <div class="foot"><span>AgentWallet</span><span>03</span></div>
+</section>
+
+<!-- 4 Architecture -->
+<section class="s" style="padding:60px 80px">
+  <div class="eyebrow">Architecture</div>
+  <div class="shot rel" style="flex:1"><img src="assets/architecture.png" style="object-fit:contain;background:#ecece6"><span class="tag t-dia">ARCHITECTURE DIAGRAM</span></div>
+  <div class="foot" style="left:80px;right:80px;bottom:22px"><span>React · Express · gpt-4.1-mini · risk engine · scheduler · PGlite/PostgreSQL · Solidity · Ethereum Sepolia</span><span>04</span></div>
+</section>
+
+<!-- 5 Product -->
+<section class="s">
+  <div class="eyebrow">The product</div>
+  <h2>A treasury command deck.</h2>
+  <div class="grid" style="grid-template-columns:2.2fr 1fr">
+    <div class="shot rel"><img src="assets/overview.png"><span class="tag t-rep">PUBLIC RUN DATA · POST-RUN READ-ONLY REPLAY</span></div>
+    <div style="display:flex;flex-direction:column;gap:24px">
+      <div class="card sky"><h3>Public vs local, always visible</h3><p>A sky PUBLIC TESTNET banner, or a hatched LOCAL SIMULATION banner. Explorer links only for public transactions.</p></div>
+      <div class="card"><h3>Everything from the chain</h3><p>Balance, caps, approvals, agent transfers, audit validity and kill switches, read from the backend and the contract.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>Clip 01</span><span>05</span></div>
+</section>
+
+<!-- 6 AI agent -->
+<section class="s">
+  <div class="eyebrow">AI command center · gpt-4.1-mini</div>
+  <h2>Plain English in, a draft out.</h2>
+  <div class="grid" style="grid-template-columns:2fr 1fr">
+    <div class="shot rel"><img src="assets/agent.png"><span class="tag t-rep">PUBLIC RUN DATA · POST-RUN READ-ONLY REPLAY</span></div>
+    <div style="display:flex;flex-direction:column;gap:24px">
+      <div class="card inkc"><h3 style="color:#9fdcb8">Real turn, public run</h3><p class="mono" style="font-size:20px">list_recipients → record_plan → propose_transfer → AWAITING_APPROVAL</p></div>
+      <div class="card"><h3>Guardrails in code</h3><ul><li>recipients only from the on-chain allowlist</li><li>action tools only after <span class="mono">record_plan</span></li><li>tighten-only policy tools</li><li>labels and memos treated as data</li></ul></div>
+    </div>
+  </div>
+  <div class="foot"><span>Clip 02 · evidence/sepolia/EVIDENCE.md</span><span>06</span></div>
+</section>
+
+<!-- 7 Risk -->
+<section class="s">
+  <div class="eyebrow">Risk engine</div>
+  <h2>The AI drafted 0.0003 ETH. Policy said no.</h2>
+  <div class="grid" style="grid-template-columns:2fr 1fr">
+    <div class="shot rel"><img src="assets/rejected.png"><span class="tag t-rep">PUBLIC RUN DATA · POST-RUN READ-ONLY REPLAY</span></div>
+    <div style="display:flex;flex-direction:column;gap:24px">
+      <div class="card blush"><h3>Failed checks</h3><p class="mono" style="font-size:21px">PER_TX_LIMIT: 0.0003 &gt; 0.0002<br>BALANCE_AND_RESERVE: needs 0.0004, holds 0.0003</p></div>
+      <div class="card"><h3>Nothing sent</h3><p>Never signed, never broadcast. Audit entry #10 <span class="mono">PROPOSAL_POLICY_REJECTED</span> has no transaction hash. The agent key sent exactly 2 transactions in the whole run.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>Clips 03, 04</span><span>07</span></div>
+</section>
+
+<!-- 8 Authorization -->
+<section class="s">
+  <div class="eyebrow">Authorization</div>
+  <h2>One signature per transfer, or one grant for many.</h2>
+  <div class="grid top" style="grid-template-columns:1fr 1fr">
+    <div class="card sky"><h3>Owner approval · EIP-712 ApproveTransfer</h3><p>Signs the exact proposal ID, intent ID, token, recipient, amount and deadline. Policy is re-checked at approval and again before broadcast.</p><p class="mono" style="margin-top:18px;font-size:20px">public: 0x2c83a855…2e37fb · block 11926668</p></div>
+    <div class="card lilac"><h3>Bounded grant · EIP-712 AuthorizeTask</h3><p>Fixes recipient, amount per run, max runs, max total, validity and schedule. Runs execute without a signature <b>only</b> under the owner's auto-approval limit; otherwise they escalate.</p><p class="mono" style="margin-top:18px;font-size:20px">public: 0xedeb6b97…e3cec3 · block 11926686</p></div>
+  </div>
+  <p class="lead" style="font-size:24px">Public signing used a test-only EIP-1193 wallet bridge. Real MetaMask 13.52.0 signing was verified on a local chain (clip 12).</p>
+  <div class="foot"><span>Clips 05, 06, 12</span><span>08</span></div>
+</section>
+
+<!-- 9 Autonomous -->
+<section class="s">
+  <div class="eyebrow">Autonomous on-chain execution · Ethereum Sepolia</div>
+  <h2>The agent paid on its own, inside a grant.</h2>
+  <div class="grid" style="grid-template-columns:1.25fr 1fr">
+    <div class="shot rel"><img src="assets/explorer-autonomous.png"><span class="tag t-pub">PUBLIC CHAIN · POST-RUN EXPLORER VERIFICATION</span></div>
+    <div class="card" style="padding:30px 34px">
+      <table>
+        <tr><th>UTC</th><th>Step</th></tr>
+        <tr><td class="mono">10:08:55</td><td>gpt-4.1-mini drafts the task (<span class="mono">schedule_payment</span>)</td></tr>
+        <tr><td class="mono">10:09:07</td><td><b>Owner signs the grant, once</b></td></tr>
+        <tr><td class="mono">10:11:21</td><td>Scheduler creates the run</td></tr>
+        <tr><td class="mono">10:11:26</td><td>Policy passes · auto-approved by the grant</td></tr>
+        <tr><td class="mono">10:11:29</td><td>Agent key submits <span class="mono">executeTransfer</span></td></tr>
+        <tr><td class="mono">10:11:36</td><td><b class="ok">Mined: block 11926686, Success</b></td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="foot"><span>Clip 06 · 0xedeb6b97380d3b0615639ca0940402789310f16154501ea54990418d48e3cec3</span><span>09</span></div>
+</section>
+
+<!-- 10 Security -->
+<section class="s">
+  <div class="eyebrow">Security · permission tiers</div>
+  <h2>Who can do what, and who enforces it.</h2>
+  <div class="grid" style="grid-template-columns:1.5fr 1fr">
+    <div class="card" style="padding:26px 30px">
+      <table>
+        <tr><th>Tier</th><th>Can</th><th>Enforced</th></tr>
+        <tr><td>T0 Anonymous</td><td>config, nonce</td><td>backend</td></tr>
+        <tr><td>T1 Viewer</td><td>read only (403 on writes)</td><td>backend</td></tr>
+        <tr><td>T2 LLM agent</td><td>read, draft, tighten</td><td>backend</td></tr>
+        <tr><td>T3 Scheduler</td><td>runs inside a signed grant</td><td>backend + contract</td></tr>
+        <tr><td>T4 Agent key</td><td><span class="mono">executeTransfer</span> only</td><td>contract</td></tr>
+        <tr><td>T5 Owner</td><td>limits, allowlist, pause, stop, withdraw</td><td>contract</td></tr>
+      </table>
+    </div>
+    <div class="shot rel"><img src="assets/viewer.png"><span class="tag t-rep">VIEWER · POST-RUN READ-ONLY REPLAY</span></div>
+  </div>
+  <div class="foot"><span>Clips 09, 10 · Deliverable 05 (R1–R20)</span><span>10</span></div>
+</section>
+
+<!-- 11 Emergency -->
+<section class="s">
+  <div class="eyebrow">Owner override · on-chain</div>
+  <h2>Stop everything in one transaction.</h2>
+  <div class="grid" style="grid-template-columns:repeat(4,1fr)">
+    <div class="card"><div class="num">⏸</div><h3>Pause</h3><p class="mono" style="font-size:18px">0x2a2eeb50…bd211b<br>block 11926689</p></div>
+    <div class="card"><div class="num">▶</div><h3>Unpause</h3><p class="mono" style="font-size:18px">0x00b0dc31…f2f3d0<br>block 11926691</p></div>
+    <div class="card blush"><div class="num">⛔</div><h3>Emergency stop</h3><p class="mono" style="font-size:18px">0xfe627133…e53a8d<br>Paused + AgentUpdated + EmergencyStop</p></div>
+    <div class="card"><div class="num">↑</div><h3>Withdraw</h3><p class="mono" style="font-size:18px">0x6c8fb074…a5cff5<br>block 11926693</p></div>
+  </div>
+  <p class="lead">State today, read-only: <span class="mono">paused = true</span>, <span class="mono">agent = 0x0</span>. The contract is still stopped.</p>
+  <div class="foot"><span>Clip 09</span><span>11</span></div>
+</section>
+
+<!-- 12 Evidence -->
+<section class="s">
+  <div class="eyebrow">Execution evidence</div>
+  <h2>11 public transactions. All successful.</h2>
+  <div class="grid" style="grid-template-columns:1.15fr 1fr">
+    <div class="shot rel"><img src="assets/receipts-terminal.png"><span class="tag t-rep">PUBLIC DATA · LIVE VERIFICATION COMMAND</span></div>
+    <div class="shot rel"><img src="assets/audit-terminal.png"><span class="tag t-rep">PUBLIC RUN AUDIT CHAIN · LIVE VERIFICATION</span></div>
+  </div>
+  <p class="lead" style="font-size:24px">Independent receipt check over a public RPC, and an independent recomputation of the 22-entry audit chain, which correlates AI decisions with transaction hashes.</p>
+  <div class="foot"><span>Clips 07, 08, 11 · Deliverable 06</span><span>12</span></div>
+</section>
+
+<!-- 13 Testing -->
+<section class="s">
+  <div class="eyebrow">Verification</div>
+  <h2>Tested like it holds money.</h2>
+  <div class="grid" style="grid-template-columns:repeat(4,1fr);grid-auto-rows:min-content">
+    <div class="card mint"><div class="num">35</div><p>contract tests: re-entrancy, cap fuzzing, owner/agent separation</p></div>
+    <div class="card mint"><div class="num">118</div><p>backend tests: auth, races, scheduler, agent safety</p></div>
+    <div class="card mint"><div class="num">24+3</div><p>UI component tests + browser flows</p></div>
+    <div class="card mint"><div class="num">8</div><p>full-stack end-to-end on a real local chain</p></div>
+    <div class="card butter"><div class="num">10/11</div><p>real MetaMask 13.52.0 rows, local chain (row 9 needs a paid LLM call)</p></div>
+    <div class="card butter"><div class="num">19×4</div><p>live gpt-4.1-mini safety assertions</p></div>
+    <div class="card sky"><div class="num">11/11</div><p>public transactions re-verified</p></div>
+    <div class="card sky"><div class="num">0</div><p>secrets found in committable files</p></div>
+  </div>
+  <div class="foot"><span>Clips 10, 13</span><span>13</span></div>
+</section>
+
+<!-- 14 Limits & roadmap -->
+<section class="s">
+  <div class="eyebrow">Honest limits · roadmap</div>
+  <h2>What we don't claim.</h2>
+  <div class="grid top" style="grid-template-columns:1fr 1fr">
+    <div class="card"><h3>Limits</h3><ul><li>Public signing used a test wallet bridge; MetaMask is local</li><li>ETH only on Sepolia; ERC-20 and USD valuation are local (synthetic feeds)</li><li>RL timing is local and synthetic-trained</li><li>Audit chain is off-chain (hash-chained, not anchored)</li><li>Self-assessment only: no external audit</li></ul></div>
+    <div class="card lilac"><h3>Next</h3><ul><li><b>Policy-bounded rebalancing:</b> AI proposes, owner signs, using the <span class="mono">executeSwap</span> already deployed (not built yet)</li><li>Anchor the audit head on-chain</li><li>Multisig or hardware-wallet owner</li><li>Recurring autonomy on a public chain</li></ul></div>
+  </div>
+  <div class="foot"><span>docs/CHALLENGE_AUDIT.md · SCORING_READINESS.md</span><span>14</span></div>
+</section>
+
+<!-- 15 Close -->
+<section class="s dark">
+  <div class="eyebrow">AgentWallet</div>
+  <h1 style="margin-top:110px;font-size:120px">Autonomous where it's safe.<br><span style="color:#9fdcb8">Human where it matters.</span></h1>
+  <div style="margin-top:auto;display:grid;grid-template-columns:repeat(3,1fr);gap:24px">
+    <div class="card" style="background:rgba(255,255,255,.06)"><p style="color:#fff;font-size:22px">Contract (Ethereum Sepolia)</p><p class="mono" style="color:#9fdcb8;font-size:19px;margin-top:8px">0x8A44716Efabb6Ce401291B91D4427149CaF956a6</p></div>
+    <div class="card" style="background:rgba(255,255,255,.06)"><p style="color:#fff;font-size:22px">Autonomous transaction</p><p class="mono" style="color:#9fdcb8;font-size:19px;margin-top:8px">0xedeb6b97…e3cec3</p></div>
+    <div class="card" style="background:rgba(255,255,255,.06)"><p style="color:#fff;font-size:22px">Code</p><p class="mono" style="color:#9fdcb8;font-size:19px;margin-top:8px">github.com/Turjo101365/AgentWallet</p></div>
+  </div>
+  <div class="foot"><span>Thank you</span><span>15</span></div>
+</section>
+
+</body>
+</html>

@@ -1,0 +1,11 @@
+{
+  "name": "receipts",
+  "title": "Receipt verification · 11 public Ethereum Sepolia transactions (read-only RPC)",
+  "command": "node submission/tools/verify-receipts.mjs",
+  "cwd": ".",
+  "startedAt": "2026-10-16T15:28:23.383Z",
+  "exitCode": 0,
+  "seconds": 10.1,
+  "videoProcessStart": 3.11,
+  "videoProcessEnd": 13.2
+}

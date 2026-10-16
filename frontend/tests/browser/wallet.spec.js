@@ -147,3 +147,49 @@ test('portfolio prices, bounded automation grant lifecycle, and truthful unavail
 });
 
 
+test('contract v2: signed deadline is shown, and the owner revokes a task grant on-chain so the agent key can no longer use it', async ({ page }) => {
+  const v2 = new ethers.Contract(fixture.deployment.contractAddress, JSON.parse(fs.readFileSync(path.join(root, 'shared', 'abi', 'AgentWallet.json'), 'utf8')).abi, chain.provider);
+  expect(Number(await v2.VERSION())).toBe(2);
+  await signIn(page, '/proposals');
+  await proposal(page, 'deadline display');
+  await expect(page.getByTestId('signed-deadline').first()).toContainText('Execution deadline (signed)');
+  await expect(page.getByTestId('signed-deadline').first()).toContainText('never extended');
+
+  await navigate(page, '/automation');
+  await page.getByLabel('Recipient (allowlisted)').selectOption(fixture.payeeA.address);
+  await page.getByLabel('Amount per run').fill('0.001');
+  await page.getByPlaceholder('Title (optional)').fill('Grant to revoke on-chain');
+  await page.getByRole('button', { name: 'Create task', exact: false }).click();
+  await page.getByRole('button', { name: 'Sign grant', exact: false }).click();
+  const card = page.getByText('Grant to revoke on-chain', { exact: true }).locator('xpath=ancestor::div[contains(@class,"space-y-3")][1]');
+  const revoke = card.getByRole('button', { name: 'Revoke grant on-chain', exact: false });
+  await expect(revoke).toBeVisible();
+
+  const { token } = await page.evaluate(() => JSON.parse(sessionStorage.getItem('aw.session')));
+  const tasks = (await (await fetch(`${base}/tasks`, { headers: { Authorization: `Bearer ${token}` } })).json()).data;
+  const task = tasks.find((t) => t.title === 'Grant to revoke on-chain');
+  expect(task.status).toBe('ACTIVE');
+  expect(task.grantDigest).toBe(ethers.TypedDataEncoder.hash(task.grantTypedData.domain, task.grantTypedData.types, task.grantTypedData.message));
+  expect(await v2.grantRevoked(task.grantDigest)).toBe(false);
+
+  // Before revocation the signed grant is valid on-chain for the agent key (static call only, nothing sent).
+  const agent = devWallet(1, chain.provider);
+  const asAgent = v2.connect(agent);
+  await asAgent.executeGrantTransfer.staticCall(task.grantTypedData.message, task.grantSignature, ethers.id('browser-probe-1'));
+
+  await revoke.click();
+  await expect(card.getByText('CANCELLED', { exact: true })).toBeVisible();
+  await expect(card.getByText(/^Grant revoked on-chain: the contract will refuse every remaining run/)).toBeVisible();
+  await expect(revoke).toHaveCount(0);
+  expect(await v2.grantRevoked(task.grantDigest)).toBe(true);
+  const revokedLogs = await chain.provider.getLogs({ address: fixture.deployment.contractAddress, topics: [v2.interface.getEvent('GrantRevoked').topicHash, task.grantDigest] });
+  expect(revokedLogs.length).toBe(1);
+
+  // A compromised agent key holding the signed grant can no longer execute it.
+  const nonce = await chain.provider.getTransactionCount(agent.address);
+  await expect(asAgent.executeGrantTransfer(task.grantTypedData.message, task.grantSignature, ethers.id('browser-probe-2'))).rejects.toThrow(/GrantIsRevoked|reverted/);
+  expect(await chain.provider.getTransactionCount(agent.address)).toBe(nonce);
+  let decoded = null;
+  try { await asAgent.executeGrantTransfer.staticCall(task.grantTypedData.message, task.grantSignature, ethers.id('browser-probe-3')); } catch (err) { decoded = v2.interface.parseError(err.data)?.name; }
+  expect(decoded).toBe('GrantIsRevoked');
+});

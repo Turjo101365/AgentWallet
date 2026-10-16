@@ -76,3 +76,17 @@ contracts/deployments/hardhat-inprocess.json
 # Local PGlite data
 backend/data/
 /work/
+
+# Recorded demo: rehearsal output, and large video files (upload separately; hashes are in MANIFEST.json)
+evidence/rehearsal/
+evidence/*/recordings/
+
+# Submission video assets: large binaries, upload separately (SHA-256 in evidence/submission/MANIFEST.json)
+evidence/submission/mini-clips/*.mp4
+evidence/submission/mini-clips/handles/
+evidence/submission/footage/**/*.webm
+evidence/submission/footage/metamask-raw/
+# ...but keep the small text logs of the recorded terminal runs
+!evidence/submission/footage/*.log
+# Clip tooling: generated data and fetched browser binaries
+submission/tools/clips/src/resolved.json

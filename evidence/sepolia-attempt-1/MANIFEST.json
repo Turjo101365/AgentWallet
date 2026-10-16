@@ -1,0 +1,20 @@
+{
+  "generatedAt": "2026-10-16T09:46:03.606Z",
+  "files": [
+    {
+      "file": "ATTEMPT_NOTES.md",
+      "bytes": 2274,
+      "sha256": "cca0b192ef5eb76954ccfbfdf3aa1014d744869e72d5c2b791b9a32677bdace0"
+    },
+    {
+      "file": "recordings/raw/agentwallet-sepolia-attempt-1-raw.webm",
+      "bytes": 1615889,
+      "sha256": "781b6f4b254a692deb99288c66eae139a96c768f448d1996ae589c5b95ca33bc"
+    },
+    {
+      "file": "screenshots/01-deploy.png",
+      "bytes": 39030,
+      "sha256": "9f688fe126af26ee23bafef1cd8e9782d3459aac265d9757eeaf8b7ed9f76954"
+    }
+  ]
+}

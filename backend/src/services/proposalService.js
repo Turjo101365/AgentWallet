@@ -3,6 +3,16 @@ import { ethers } from 'ethers';
 import { explainDecision } from './policyService.js';
 import { decodeContractError, serializeSnapshot } from './chainService.js';
 import { approvalTypedData, recoverApprover, intentIdFor } from '../lib/approval.js';
+import { grantTypedData } from '../lib/schedule.js';
+
+/**
+ * v2 only, before a signature exists: checkTransfer measures the limit checks; this covers the rest of a
+ * signed execution (EIP-712 hashing and signature recovery, state writes, the transfer and its event).
+ * Measured on a local chain (2026-10-17, ETH): checkTransfer ~40.9k; executeApprovedTransfer 109.3k used;
+ * a first executeGrantTransfer run 143.4k used (two new grant-counter slots). The allowance covers the grant
+ * case. It is display only: the executor always re-estimates the exact signed call before sending.
+ */
+const V2_SIGNED_EXECUTION_GAS_ALLOWANCE = 105_000n;
 import { normalizeAddress, sameAddress } from '../lib/address.js';
 import { parseAmount, formatAmount } from '../lib/units.js';
 import { Mutex } from '../lib/mutex.js';
@@ -37,17 +47,48 @@ export function createProposalService({ config, repos, chain, auth, risk, logger
     return token;
   }
 
-  async function simulate(p) {
+  /**
+   * Static call from the executor address against fresh chain state.
+   *  - v1: the real executeTransfer call.
+   *  - v2 with an owner signature or a task grant: the exact signed call the executor will send, so the
+   *    contract's own signature, deadline and grant checks are part of the simulation.
+   *  - v2 before anything is signed: simulateTransfer, which runs every limit check AND the real send, then
+   *    always reverts (SimulationSucceeded() means it would succeed). It cannot be estimated, so the gas figure
+   *    is checkTransfer's estimate plus a fixed allowance, labelled as a pre-signature estimate.
+   */
+  async function simulate(p, auth = null) {
     if (!config.executor.enabled) return { success: false, error: { name: 'ExecutorDisabled', args: [] } };
-    const args = [p.intentId, p.token.address, p.recipient, BigInt(p.amountWei)];
     const from = config.executor.address;
+    const plain = [p.intentId, p.token.address, p.recipient, BigInt(p.amountWei)];
+    let method;
+    let args;
+    let basis = 'exact';
+    if (chain.contractVersion() === 1) {
+      [method, args] = ['executeTransfer', plain];
+    } else if (auth?.kind === 'OWNER_SIGNATURE') {
+      [method, args] = ['executeApprovedTransfer', [approvalTypedData(p).message, auth.signature]];
+    } else if (auth?.kind === 'TASK_GRANT') {
+      [method, args] = ['executeGrantTransfer', [grantTypedData(auth.task).message, auth.task.grantSignature, p.intentId]];
+    } else {
+      [method, args, basis] = ['checkTransfer', plain, 'pre-signature'];
+    }
+    const target = method === 'executeTransfer' ? chain.executionContract() : chain.contract;
     try {
-      await chain.contract.executeTransfer.staticCall(...args, { from });
-      const gasEstimate = await chain.contract.executeTransfer.estimateGas(...args, { from });
+      let gasEstimate;
+      if (basis === 'pre-signature') {
+        await expectSimulationSucceeded(plain, from);
+        gasEstimate = (await target.checkTransfer.estimateGas(...plain, { from })) + V2_SIGNED_EXECUTION_GAS_ALLOWANCE;
+        method = 'simulateTransfer';
+      } else {
+        await target[method].staticCall(...args, { from });
+        gasEstimate = await target[method].estimateGas(...args, { from });
+      }
       const feeData = await chain.provider.getFeeData();
       const feePerGas = feeData.maxFeePerGas ?? feeData.gasPrice ?? 0n;
       return {
         success: true,
+        method,
+        gasBasis: basis,
         gasEstimate: gasEstimate.toString(),
         maxFeePerGas: feePerGas.toString(),
         maxNetworkFeeWei: (gasEstimate * feePerGas).toString(),
@@ -59,8 +100,19 @@ export function createProposalService({ config, repos, chain, auth, risk, logger
     }
   }
 
+  /** v2 simulateTransfer always reverts; only SimulationSucceeded() means the transfer would go through. */
+  async function expectSimulationSucceeded(args, from) {
+    try {
+      await chain.contract.simulateTransfer.staticCall(...args, { from });
+    } catch (err) {
+      if (decodeContractError(err)?.name === 'SimulationSucceeded') return;
+      throw err;
+    }
+    throw new Error('simulateTransfer returned without its SimulationSucceeded marker');
+  }
+
   /** Centralized risk assessment + static simulation against fresh chain state. */
-  async function assess(p, { excludeId = null } = {}) {
+  async function assess(p, { excludeId = null, auth = null } = {}) {
     const { policy } = await risk.assessTransfer({
       tokenAddress: p.token.address,
       recipient: p.recipient,
@@ -70,7 +122,7 @@ export function createProposalService({ config, repos, chain, auth, risk, logger
     });
     let simulation = null;
     if (policy.passed) {
-      simulation = await simulate(p);
+      simulation = await simulate(p, auth);
       const label = simulation.success ? `Static call succeeded; gas estimate ${simulation.gasEstimate}` : `Static call reverted: ${simulation.error?.name || 'unknown'}`;
       policy.checks.push({ id: 'SIMULATION', passed: simulation.success, message: label });
       if (!simulation.success) {
@@ -154,6 +206,11 @@ export function createProposalService({ config, repos, chain, auth, risk, logger
         await repos.proposals.transition(id, ['AWAITING_APPROVAL'], 'EXPIRED', { resolvedAt: nowSeconds(), resolutionReason: 'TTL elapsed' });
         throw new AppError(410, 'PROPOSAL_EXPIRED', 'Proposal approval window has elapsed');
       }
+      // The signed deadline is also the execution deadline (enforced by the executor and, on v2, the
+      // contract). Refuse an approval that leaves too little time to execute rather than extend it.
+      if (proposal.expiresAt - nowSeconds() < config.approvalMinRemainingSeconds) {
+        throw new AppError(410, 'APPROVAL_TOO_LATE', `Less than ${config.approvalMinRemainingSeconds}s remain before the signed execution deadline; create a new proposal`);
+      }
 
       let approver;
       try {
@@ -166,7 +223,7 @@ export function createProposalService({ config, repos, chain, auth, risk, logger
       }
 
       // Never trust the state captured at creation time: re-run policy and simulation now.
-      const { policy, simulation } = await assess(proposal, { excludeId: id });
+      const { policy, simulation } = await assess(proposal, { excludeId: id, auth: { kind: 'OWNER_SIGNATURE', signature } });
       if (!policy.passed) {
         await repos.proposals.transition(id, ['AWAITING_APPROVAL'], 'POLICY_REJECTED', {
           policyResult: policy, simulation, resolvedAt: nowSeconds(), resolutionReason: 'Policy failed at approval time',
@@ -205,7 +262,7 @@ export function createProposalService({ config, repos, chain, auth, risk, logger
     return approvalMutex.run(async () => {
       const proposal = await repos.proposals.findById(id);
       if (!proposal || proposal.status !== 'AWAITING_APPROVAL') throw conflict('INVALID_STATE', 'Proposal is not awaiting approval');
-      const { policy, simulation } = await assess(proposal, { excludeId: id });
+      const { policy, simulation } = await assess(proposal, { excludeId: id, auth: { kind: 'TASK_GRANT', task } });
       const explanation = explainDecision({ policy, route });
       if (!policy.passed) {
         await repos.proposals.transition(id, ['AWAITING_APPROVAL'], 'POLICY_REJECTED', { policyResult: policy, simulation, explanation, resolvedAt: nowSeconds(), resolutionReason: 'Policy failed at grant approval' });

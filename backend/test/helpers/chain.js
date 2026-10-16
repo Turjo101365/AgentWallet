@@ -62,8 +62,16 @@ export async function startTestChain() {
   };
 }
 
-/** Deploys AgentWallet + test token the same way contracts/scripts/deploy.js does for localhost. */
-export async function deployFixture(provider) {
+/** The frozen AgentWallet v1 (byte-identical to the Ethereum Sepolia deployment), for compatibility tests. */
+export function v1Artifact() {
+  return JSON.parse(fs.readFileSync(path.join(CONTRACTS_DIR, '..', 'shared', 'abi', 'AgentWallet.v1.json'), 'utf8'));
+}
+
+/**
+ * Deploys AgentWallet + test token the same way contracts/scripts/deploy.js does for localhost.
+ * `walletArtifact` defaults to the current build (v2); pass v1Artifact() to test against the deployed v1.
+ */
+export async function deployFixture(provider, { walletArtifact } = {}) {
   const owner = devWallet(0, provider);
   const agent = devWallet(1, provider);
   const payeeA = devWallet(2, provider);
@@ -71,7 +79,7 @@ export async function deployFixture(provider) {
   const outsider = devWallet(4, provider);
   const ownerSigner = new ethers.NonceManager(owner);
 
-  const W = artifact('AgentWallet');
+  const W = walletArtifact || artifact('AgentWallet');
   const T = artifact('MockERC20', 'mocks');
   const wallet = await new ethers.ContractFactory(W.abi, W.bytecode, ownerSigner).deploy(
     owner.address,

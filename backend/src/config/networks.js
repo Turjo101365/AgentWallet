@@ -10,6 +10,7 @@ export const NETWORKS = Object.freeze({
     defaultRpcUrl: 'http://127.0.0.1:8545',
     explorerBaseUrl: null,
     defaultConfirmations: 1,
+    defaultLogBlockRange: 2000,
     nativeSymbol: 'ETH',
   }),
   84532: Object.freeze({
@@ -20,6 +21,20 @@ export const NETWORKS = Object.freeze({
     defaultRpcUrl: 'https://sepolia.base.org',
     explorerBaseUrl: 'https://sepolia.basescan.org',
     defaultConfirmations: 2,
+    // https://sepolia.base.org rejects larger ranges: "eth_getLogs is limited to a 200 range".
+    defaultLogBlockRange: 200,
+    nativeSymbol: 'ETH',
+  }),
+  11155111: Object.freeze({
+    chainId: 11155111,
+    key: 'sepolia',
+    name: 'Ethereum Sepolia',
+    isPublic: true,
+    defaultRpcUrl: 'https://ethereum-sepolia-rpc.publicnode.com',
+    explorerBaseUrl: 'https://sepolia.etherscan.io',
+    defaultConfirmations: 2,
+    // publicnode accepted 10,000-block eth_getLogs ranges on 2026-10-16; 2000 leaves margin.
+    defaultLogBlockRange: 2000,
     nativeSymbol: 'ETH',
   }),
 });

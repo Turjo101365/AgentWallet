@@ -1,0 +1,106 @@
+{
+  "label": "LOCAL HARDHAT (chain 31337), contract v2, not deployed publicly",
+  "startedAt": "2026-10-16T22:15:54.713Z",
+  "steps": [
+    {
+      "step": "ai-draft-transfer",
+      "at": "2026-10-16T22:16:15.576Z",
+      "proposalId": "1dff7b02-b595-4297-ab5c-c21c430c241b",
+      "tools": [
+        "propose_transfer"
+      ],
+      "status": "COMPLETED"
+    },
+    {
+      "step": "owner-approved-transfer",
+      "at": "2026-10-16T22:16:24.512Z",
+      "proposalId": "1dff7b02-b595-4297-ab5c-c21c430c241b",
+      "txHash": "0x113415624f78e72dd897bf181a576e05040ffd1f5afb4d59a733200c14e2233f",
+      "block": 9,
+      "method": "executeApprovedTransfer",
+      "network": "local hardhat 31337"
+    },
+    {
+      "step": "ai-draft-task",
+      "at": "2026-10-16T22:16:32.425Z",
+      "taskId": "ccad9021-1e02-45ee-9d71-71a85cbd6214",
+      "status": "COMPLETED"
+    },
+    {
+      "step": "autonomous-grant-run",
+      "at": "2026-10-16T22:17:13.683Z",
+      "taskId": "ccad9021-1e02-45ee-9d71-71a85cbd6214",
+      "txHash": "0x09db3c5039f777cf3a772e5857ed06f3ae389c18c04508ede5b354c8a794cca9",
+      "block": 10,
+      "method": "executeGrantTransfer",
+      "onChainGrant": {
+        "runs": 1,
+        "spentWei": "1000000000000000",
+        "revoked": false
+      },
+      "network": "local hardhat 31337"
+    },
+    {
+      "step": "attack",
+      "at": "2026-10-16T22:17:18.265Z",
+      "attack": "agent key, no owner signature (v1-style executeTransfer)",
+      "blocked": true,
+      "error": "reverted (no such function)"
+    },
+    {
+      "step": "attack",
+      "at": "2026-10-16T22:17:18.301Z",
+      "attack": "replay the already-executed owner approval",
+      "blocked": true,
+      "error": "IntentAlreadyExecuted"
+    },
+    {
+      "step": "attack",
+      "at": "2026-10-16T22:17:18.334Z",
+      "attack": "reuse the owner signature with a larger amount",
+      "blocked": true,
+      "error": "InvalidOwnerSignature"
+    },
+    {
+      "step": "attack",
+      "at": "2026-10-16T22:17:18.368Z",
+      "attack": "agent signs its own approval",
+      "blocked": true,
+      "error": "InvalidOwnerSignature"
+    },
+    {
+      "step": "attack",
+      "at": "2026-10-16T22:17:18.401Z",
+      "attack": "reuse the one-run grant a second time",
+      "blocked": true,
+      "error": "GrantExhausted"
+    },
+    {
+      "step": "attack",
+      "at": "2026-10-16T22:17:29.053Z",
+      "attack": "agent uses the revoked grant",
+      "blocked": true,
+      "error": "GrantIsRevoked"
+    },
+    {
+      "step": "grant-revoked-on-chain",
+      "at": "2026-10-16T22:17:29.055Z",
+      "taskId": "7ea840c5-d05a-4002-9946-4c533726c0ca",
+      "grantDigest": "0xa66e2a8921ed90f4b573ecfbb1e6fc6fad437f2c5c37a362d07aae4f9502fe7d"
+    },
+    {
+      "step": "attack",
+      "at": "2026-10-16T22:17:36.744Z",
+      "attack": "agent key after emergency stop",
+      "blocked": true,
+      "error": "NotAgent"
+    },
+    {
+      "step": "emergency-stop",
+      "at": "2026-10-16T22:17:36.782Z",
+      "paused": true,
+      "agent": "0x0000000000000000000000000000000000000000"
+    }
+  ],
+  "finishedAt": "2026-10-16T22:17:43.331Z"
+}

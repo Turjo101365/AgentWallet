@@ -11,3 +11,8 @@ export const useTransactions = (ms = 6000) => usePolling(() => get('/transaction
 export function labelFor(recipients, address) {
   return recipients?.find((r) => r.address.toLowerCase() === String(address).toLowerCase())?.label || null;
 }
+export const useAuditLog = (ms = 8000) => usePolling(() => get('/audit'), ms);
+export const useAuditVerify = (ms = 15000) => usePolling(() => get('/audit/verify'), ms);
+export const useTasks = (ms = 6000) => usePolling(() => get('/tasks'), ms);
+export const usePolicy = (ms = 20000) => usePolling(() => get('/policy'), ms);
+export const usePortfolio = (ms = 15000) => usePolling(() => get('/portfolio'), ms);

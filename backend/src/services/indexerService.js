@@ -1,16 +1,17 @@
 import { ethers } from 'ethers';
 import { agentWalletInterface } from './chainService.js';
 
-const CHUNK = 2000;
 const REORG_DEPTH = 12;
 
 /**
  * Indexes AgentWallet events from chain logs into chain_events. Transaction history is built from
  * these verified logs, never from what a browser reports. Only blocks at the configured
  * confirmation depth are indexed; if the last indexed block's hash changes (reorg), the indexer
- * rewinds REORG_DEPTH blocks and re-indexes.
+ * rewinds REORG_DEPTH blocks and re-indexes. Logs are read in ranges of at most
+ * config.indexerBlockRange blocks, because public RPCs cap eth_getLogs ranges (Base Sepolia: 200).
  */
 export function createIndexerService({ config, repos, chain, executor, logger }) {
+  const chunk = config.indexerBlockRange;
   const stateId = `agentwallet:${config.chainId}:${(config.contractAddress || 'none').toLowerCase()}`;
   let running = false;
   let timer = null;
@@ -46,8 +47,8 @@ export function createIndexerService({ config, repos, chain, executor, logger })
       const latest = await provider.getBlockNumber();
       const target = latest - (config.confirmations - 1);
       const blockTimes = new Map();
-      for (let from = state.lastBlock + 1; from <= target; from += CHUNK) {
-        const to = Math.min(target, from + CHUNK - 1);
+      for (let from = state.lastBlock + 1; from <= target; from += chunk) {
+        const to = Math.min(target, from + chunk - 1);
         const logs = await provider.getLogs({ address: config.contractAddress, fromBlock: from, toBlock: to });
         const events = [];
         for (const log of logs) {

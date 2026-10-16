@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080" font-family="Fustat, Inter, Segoe UI, sans-serif">
+  <!-- AgentWallet system architecture. Editable SVG: every box is a <g> with an id. Colours follow the console. -->
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#3a3a35"/></marker>
+    <marker id="am" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#0e5236"/></marker>
+    <marker id="as" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#153f66"/></marker>
+    <style>
+      .t{font-size:22px;font-weight:700;fill:#121411}.s{font-size:15px;fill:#4f4f48}.m{font-family:'JetBrains Mono',Consolas,monospace;font-size:13px;fill:#3a3a35}
+      .k{font-family:'JetBrains Mono',Consolas,monospace;font-size:13px;letter-spacing:.12em;fill:#64645c}.h{font-family:'Faculty Glyphic',Georgia,serif;font-size:46px;fill:#121411}
+      .lbl{font-family:'JetBrains Mono',Consolas,monospace;font-size:12.5px;fill:#3a3a35}
+    </style>
+  </defs>
+  <rect width="1920" height="1080" fill="#ecece6"/>
+  <text x="60" y="78" class="h">AgentWallet: system architecture</text>
+  <text x="62" y="104" class="s">The AI plans · the owner authorizes · the backend risk engine checks · the smart contract enforces. Dashed boxes are trust boundaries.</text>
+
+  <!-- trust boundaries -->
+  <rect x="40" y="150" width="330" height="870" rx="28" fill="none" stroke="#84847b" stroke-dasharray="8 7" stroke-width="2"/>
+  <text x="62" y="182" class="k">OWNER DEVICE</text>
+  <rect x="400" y="150" width="1010" height="870" rx="28" fill="none" stroke="#84847b" stroke-dasharray="8 7" stroke-width="2"/>
+  <text x="422" y="182" class="k">BACKEND · HOLDS ONLY THE BOUNDED AGENT KEY</text>
+  <rect x="1440" y="150" width="440" height="870" rx="28" fill="none" stroke="#153f66" stroke-dasharray="8 7" stroke-width="2"/>
+  <text x="1462" y="182" class="k" style="fill:#153f66">PUBLIC CHAIN · FINAL ENFORCEMENT</text>
+
+  <!-- owner side -->
+  <g id="wallet"><rect x="64" y="205" width="282" height="150" rx="22" fill="#f5ebc0"/>
+    <text x="86" y="242" class="t">Wallet</text><text x="86" y="268" class="s">MetaMask (EIP-1193)</text>
+    <text x="86" y="296" class="m">owner key · SIWE sign-in</text><text x="86" y="316" class="m">EIP-712 approvals + grants</text><text x="86" y="336" class="m">owner txs (pause, limits…)</text></g>
+  <g id="console"><rect x="64" y="385" width="282" height="300" rx="22" fill="#ffffff"/>
+    <text x="86" y="422" class="t">React console</text><text x="86" y="448" class="s">React 18 · Vite · Tailwind</text>
+    <text x="86" y="482" class="m">overview · AI command center</text><text x="86" y="502" class="m">approvals · automation</text><text x="86" y="522" class="m">risk controls · emergency</text><text x="86" y="542" class="m">transactions · audit log</text>
+    <text x="86" y="576" class="m">roles: owner / viewer</text><text x="86" y="596" class="m">PUBLIC vs LOCAL mode banner</text><text x="86" y="630" class="s">Never sees a private key.</text><text x="86" y="652" class="s">Status only from the backend.</text></g>
+  <g id="viewer"><rect x="64" y="715" width="282" height="120" rx="22" fill="#eeeee9"/>
+    <text x="86" y="752" class="t">Viewer</text><text x="86" y="778" class="s">Any other wallet</text><text x="86" y="806" class="m">read-only session</text></g>
+
+  <!-- backend -->
+  <g id="api"><rect x="424" y="205" width="300" height="150" rx="22" fill="#ffffff"/>
+    <text x="446" y="242" class="t">Express API</text><text x="446" y="268" class="s">Node.js · zod strict schemas</text>
+    <text x="446" y="296" class="m">SIWE sessions · role from chain</text><text x="446" y="316" class="m">rate limits · CORS · idempotency</text><text x="446" y="336" class="m">owner-only mutations</text></g>
+  <g id="agent"><rect x="424" y="385" width="300" height="190" rx="22" fill="#121411"/>
+    <text x="446" y="422" class="t" style="fill:#fff">AI agent</text><text x="446" y="448" class="s" style="fill:#c9c9c2">gpt-4.1-mini (OpenAI-compatible)</text>
+    <text x="446" y="478" class="m" style="fill:#9fdcb8">typed tool loop · record_plan first</text><text x="446" y="498" class="m" style="fill:#9fdcb8">propose_transfer · schedule_payment</text><text x="446" y="518" class="m" style="fill:#9fdcb8">can tighten, never loosen policy</text><text x="446" y="548" class="s" style="fill:#c9c9c2">Cannot sign or approve.</text></g>
+  <g id="risk"><rect x="754" y="385" width="300" height="190" rx="22" fill="#d6efdf"/>
+    <text x="776" y="422" class="t">Risk engine</text><text x="776" y="448" class="s">one entry point for every path</text>
+    <text x="776" y="478" class="m">14 block-pinned checks</text><text x="776" y="498" class="m">reservations · reserve floor</text><text x="776" y="518" class="m">gas cap · simulation</text><text x="776" y="538" class="m">circuit breaker · USD limit</text></g>
+  <g id="proposals"><rect x="424" y="605" width="300" height="160" rx="22" fill="#ffffff"/>
+    <text x="446" y="642" class="t">Proposals</text><text x="446" y="668" class="s">owner approval path</text>
+    <text x="446" y="698" class="m">EIP-712 ApproveTransfer</text><text x="446" y="718" class="m">exact token/recipient/amount</text><text x="446" y="738" class="m">TTL · intent id · replay-safe</text></g>
+  <g id="scheduler"><rect x="754" y="605" width="300" height="160" rx="22" fill="#e4def5"/>
+    <text x="776" y="642" class="t">Scheduler</text><text x="776" y="668" class="s">autonomous path</text>
+    <text x="776" y="698" class="m">EIP-712 AuthorizeTask grant</text><text x="776" y="718" class="m">runs ≤ auto-approval limit</text><text x="776" y="738" class="m">leases · exactly-once · retry</text></g>
+  <g id="executor"><rect x="1084" y="505" width="300" height="160" rx="22" fill="#d8e7f4"/>
+    <text x="1106" y="542" class="t">Executor</text><text x="1106" y="568" class="s">the only holder of the agent key</text>
+    <text x="1106" y="598" class="m">pre-flight static call</text><text x="1106" y="618" class="m">executeTransfer(intent,…)</text><text x="1106" y="638" class="m">CONFIRMED only on receipt</text></g>
+  <g id="indexer"><rect x="1084" y="205" width="300" height="150" rx="22" fill="#ffffff"/>
+    <text x="1106" y="242" class="t">Indexer</text><text x="1106" y="268" class="s">contract events → history</text>
+    <text x="1106" y="296" class="m">receipt-verified only</text><text x="1106" y="316" class="m">reorg rewind 12 blocks</text><text x="1106" y="336" class="m">explorer links per tx</text></g>
+  <g id="db"><rect x="424" y="795" width="630" height="200" rx="22" fill="#ffffff"/>
+    <text x="446" y="832" class="t">PostgreSQL / PGlite</text><text x="446" y="858" class="s">proposals · tasks · runs · conversations · settings · chain events</text>
+    <rect x="446" y="878" width="586" height="98" rx="16" fill="#f5ebc0"/>
+    <text x="466" y="910" class="t" style="font-size:19px">Audit log (append-only, hash-chained)</text>
+    <text x="466" y="936" class="m">hash = SHA-256(prev_hash ‖ canonical entry) · DB rejects UPDATE/DELETE</text>
+    <text x="466" y="958" class="m">verified by GET /audit/verify and an independent script</text></g>
+  <g id="rl"><rect x="1084" y="795" width="300" height="200" rx="22" fill="#eeeee9"/>
+    <text x="1106" y="832" class="t">RL timing engine</text><text x="1106" y="858" class="s">FastAPI · PPO / DQN checkpoints</text>
+    <text x="1106" y="888" class="m">advises WHEN, never what/who</text><text x="1106" y="908" class="m">deadline forces execution</text><text x="1106" y="936" class="s" style="fill:#5e4a06">Local e2e only; synthetic</text><text x="1106" y="958" class="s" style="fill:#5e4a06">training; not in public run.</text></g>
+
+  <!-- chain -->
+  <g id="contract"><rect x="1464" y="205" width="392" height="470" rx="22" fill="#121411"/>
+    <text x="1488" y="244" class="t" style="fill:#fff">AgentWallet.sol</text><text x="1488" y="270" class="s" style="fill:#c9c9c2">Solidity 0.8.24 · OpenZeppelin</text>
+    <text x="1488" y="306" class="m" style="fill:#9fdcb8">owner ≠ agent (Ownable2Step)</text><text x="1488" y="328" class="m" style="fill:#9fdcb8">recipient allowlist</text><text x="1488" y="350" class="m" style="fill:#9fdcb8">per-tx + UTC daily caps</text><text x="1488" y="372" class="m" style="fill:#9fdcb8">executedIntents (no replay)</text><text x="1488" y="394" class="m" style="fill:#9fdcb8">pause · unpause · emergencyStop</text><text x="1488" y="416" class="m" style="fill:#9fdcb8">withdraw · emergencyWithdraw</text><text x="1488" y="438" class="m" style="fill:#9fdcb8">executeSwap: owner-only, unused</text>
+    <text x="1488" y="480" class="s" style="fill:#c9c9c2">Ethereum Sepolia (11155111)</text><text x="1488" y="504" class="m" style="fill:#fff">0x8A44716E…F956a6</text>
+    <text x="1488" y="540" class="s" style="fill:#c9c9c2">11 public transactions, all SUCCESS</text><text x="1488" y="564" class="s" style="fill:#c9c9c2">state now: paused · agent revoked</text>
+    <text x="1488" y="604" class="s" style="fill:#c9c9c2">Also runs on a local Hardhat chain</text><text x="1488" y="626" class="s" style="fill:#c9c9c2">(31337) for tests and rehearsals.</text></g>
+  <g id="explorer"><rect x="1464" y="705" width="392" height="130" rx="22" fill="#d8e7f4"/>
+    <text x="1488" y="742" class="t">Public explorers</text><text x="1488" y="768" class="s">Etherscan · Blockscout</text><text x="1488" y="798" class="m">independent receipt verification</text></g>
+  <g id="llm"><rect x="1464" y="865" width="392" height="130" rx="22" fill="#ffffff" stroke="#cdcdc5"/>
+    <text x="1488" y="902" class="t">LLM provider</text><text x="1488" y="928" class="s">OpenAI-compatible API (external)</text><text x="1488" y="958" class="m">key in backend env only</text></g>
+
+  <!-- flows -->
+  <g fill="none" stroke-width="2.5">
+    <path d="M205 205 V138 H1660 V205" stroke="#0e5236" stroke-dasharray="7 5" marker-end="url(#am)"/>
+    <path d="M205 355 V385" stroke="#3a3a35" marker-end="url(#a)"/>
+    <path d="M346 470 H424" stroke="#3a3a35" marker-end="url(#a)"/>
+    <path d="M574 355 V385" stroke="#3a3a35" marker-end="url(#a)"/>
+    <path d="M724 480 H754" stroke="#3a3a35" marker-end="url(#a)"/>
+    <path d="M904 575 V605" stroke="#3a3a35" marker-end="url(#a)"/>
+    <path d="M800 575 V590 H574 V605" stroke="#3a3a35" marker-end="url(#a)"/>
+    <path d="M724 700 H740 V780 H1070 V600 H1084" stroke="#3a3a35" marker-end="url(#a)"/>
+    <path d="M1054 685 H1070" stroke="#3a3a35"/>
+    <path d="M1384 585 H1464" stroke="#153f66" marker-end="url(#as)"/>
+    <path d="M1464 260 H1384" stroke="#153f66" marker-end="url(#as)"/>
+    <path d="M1660 675 V705" stroke="#153f66" marker-end="url(#as)"/>
+    <path d="M700 385 V370 H1425 V930 H1464" stroke="#3a3a35" stroke-dasharray="4 5" marker-end="url(#a)"/>
+    <path d="M1054 735 H1062 V900 H1084" stroke="#3a3a35" stroke-dasharray="4 5" marker-end="url(#a)"/>
+  </g>
+  <text x="420" y="130" class="lbl" style="fill:#0e5236">owner transactions signed in the wallet: allowlist, limits, pause, unpause, emergency stop, withdraw</text>
+  <text x="1390" y="575" class="lbl" style="fill:#153f66">agent tx</text>
+  <text x="1392" y="250" class="lbl" style="fill:#153f66">events</text>
+  <text x="352" y="460" class="lbl">REST</text>
+  <text x="1150" y="365" class="lbl">LLM API calls</text>
+  <text x="1068" y="785" class="lbl" style="font-size:11px">timing</text>
+</svg>

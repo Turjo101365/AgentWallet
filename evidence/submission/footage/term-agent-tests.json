@@ -1,0 +1,11 @@
+{
+  "name": "agent-tests",
+  "title": "AI-agent safety tests: allowlist, prompt injection, no loosening (scripted provider)",
+  "command": "node --test --test-reporter=spec test/agent.chat.test.js",
+  "cwd": "backend",
+  "startedAt": "2026-10-16T15:29:14.711Z",
+  "exitCode": 0,
+  "seconds": 24.5,
+  "videoProcessStart": 3.11,
+  "videoProcessEnd": 27.64
+}

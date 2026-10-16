@@ -1,0 +1,223 @@
+{
+  "meta": {
+    "started": "2026-10-16T21:52:40.716Z",
+    "playwrightVersion": "1.64.1",
+    "otherChain": "http://127.0.0.1:21028",
+    "metamaskVersion": "13.52.0.0",
+    "browserVersion": "156.0.0.0",
+    "finished": "2026-10-16T22:02:17.682Z"
+  },
+  "rows": [
+    {
+      "n": 1,
+      "name": "Connect wallet",
+      "status": "PASS",
+      "metamask": [
+        "connect-reject: l localhost Connect this website with MetaMask Account Account 1 Permissions See addresses, balances, and activity Send requests for transactions Cannot move funds without your permission Cancel Connect",
+        "connect: l localhost Connect this website with MetaMask Account Account 1 Permissions See addresses, balances, and activity Send requests for transactions Cannot move funds without your permission Cancel Connect"
+      ],
+      "evidence": {
+        "connected": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266"
+      },
+      "notes": [],
+      "account": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+      "chainId": 1
+    },
+    {
+      "n": 2,
+      "name": "Switch network",
+      "status": "PASS",
+      "metamask": [
+        "network-1: Add Hardhat Local A site is suggesting additional network details. Request from localhost:32030 Network H Hardhat Local RPC 127.0.0.1:19718 Beware of network scams and security risks. Cancel Confirm"
+      ],
+      "evidence": {
+        "walletChainId": 31337
+      },
+      "notes": [],
+      "account": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+      "chainId": 31337
+    },
+    {
+      "n": 3,
+      "name": "Sign in (SIWE) as owner",
+      "status": "PASS",
+      "metamask": [
+        "sign-in: Account 1 Sign-in request A site wants you to sign in to prove you own this account. Estimated changes No changes Network H Hardhat Local Request from HTTP localhost:32030 Signing in with Account 1 Message Sign in to the AgentWallet operator console. This signature does not authorize any transaction or spending. URL http://localhost:32030 Network 0x7a69 Account Account 1 Version 1 Chain ID 31337 Nonce b3d12a553c03ce3761867caeaaeffefd Issued 16 October 2026, 21:55 Cancel Confirm"
+      ],
+      "evidence": {
+        "signInShowsPort": true
+      },
+      "notes": [],
+      "account": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+      "chainId": 31337
+    },
+    {
+      "n": 4,
+      "name": "Approve & sign 0.001 ETH to Acme (#2)",
+      "status": "PASS",
+      "metamask": [
+        "typed-data: Account 1 Security check unavailable We couldn't complete this safety check. Continue only if you trust the site and addresses involved. Powered by Blockaid Signature request Review request details before you confirm. Network H Hardhat Local Request from HTTP localhost:32030 Interacting with 0x5FbDB...80aa3 Message Primary type: ApproveTransfer ProposalId: 56d1ff80-6304-4a45-8ee2-84c1db62e3a6 IntentId: 0x25186e9e1e26d8b1fbf3c484cd50128390be7707445af1eae7b8e2f12a8fa233 Token: 0x00000...00000 Reci"
+      ],
+      "evidence": {
+        "proposalId": "56d1ff80-6304-4a45-8ee2-84c1db62e3a6",
+        "fieldsShown": [
+          "proposalId",
+          "intentId",
+          "token",
+          "recipient",
+          "amount",
+          "deadline"
+        ],
+        "txHash": "0x59af25d4c3298eaac59d5c1e47a291267df990749a12d8fc5cd9ed07c59513b7",
+        "block": 9,
+        "status": 1
+      },
+      "notes": [
+        "domain name \"AgentWallet Operator Approval\" not shown; MetaMask shows primary type ApproveTransfer and the verifying contract"
+      ],
+      "account": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+      "chainId": 31337
+    },
+    {
+      "n": 5,
+      "name": "Reject the approval in MetaMask",
+      "status": "PASS",
+      "metamask": [
+        "typed-data-reject: Account 1 Security check unavailable We couldn't complete this safety check. Continue only if you trust the site and addresses involved. Powered by Blockaid Signature request Review request details before you confirm. Network H Hardhat Local Request from HTTP localhost:32030 Interacting with 0x5FbDB...80aa3 Message Primary type: ApproveTransfer ProposalId: cd97fa09-b957-4eae-9610-38648aad68f4 IntentId: 0xdb4a9dfad8318488c6b5ca5154c3c02b46a1367081768b0afccb2292cb5ae760 Token: 0x00000...00000 Reci"
+      ],
+      "evidence": {
+        "proposalId": "cd97fa09-b957-4eae-9610-38648aad68f4",
+        "balanceUnchanged": true
+      },
+      "notes": [],
+      "account": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+      "chainId": 31337
+    },
+    {
+      "n": 6,
+      "name": "Pause contract, then Unpause",
+      "status": "PASS",
+      "metamask": [
+        "pause: Account 1 Security check unavailable We couldn't complete this safety check. Continue only if you trust the site and addresses involved. Powered by Blockaid Transaction request Estimated changes Unavailable Network H Hardhat Local Request from HTTP localhost:32030 Interacting with 0x5FbDB...80aa3 Network fee 0.0001 E ETH Speed Cancel Confirm",
+        "unpause: Account 1 Security check unavailable We couldn't complete this safety check. Continue only if you trust the site and addresses involved. Powered by Blockaid Transaction request Estimated changes Unavailable Network H Hardhat Local Request from HTTP localhost:32030 Interacting with 0x5FbDB...80aa3 Network fee < 0.0001 E ETH Speed Cancel Confirm"
+      ],
+      "evidence": {
+        "pauseBlock": 10,
+        "unpauseBlock": 11
+      },
+      "notes": [],
+      "account": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+      "chainId": 31337
+    },
+    {
+      "n": 7,
+      "name": "Treasury deposit 0.01 ETH",
+      "status": "PASS",
+      "metamask": [
+        "deposit: Account 1 Security check unavailable We couldn't complete this safety check. Continue only if you trust the site and addresses involved. Powered by Blockaid Transaction request Estimated changes Unavailable Network H Hardhat Local Request from HTTP localhost:32030 Interacting with 0x5FbDB...80aa3 Amount 0.01 ETH Network fee < 0.0001 E ETH Speed Cancel Confirm"
+      ],
+      "evidence": {
+        "block": 12,
+        "contractWeiAfter": "5009000000000000000"
+      },
+      "notes": [],
+      "account": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+      "chainId": 31337
+    },
+    {
+      "n": 8,
+      "name": "Automation task grant (EIP-712)",
+      "status": "PASS",
+      "metamask": [
+        "grant: Account 1 Security check unavailable We couldn't complete this safety check. Continue only if you trust the site and addresses involved. Powered by Blockaid Signature request Review request details before you confirm. Network H Hardhat Local Request from HTTP localhost:32030 Interacting with 0x5FbDB...80aa3 Message Primary type: AuthorizeTask TaskId: 4482772d-5d6a-4f79-a00f-1f1e6bcd2aba Token: 0x00000...00000 Recipient: 0x3C44C...293BC AmountPerRun: 1000000000000000 MaxRuns: 4 MaxTotal: 0 ValidU"
+      ],
+      "evidence": {
+        "fieldsShown": [
+          "amountPerRun",
+          "maxRuns",
+          "validUntil"
+        ]
+      },
+      "notes": [
+        "domain name \"AgentWallet Task Authorization\" not shown; MetaMask shows primary type AuthorizeTask and the verifying contract"
+      ],
+      "account": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+      "chainId": 31337
+    },
+    {
+      "n": 9,
+      "name": "AI agent drafts a proposal; owner approves it",
+      "status": "PASS",
+      "metamask": [
+        "typed-data: Account 1 Security check unavailable We couldn't complete this safety check. Continue only if you trust the site and addresses involved. Powered by Blockaid Signature request Review request details before you confirm. Network H Hardhat Local Request from HTTP localhost:32030 Interacting with 0x5FbDB...80aa3 Message Primary type: ApproveTransfer ProposalId: b7c6fba2-d2af-4a27-97c4-b2f85896ac65 IntentId: 0x20f25f7cdb91bc137cb9e6e85888736b9e3f05eb10e8ab09fc30d6356ebc3533 Token: 0x00000...00000 Reci"
+      ],
+      "evidence": {
+        "popupDuringAgentRun": false,
+        "agentProposalId": "b7c6fba2-d2af-4a27-97c4-b2f85896ac65",
+        "agentModel": "COMPLETED",
+        "txHash": "0xae8e2acdb8ba9b19e6a437e54692627ab97b3a051fc6256288d10e65b08f2ba4",
+        "block": 13,
+        "status": 1,
+        "method": "executeApprovedTransfer",
+        "signedProposalId": "b7c6fba2-d2af-4a27-97c4-b2f85896ac65",
+        "amountWei": "5000000000000000"
+      },
+      "notes": [],
+      "account": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+      "chainId": 31337
+    },
+    {
+      "n": 10,
+      "name": "Switch account in MetaMask",
+      "status": "PASS",
+      "metamask": [
+        "permissions: connected HD account #1 to the site",
+        "sign-in: Account 2 Sign-in request A site wants you to sign in to prove you own this account. Estimated changes No changes Network H Hardhat Local Request from HTTP localhost:32030 Signing in with Account 2 Message Sign in to the AgentWallet operator console. This signature does not authorize any transaction or spending. URL http://localhost:32030 Network 0x7a69 Account Account 2 Version 1 Chain ID 31337 Nonce 0c4e41896bb58778febb5c35abb7ef88 Issued 16 October 2026, 22:01 Cancel Confirm",
+        "sign-in: Account 1 Sign-in request A site wants you to sign in to prove you own this account. Estimated changes No changes Network H Hardhat Local Request from HTTP localhost:32030 Signing in with Account 1 Message Sign in to the AgentWallet operator console. This signature does not authorize any transaction or spending. URL http://localhost:32030 Network 0x7a69 Account Account 1 Version 1 Chain ID 31337 Nonce 4aea855c328776166a951f51e0d7894f Issued 16 October 2026, 22:01 Cancel Confirm"
+      ],
+      "evidence": {
+        "unconnectedSwitch": {
+          "pageAccounts": [
+            "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266"
+          ],
+          "stillOwner": true
+        },
+        "permittedAfterGrant": [
+          "eth_accounts",
+          "endowment:permitted-chains"
+        ],
+        "pageAccountsAfterSwitch": [
+          "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+          "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266"
+        ],
+        "signInShowsPort": true,
+        "viewerCreateProposalStatus": 403
+      },
+      "notes": [
+        "MetaMask only reports accounts connected to the site: switching to unconnected #1 changed nothing for the page, which stayed bound to the owner"
+      ],
+      "account": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+      "chainId": 31337
+    },
+    {
+      "n": 11,
+      "name": "Switch MetaMask to another network",
+      "status": "PASS",
+      "metamask": [
+        "other-network-1: Add Hardhat Local B (1338) A site is suggesting additional network details. Request from localhost:32030 Network H Hardhat Local B (1338) RPC 127.0.0.1:21028 Beware of network scams and security risks. Cancel Confirm"
+      ],
+      "evidence": {
+        "pauseButtonOffered": false,
+        "networkGateShown": true,
+        "newMetaMaskRequest": false,
+        "pausedAfterAttempt": false
+      },
+      "notes": [
+        "network change requested by the page (wallet_addEthereumChain for local chain 1338) and approved in MetaMask, not picked in MetaMask's network menu",
+        "switched back to 31337 without a MetaMask confirmation (chain already permitted for the site)"
+      ],
+      "account": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+      "chainId": 31337
+    }
+  ]
+}

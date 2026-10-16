@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, CardHeader, CardContent } from '../components/ui/Card.jsx';
+import { Card, CardHeader, CardContent, PageHeader } from '../components/ui/Card.jsx';
 import { Button } from '../components/ui/Button.jsx';
 import { Badge } from '../components/ui/Badge.jsx';
 import { useApp } from '../app/providers.jsx';
@@ -27,7 +27,9 @@ export function Security() {
   const h = health.data;
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-extrabold tracking-tight text-on-surface">Security</h1>
+      <PageHeader eyebrow="Authority & sessions" title="Security">
+        Who holds which key, what this session may do, and whether every backend dependency is healthy.
+      </PageHeader>
       <div className="grid lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader title="Session" />
@@ -57,10 +59,15 @@ export function Security() {
           <Row label="Network">{config.networkName} ({config.chainId})</Row>
           <Row label="Contract">{config.contractAddress}</Row>
           <Row label="Agent executor key (backend)">{config.executorAddress || 'not configured'}</Row>
+          <Row label="Contract version">{config.contractVersion === 2 ? 'v2: owner signatures verified on-chain' : config.contractVersion === 1 ? 'v1: owner approvals verified by the backend only' : 'unknown'}</Row>
           <ul className="list-disc pl-5 space-y-1 pt-2">
             <li>Your owner key never leaves your wallet. The backend never sees it.</li>
-            <li>The backend holds only the agent key, which the contract limits to executeTransfer: allowlisted recipients, enabled assets, per-transaction and daily caps, once per intent.</li>
-            <li>Each transfer needs your EIP-712 signature over its exact recipient, amount, token and deadline.</li>
+            {config.contractVersion === 2 ? (
+              <li>The backend holds only the agent key. The contract accepts a transfer from it only with your EIP-712 signature for that exact transfer (or a bounded task grant you signed), verified on-chain, and only to allowlisted recipients, in enabled assets, within per-transaction and daily caps, once per intent.</li>
+            ) : (
+              <li>The backend holds only the agent key, which the v1 contract limits to executeTransfer: allowlisted recipients, enabled assets, per-transaction and daily caps, once per intent. On v1 your signature is checked by the backend, not the contract.</li>
+            )}
+            <li>Each transfer needs your EIP-712 signature over its exact recipient, amount, token and execution deadline; it is never executed after that deadline.</li>
             <li>Pause the contract or use Emergency stop on the Risk controls page to stop the agent on-chain immediately.</li>
           </ul>
         </CardContent>

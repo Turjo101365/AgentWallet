@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Contract, parseUnits, isAddress } from 'ethers';
-import { Card, CardHeader, CardContent } from '../components/ui/Card.jsx';
+import { Card, CardHeader, CardContent, PageHeader } from '../components/ui/Card.jsx';
 import { Button } from '../components/ui/Button.jsx';
 import { Alert } from '../components/ui/Alert.jsx';
 import { BalancesCard } from '../components/wallet/BalancesCard.jsx';
@@ -10,7 +10,7 @@ import { useWalletState } from '../hooks/useData.js';
 import { useOwnerTx } from '../hooks/useOwnerTx.js';
 
 const ERC20 = ['function transfer(address to, uint256 amount) returns (bool)'];
-const input = 'w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-mono focus:outline-none focus:ring-1 focus:ring-primary';
+const input = 'field';
 const DECIMAL = /^(0|[1-9]\d*)(\.\d+)?$/;
 
 function toUnits(value, decimals) {
@@ -72,7 +72,9 @@ export function Treasury() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-extrabold tracking-tight text-on-surface">Treasury</h1>
+      <PageHeader eyebrow="Contract treasury" title="Treasury">
+        Fund the contract, or withdraw as the owner. Owner withdrawals are not limited by agent caps; emergency withdrawal needs the contract paused first.
+      </PageHeader>
       <BalancesCard state={wallet.data} />
       <TxStatus tx={tx} />
       {formError && <Alert variant="error">{formError}</Alert>}

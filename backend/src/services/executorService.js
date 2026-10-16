@@ -3,6 +3,8 @@ import { decodeContractError, agentWalletInterface } from './chainService.js';
 import { Mutex } from '../lib/mutex.js';
 import { nowSeconds } from '../lib/time.js';
 import { sameAddress } from '../lib/address.js';
+import { recoverApprover, intentIdFor, approvalTypedData } from '../lib/approval.js';
+import { verifyGrant, grantTypedData } from '../lib/schedule.js';
 
 /**
  * Limited-authority executor. Holds the agent key, which the contract only lets call
@@ -35,6 +37,88 @@ export function createExecutorService({ config, repos, chain, risk, signerProvid
     logger.warn('Execution failed', { proposalId: proposal.id, code, message });
   }
 
+  /**
+   * Re-derives the authority for this exact proposal row immediately before signing, independent of
+   * the checks made when it was approved: the database row could have been edited since, the owner
+   * could have changed, or the signed deadline could have passed while the executor was down.
+   * Returns { denied: { code, message } } or { denied: null, kind, task }.
+   */
+  async function checkAuthorization(proposal) {
+    const deny = (code, message) => ({ denied: { code, message } });
+    const now = nowSeconds();
+    if (proposal.chainId !== config.chainId || !sameAddress(proposal.contractAddress, config.contractAddress)) {
+      return deny('AUTHORIZATION_SCOPE_MISMATCH', 'Proposal is not for this chain and contract');
+    }
+    if (proposal.intentId !== intentIdFor({ chainId: config.chainId, contractAddress: config.contractAddress, proposalId: proposal.id })) {
+      return deny('AUTHORIZATION_SCOPE_MISMATCH', 'Proposal intent id does not derive from its id, chain and contract');
+    }
+    const owner = await chain.getOwner();
+    const kind = proposal.approvalKind || (proposal.approvedBy && !String(proposal.approvedBy).startsWith('task:') ? 'OWNER_SIGNATURE' : null);
+
+    if (kind === 'OWNER_SIGNATURE') {
+      // The signed `deadline` is the execution deadline; it is never extended.
+      if (now > proposal.expiresAt) {
+        return deny('APPROVAL_EXPIRED', `The owner's signed deadline ${new Date(proposal.expiresAt * 1000).toISOString()} has passed`);
+      }
+      let signer;
+      try {
+        signer = recoverApprover(proposal, proposal.approvalSignature);
+      } catch {
+        return deny('APPROVAL_SIGNATURE_INVALID', 'Stored approval signature is malformed');
+      }
+      if (!sameAddress(signer, proposal.approvedBy)) {
+        return deny('APPROVAL_SIGNATURE_INVALID', 'Approval signature does not cover this proposal as stored');
+      }
+      if (!sameAddress(signer, owner)) {
+        return deny('APPROVER_NOT_OWNER', `Approval was signed by ${signer}, which is no longer the contract owner`);
+      }
+      return { denied: null, kind, task: null };
+    }
+
+    if (kind === 'TASK_GRANT') {
+      const run = proposal.taskRunId ? await repos.runs.findById(proposal.taskRunId) : null;
+      const task = run ? await repos.tasks.findById(run.taskId) : null;
+      if (!task) return deny('GRANT_SIGNATURE_INVALID', 'Proposal is not linked to an authorized task');
+      if (['CANCELLED', 'EXPIRED'].includes(task.status)) {
+        return deny('GRANT_REVOKED', `Task is ${task.status}`);
+      }
+      if (now > task.validUntil) {
+        return deny('GRANT_EXPIRED', `The signed grant expired at ${new Date(task.validUntil * 1000).toISOString()}`);
+      }
+      const grant = verifyGrant(task);
+      if (!grant.valid) return deny('GRANT_SIGNATURE_INVALID', `Task grant does not verify: ${grant.reason}`);
+      if (!sameAddress(grant.signer, owner)) {
+        return deny('APPROVER_NOT_OWNER', `Grant was signed by ${grant.signer}, which is no longer the contract owner`);
+      }
+      if (
+        proposal.approvalSignature !== task.grantSignature ||
+        !sameAddress(proposal.token.address, task.token.address) ||
+        !sameAddress(proposal.recipient, task.recipient) ||
+        proposal.amountWei !== task.amountWei
+      ) {
+        return deny('GRANT_SIGNATURE_INVALID', 'Proposal token, recipient or amount differs from the signed grant');
+      }
+      return { denied: null, kind, task };
+    }
+
+    return deny('AUTHORIZATION_UNKNOWN', 'Proposal has no recognised approval');
+  }
+
+  /**
+   * v1: executeTransfer(intent, token, recipient, amount); the contract trusts the agent key.
+   * v2: the owner's signature travels with the call and the contract verifies it against owner():
+   *     executeApprovedTransfer(ApproveTransfer, sig) or executeGrantTransfer(AuthorizeTask, sig, intent).
+   */
+  function executionCall(proposal, authz) {
+    if (chain.contractVersion() === 1) {
+      return { method: 'executeTransfer', args: [proposal.intentId, proposal.token.address, proposal.recipient, BigInt(proposal.amountWei)] };
+    }
+    if (authz.kind === 'TASK_GRANT') {
+      return { method: 'executeGrantTransfer', args: [grantTypedData(authz.task).message, authz.task.grantSignature, proposal.intentId] };
+    }
+    return { method: 'executeApprovedTransfer', args: [approvalTypedData(proposal).message, proposal.approvalSignature] };
+  }
+
   function enqueue(proposalId) {
     if (!inflight.has(proposalId)) {
       const job = execute(proposalId)
@@ -62,6 +146,10 @@ export function createExecutorService({ config, repos, chain, risk, signerProvid
         return;
       }
 
+      // 0. Authority for this exact row: signature, signer is the current owner, deadline not passed.
+      const authz = await checkAuthorization(proposal);
+      if (authz.denied) return fail(execution, proposal, authz.denied.code, authz.denied.message);
+
       // 1. Fresh risk assessment (same engine as creation and approval), excluding this proposal from reservations.
       const { policy } = await risk.assessTransfer({
         tokenAddress: proposal.token.address,
@@ -74,13 +162,13 @@ export function createExecutorService({ config, repos, chain, risk, signerProvid
         return fail(execution, proposal, 'PREFLIGHT_POLICY_FAILED', policy.violations.map((v) => v.message).join('; '), { violations: policy.violations });
       }
 
-      // 2. Static simulation and gas estimate from the executor address.
-      const wallet = chain.contract.connect(signer);
-      const args = [proposal.intentId, proposal.token.address, proposal.recipient, BigInt(proposal.amountWei)];
+      // 2. Static simulation and gas estimate from the executor address, through the exact call to be signed.
+      const wallet = chain.executionContract().connect(signer);
+      const { method, args } = executionCall(proposal, authz);
       let gasEstimate;
       try {
-        await wallet.executeTransfer.staticCall(...args);
-        gasEstimate = await wallet.executeTransfer.estimateGas(...args);
+        await wallet[method].staticCall(...args);
+        gasEstimate = await wallet[method].estimateGas(...args);
       } catch (err) {
         const decoded = decodeContractError(err);
         return fail(execution, proposal, 'SIMULATION_REVERTED', decoded ? `${decoded.name}(${decoded.args.join(', ')})` : err.shortMessage || err.message, { decoded });
@@ -103,7 +191,7 @@ export function createExecutorService({ config, repos, chain, risk, signerProvid
 
       // 4. Sign locally, persist the hash, then broadcast.
       const nonce = await chain.provider.getTransactionCount(config.executor.address, 'pending');
-      const populated = await wallet.executeTransfer.populateTransaction(...args);
+      const populated = await wallet[method].populateTransaction(...args);
       const signed = await signer.signTransaction({
         ...populated,
         chainId: config.chainId,
@@ -124,7 +212,7 @@ export function createExecutorService({ config, repos, chain, risk, signerProvid
         submittedAt: nowSeconds(),
       });
       await repos.proposals.transition(proposal.id, ['APPROVED'], 'SUBMITTED');
-      await audit('EXECUTION_SUBMITTED', proposal.id, { txHash, nonce, gasLimit: gasLimit.toString(), intentId: proposal.intentId });
+      await audit('EXECUTION_SUBMITTED', proposal.id, { txHash, nonce, gasLimit: gasLimit.toString(), intentId: proposal.intentId, method, contractVersion: chain.contractVersion() });
 
       try {
         await chain.provider.broadcastTransaction(signed);

@@ -23,8 +23,14 @@ function hardhatDevAddresses() {
   return knownDevAddresses;
 }
 
+/**
+ * Loads backend/.env, or the file named by AGENT_WALLET_ENV_FILE instead of it (e.g. a separate
+ * backend/.env.base-sepolia), so a public-testnet profile never mixes with the local demo settings.
+ */
 export function loadDotenv() {
-  dotenv.config({ path: path.join(BACKEND_DIR, '.env') });
+  const file = process.env.AGENT_WALLET_ENV_FILE ? path.resolve(process.env.AGENT_WALLET_ENV_FILE) : path.join(BACKEND_DIR, '.env');
+  if (process.env.AGENT_WALLET_ENV_FILE && !fs.existsSync(file)) throw new Error(`AGENT_WALLET_ENV_FILE ${file} does not exist`);
+  dotenv.config({ path: file });
 }
 
 const decimalString = z.string().regex(/^\d+(\.\d+)?$/, 'must be a non-negative decimal string');
@@ -76,6 +82,9 @@ const schema = z.object({
   ALLOW_PUBLIC_TESTNET_EXECUTION: boolString.default(false),
 
   PROPOSAL_TTL_SECONDS: z.coerce.number().int().min(30).max(3600).default(180),
+  // An owner approval is refused when less than this remains before its signed execution deadline,
+  // so the transfer has time to be mined before the deadline instead of failing after signing.
+  APPROVAL_MIN_REMAINING_SECONDS: z.coerce.number().int().min(0).max(600).default(15),
   SESSION_TTL_SECONDS: z.coerce.number().int().min(300).max(86400).default(28800),
   NONCE_TTL_SECONDS: z.coerce.number().int().min(60).max(1800).default(300),
   MAX_FEE_PER_GAS_GWEI: decimalString.default('50'),
@@ -83,6 +92,8 @@ const schema = z.object({
   MIN_EXECUTOR_GAS_BALANCE_ETH: decimalString.default('0.0005'),
   RECEIPT_TIMEOUT_MS: z.coerce.number().int().min(1000).default(120000),
   INDEXER_POLL_MS: z.coerce.number().int().min(250).default(3000),
+  // Max blocks per eth_getLogs request. Defaults per network (2000 local, 200 Base Sepolia public RPC).
+  INDEXER_BLOCK_RANGE: z.coerce.number().int().min(1).max(100000).optional(),
   OWNER_CACHE_MS: z.coerce.number().int().min(0).default(10000),
   BACKGROUND_JOBS: boolString.default(true),
 });
@@ -104,6 +115,9 @@ export function loadConfig(env = process.env) {
   }
   const e = parsed.data;
   const network = getNetwork(e.CHAIN_ID);
+  if (e.APPROVAL_MIN_REMAINING_SECONDS >= e.PROPOSAL_TTL_SECONDS) {
+    throw new Error('APPROVAL_MIN_REMAINING_SECONDS must be shorter than PROPOSAL_TTL_SECONDS');
+  }
 
   const deploymentFile = e.DEPLOYMENT_FILE
     ? path.resolve(e.DEPLOYMENT_FILE)
@@ -212,6 +226,7 @@ export function loadConfig(env = process.env) {
       timingAgent: e.RL_TIMING_AGENT,
     },
     proposalTtlSeconds: e.PROPOSAL_TTL_SECONDS,
+    approvalMinRemainingSeconds: e.APPROVAL_MIN_REMAINING_SECONDS,
     sessionTtlSeconds: e.SESSION_TTL_SECONDS,
     nonceTtlSeconds: e.NONCE_TTL_SECONDS,
     maxFeePerGasWei: ethers.parseUnits(e.MAX_FEE_PER_GAS_GWEI, 'gwei'),
@@ -219,6 +234,7 @@ export function loadConfig(env = process.env) {
     minExecutorGasBalanceWei: ethers.parseEther(e.MIN_EXECUTOR_GAS_BALANCE_ETH),
     receiptTimeoutMs: e.RECEIPT_TIMEOUT_MS,
     indexerPollMs: e.INDEXER_POLL_MS,
+    indexerBlockRange: e.INDEXER_BLOCK_RANGE || network.defaultLogBlockRange,
     ownerCacheMs: e.OWNER_CACHE_MS,
     backgroundJobs: e.BACKGROUND_JOBS,
   };

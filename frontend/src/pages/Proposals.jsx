@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { PageHeader } from '../components/ui/Card.jsx';
 import { NewProposalForm } from '../components/proposals/NewProposalForm.jsx';
 import { ProposalCard } from '../components/proposals/ProposalCard.jsx';
 import { useProposals, useRecipients, labelFor } from '../hooks/useData.js';
@@ -18,16 +19,19 @@ export function Proposals() {
   const recipients = useRecipients();
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-extrabold tracking-tight text-on-surface">Proposals</h1>
+    <div className="space-y-7">
+      <PageHeader eyebrow="Owner authorization" title="Proposals">
+        Every transfer intent with its policy checks and pre-flight simulation. Approving signs exactly this transfer (EIP-712); nothing moves without that signature or a signed task grant.
+      </PageHeader>
       <NewProposalForm recipients={recipients.data || []} onCreated={() => proposals.refresh()} />
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2" role="group" aria-label="Filter proposals">
         {FILTERS.map(([label, value]) => (
           <button
             key={label}
             onClick={() => setFilter(value)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold border ${
-              filter === value ? 'bg-primary text-white border-primary' : 'bg-white text-slate-600 border-slate-200'
+            aria-pressed={filter === value}
+            className={`h-9 px-4 rounded-full text-[13px] font-semibold transition-colors ${
+              filter === value ? 'bg-ink text-white' : 'bg-white text-slate-700 hover:bg-slate-100 shadow-card'
             }`}
           >
             {label}

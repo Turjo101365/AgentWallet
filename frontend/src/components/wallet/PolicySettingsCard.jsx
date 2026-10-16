@@ -6,7 +6,7 @@ import { Alert } from '../ui/Alert.jsx';
 import { useApp } from '../../app/providers.jsx';
 import { get, put, describeError } from '../../lib/api.js';
 
-const input = 'w-full px-2 py-1.5 bg-slate-50 border border-slate-200 rounded text-xs font-mono focus:outline-none focus:ring-1 focus:ring-primary';
+const input = 'w-full px-2.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono focus:outline-none focus:bg-white focus:border-ink';
 const DECIMAL = /^(0|[1-9]\d*)(\.\d+)?$/;
 
 function toForm(settings, tokens) {

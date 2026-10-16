@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, CardHeader, CardContent } from '../components/ui/Card.jsx';
+import { Card, CardHeader, CardContent, PageHeader } from '../components/ui/Card.jsx';
 import { Button } from '../components/ui/Button.jsx';
 import { Alert } from '../components/ui/Alert.jsx';
 import { Badge } from '../components/ui/Badge.jsx';
@@ -58,12 +58,9 @@ export function RLAdvisory() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-extrabold tracking-tight text-on-surface">RL execution timing</h1>
-        <p className="text-sm text-slate-500 mt-1">
-          PPO and DQN policies decide <em>when</em> an already-authorized payment is submitted inside its execution window, to pay lower network fees. They cannot choose recipients or amounts, cannot skip the deadline, and never bypass policy checks.
-        </p>
-      </div>
+      <PageHeader eyebrow="Execution timing · advisory only" title="RL execution timing">
+        PPO and DQN policies decide <em>when</em> an already-authorized payment is submitted inside its execution window, to pay lower network fees. They cannot choose recipients or amounts, cannot skip the deadline, and never bypass policy checks.
+      </PageHeader>
       {error && <Alert variant="error">{error}</Alert>}
       {models.error && <Alert variant="warning" title="RL service unavailable">{describeError(models.error)}. Scheduled payments still run; they execute at the start of their window without timing advice.</Alert>}
 

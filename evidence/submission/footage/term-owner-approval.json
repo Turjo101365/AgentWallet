@@ -1,0 +1,11 @@
+{
+  "name": "owner-approval",
+  "title": "Owner-approval verification · EIP-712 signer recovery + public Sepolia receipt (read-only)",
+  "command": "node submission/tools/verify-owner-approval.mjs",
+  "cwd": ".",
+  "startedAt": "2026-10-16T18:19:18.888Z",
+  "exitCode": 0,
+  "seconds": 9.3,
+  "videoProcessStart": 3.06,
+  "videoProcessEnd": 12.31
+}

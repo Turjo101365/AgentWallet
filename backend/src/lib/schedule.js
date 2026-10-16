@@ -93,3 +93,32 @@ export function recoverGrantSigner(task, signature) {
   const { domain, types, message } = task.grantTypedData;
   return ethers.verifyTypedData(domain, types, message, signature);
 }
+
+/**
+ * Verifies a task grant against the fields that will actually be executed. The typed data is rebuilt
+ * from the task's columns, never taken from the stored copy alone: the stored copy must match the
+ * rebuild exactly, and the signature is recovered over the rebuild. So editing a task's recipient,
+ * amount, bounds or schedule in the database after the owner signed invalidates the grant.
+ * @returns {{ valid: boolean, signer: string|null, reason: string|null }}
+ */
+export function verifyGrant(task, signature = task.grantSignature) {
+  let rebuilt;
+  try {
+    rebuilt = grantTypedData(task);
+  } catch (err) {
+    return { valid: false, signer: null, reason: `task fields cannot form a grant: ${err.message}` };
+  }
+  if (!task.grantTypedData || stable(rebuilt) !== stable(task.grantTypedData)) {
+    return { valid: false, signer: null, reason: 'the stored grant does not match the task fields being executed' };
+  }
+  let signer;
+  try {
+    signer = ethers.verifyTypedData(rebuilt.domain, rebuilt.types, rebuilt.message, signature);
+  } catch {
+    return { valid: false, signer: null, reason: 'the grant signature is malformed' };
+  }
+  if (!task.authorizedBy || signer.toLowerCase() !== task.authorizedBy.toLowerCase()) {
+    return { valid: false, signer, reason: 'the grant signature was not produced by the recorded authorizer' };
+  }
+  return { valid: true, signer, reason: null };
+}
