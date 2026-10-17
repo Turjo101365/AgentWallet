@@ -11,5 +11,8 @@ export function createRateLimits({ disabled = false } = {}) {
     global: make(60_000, 300),
     auth: make(60_000, 20),
     mutation: make(60_000, 60),
+    publicRead: make(60_000, 30),
+    publicAssess: make(60_000, 10),
+    publicAi: make(3_600_000, 3),
   };
 }

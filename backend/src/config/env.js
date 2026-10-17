@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import { ethers } from 'ethers';
 import { z } from 'zod';
 import { getNetwork } from './networks.js';
+import { JUDGE_CHAIN_ID, JUDGE_CONTRACT } from './judge.js';
 
 const BACKEND_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const REPO_DIR = path.resolve(BACKEND_DIR, '..');
@@ -28,6 +29,7 @@ function hardhatDevAddresses() {
  * backend/.env.base-sepolia), so a public-testnet profile never mixes with the local demo settings.
  */
 export function loadDotenv() {
+  if (process.env.NODE_ENV === 'production' && !process.env.AGENT_WALLET_ENV_FILE) return;
   const file = process.env.AGENT_WALLET_ENV_FILE ? path.resolve(process.env.AGENT_WALLET_ENV_FILE) : path.join(BACKEND_DIR, '.env');
   if (process.env.AGENT_WALLET_ENV_FILE && !fs.existsSync(file)) throw new Error(`AGENT_WALLET_ENV_FILE ${file} does not exist`);
   dotenv.config({ path: file });
@@ -38,6 +40,9 @@ const boolString = z.enum(['true', 'false']).transform((v) => v === 'true');
 
 const schema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
+  APP_MODE: z.enum(['operator', 'judge']).default('operator'),
+  PUBLIC_AI_ENABLED: boolString.default(false),
+  PUBLIC_AI_DAILY_LIMIT: z.coerce.number().int().min(1).max(500).default(30),
   HOST: z.string().default('127.0.0.1'),
   PORT: z.coerce.number().int().min(1).max(65535).default(4000),
   APP_ORIGIN: z.string().url().default('http://localhost:5173'),
@@ -129,7 +134,7 @@ export function loadConfig(env = process.env) {
 
   const deploymentFile = e.DEPLOYMENT_FILE
     ? path.resolve(e.DEPLOYMENT_FILE)
-    : path.join(REPO_DIR, 'contracts', 'deployments', `${network.key}.json`);
+    : path.join(REPO_DIR, 'contracts', 'deployments', e.APP_MODE === 'judge' ? 'sepolia-v2-full.json' : `${network.key}.json`);
   const deployment = readDeployment(deploymentFile);
   if (deployment && Number(deployment.chainId) !== network.chainId) {
     throw new Error(`Deployment file ${deploymentFile} is for chain ${deployment.chainId}, expected ${network.chainId}`);
@@ -141,6 +146,32 @@ export function loadConfig(env = process.env) {
     if (!ethers.isAddress(rawAddress)) throw new Error('AGENT_WALLET_CONTRACT_ADDRESS is not a valid address');
     contractAddress = ethers.getAddress(rawAddress);
   }
+
+  if (e.NODE_ENV === 'production') {
+    if (!e.DATABASE_URL) throw new Error('Production requires DATABASE_URL; local PGlite is not hosted persistence');
+    const origins = [e.APP_ORIGIN, ...e.CORS_ORIGINS.split(',').map((s) => s.trim())];
+    if (origins.some((o) => {
+      try {
+        const u = new URL(o);
+        const localCompose = network.chainId === 31337 && u.protocol === 'http:' && ['localhost', '127.0.0.1'].includes(u.hostname);
+        return (!localCompose && u.protocol !== 'https:') || u.origin !== o || Boolean(u.username || u.password);
+      } catch { return true; }
+    })) {
+      throw new Error('Production origins require exact HTTPS; only local chain 31337 permits HTTP loopback origins');
+    }
+    if (!origins.slice(1).includes(e.APP_ORIGIN)) throw new Error('CORS_ORIGINS must include APP_ORIGIN');
+  }
+  if (e.APP_MODE === 'judge') {
+    if (network.chainId !== JUDGE_CHAIN_ID || contractAddress !== JUDGE_CONTRACT) throw new Error('Judge mode requires the frozen Ethereum Sepolia v2 contract');
+    if ([e.AGENT_PRIVATE_KEY, e.AGENT_KEYSTORE_FILE, e.AGENT_KEYSTORE_PASSWORD, e.AGENT_KEYSTORE_PASSWORD_FILE].some(Boolean) || e.LOCAL_DEV_AGENT_INDEX !== undefined) {
+      throw new Error('Judge mode must not receive executor credentials');
+    }
+    if (['OWNER_PRIVATE_KEY', 'DEPLOYER_PRIVATE_KEY', 'OWNER_KEYSTORE_FILE', 'DEPLOYER_KEYSTORE_FILE'].some((name) => env[name])) {
+      throw new Error('Judge mode must not receive owner or deployer credentials');
+    }
+    if (e.ALLOW_PUBLIC_TESTNET_EXECUTION || e.BACKGROUND_JOBS) throw new Error('Judge mode requires ALLOW_PUBLIC_TESTNET_EXECUTION=false and BACKGROUND_JOBS=false');
+  }
+  if (e.PUBLIC_AI_ENABLED && e.APP_MODE !== 'judge') throw new Error('PUBLIC_AI_ENABLED requires judge mode');
 
   // Executor credential source. Exactly one may be configured. Secrets are kept on non-enumerable
   // properties and are only ever read by services/signerProvider.js.
@@ -187,6 +218,7 @@ export function loadConfig(env = process.env) {
     baseUrl: e.LLM_BASE_URL || null,
     maxModelCalls: e.LLM_MAX_MODEL_CALLS,
     timeoutMs: e.LLM_TIMEOUT_MS,
+    maxRetries: e.APP_MODE === 'judge' ? 0 : 2,
   };
   if (llmKind === 'openai-compatible' && (!llm.baseUrl || !llm.model)) throw new Error('openai-compatible LLM needs LLM_BASE_URL and LLM_MODEL');
   Object.defineProperty(llm, 'apiKey', { value: llmKind === 'anthropic' ? e.ANTHROPIC_API_KEY || null : e.LLM_API_KEY || null, enumerable: false });
@@ -201,6 +233,8 @@ export function loadConfig(env = process.env) {
 
   const config = {
     nodeEnv: e.NODE_ENV,
+    appMode: e.APP_MODE,
+    publicAi: { enabled: e.PUBLIC_AI_ENABLED, dailyLimit: e.PUBLIC_AI_DAILY_LIMIT },
     host: e.HOST,
     port: e.PORT,
     appOrigin: e.APP_ORIGIN,
@@ -259,7 +293,8 @@ export function describeConfig(config) {
   return {
     nodeEnv: config.nodeEnv,
     chain: `${config.network.name} (${config.chainId})`,
-    rpcUrl: config.rpcUrl,
+    rpc: `${config.network.key} RPC configured (URL withheld)`,
+    appMode: config.appMode,
     contractAddress: config.contractAddress || 'NOT CONFIGURED',
     executor: config.executor.enabled ? `enabled via ${config.executor.source.kind} (${config.executor.address})` : 'disabled (no executor credential)',
     llm: config.llm.provider === 'none' ? 'not configured' : `${config.llm.provider} (${config.llm.model})`,

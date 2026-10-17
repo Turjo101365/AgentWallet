@@ -68,7 +68,7 @@ function mergeConsecutive(messages) {
 }
 
 function createAnthropicProvider(c, fetchImpl) {
-  const client = new Anthropic({ apiKey: c.apiKey, timeout: c.timeoutMs, maxRetries: 2, ...(fetchImpl ? { fetch: fetchImpl } : {}) });
+  const client = new Anthropic({ apiKey: c.apiKey, timeout: c.timeoutMs, maxRetries: c.maxRetries ?? 2, ...(fetchImpl ? { fetch: fetchImpl } : {}) });
 
   function toWire(messages) {
     return mergeConsecutive(
@@ -94,12 +94,12 @@ function createAnthropicProvider(c, fetchImpl) {
     model: c.model,
     available: true,
     reason: null,
-    async chat({ system, messages, tools }) {
+    async chat({ system, messages, tools, maxOutputTokens = 16000 }) {
       let response;
       try {
         response = await client.beta.messages.create({
           model: c.model,
-          max_tokens: 16000,
+          max_tokens: maxOutputTokens,
           betas: ['server-side-fallback-2026-07-01'],
           fallbacks: 'default',
           output_config: { effort: 'medium' },
@@ -158,7 +158,7 @@ function createOpenAiCompatibleProvider(c, fetchImpl = fetch) {
     model: c.model,
     available: true,
     reason: null,
-    async chat({ system, messages, tools }) {
+    async chat({ system, messages, tools, maxOutputTokens }) {
       let res;
       try {
         res = await fetchImpl(url, {
@@ -169,6 +169,7 @@ function createOpenAiCompatibleProvider(c, fetchImpl = fetch) {
             messages: toWire(system, messages),
             tools: tools.map((t) => ({ type: 'function', function: { name: t.name, description: t.description, parameters: t.inputSchema } })),
             tool_choice: 'auto',
+            ...(maxOutputTokens ? { max_tokens: maxOutputTokens } : {}),
           }),
           signal: AbortSignal.timeout(c.timeoutMs),
         });

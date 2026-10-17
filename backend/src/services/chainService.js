@@ -24,9 +24,11 @@ const ERC20_ABI = [
  */
 export function createChainService(config, { provider: injectedProvider } = {}) {
   const network = config.network;
+  const rpcRequest = new ethers.FetchRequest(config.rpcUrl);
+  rpcRequest.timeout = 12000;
   const provider =
     injectedProvider ||
-    new ethers.JsonRpcProvider(config.rpcUrl, { chainId: config.chainId, name: network.key }, { staticNetwork: true });
+    new ethers.JsonRpcProvider(rpcRequest, { chainId: config.chainId, name: network.key }, { staticNetwork: true });
   const contract = config.contractAddress ? new ethers.Contract(config.contractAddress, AGENT_WALLET_ABI, provider) : null;
   const legacyContract = config.contractAddress ? new ethers.Contract(config.contractAddress, AGENT_WALLET_V1_ABI, provider) : null;
 

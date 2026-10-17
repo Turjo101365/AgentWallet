@@ -17,7 +17,7 @@ export async function openDatabase({ databaseUrl, pgliteDir }) {
 }
 
 function openPostgres(connectionString) {
-  const pool = new pg.Pool({ connectionString, max: 10 });
+  const pool = new pg.Pool({ connectionString, max: 5, connectionTimeoutMillis: 10000, idleTimeoutMillis: 30000, query_timeout: 15000 });
   pool.on('error', () => {}); // idle client errors surface on the next query instead
   return {
     kind: 'postgres',

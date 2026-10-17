@@ -132,6 +132,7 @@ export function AppProvider({ children, ethereum = typeof window !== 'undefined'
   const getSigner = useCallback(async () => {
     if (!ethereum) throw new Error('No injected wallet found');
     if (!config) throw new Error('Backend configuration not loaded');
+    if (config.appMode === 'judge') throw new Error('Signing is disabled in the public judge demonstration');
     const provider = new BrowserProvider(ethereum);
     const network = await provider.getNetwork();
     if (Number(network.chainId) !== config.chainId) {

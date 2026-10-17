@@ -10,6 +10,8 @@ export function redact(value) {
   if (text === undefined) return text;
   // tx hashes and intent ids are also 32 bytes; keep those readable when explicitly labelled.
   return text
+    .replace(/(?:https?|postgres(?:ql)?):\/\/[^\s"'<>]+/gi, '[connection URL withheld]')
+    .replace(/\bsk-(?:proj-|ant-)?[A-Za-z0-9_-]{16,}/g, '[API key redacted]')
     .replace(SIGNATURE, '0x[signature]')
     .replace(BEARER, 'Bearer [redacted]')
     .replace(/"(privateKey|private_key|AGENT_PRIVATE_KEY|DEPLOYER_PRIVATE_KEY|token)"\s*:\s*"[^"]*"/g, '"$1":"[redacted]"')

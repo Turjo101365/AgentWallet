@@ -8,7 +8,7 @@ export function requestId(req, res, next) {
 }
 
 /** Converts errors to safe JSON. Internal details are logged, never returned. */
-export function createErrorHandler(logger) {
+export function createErrorHandler(logger, { production = false } = {}) {
   // eslint-disable-next-line no-unused-vars
   return (err, req, res, _next) => {
     let status = 500;
@@ -25,7 +25,10 @@ export function createErrorHandler(logger) {
       body = { code: 'PAYLOAD_TOO_LARGE', message: 'Request body is too large' };
     }
 
-    if (status >= 500) logger.error('Request failed', { requestId: req.id, path: req.path, method: req.method, error: err?.message, code: body.code });
+    if (status >= 500) {
+      logger.error('Request failed', { requestId: req.id, path: req.path, method: req.method, code: body.code });
+      if (production) body = { code: body.code, message: 'Service temporarily unavailable; retry or contact the team with the request ID' };
+    }
     res.status(status).json({ success: false, error: { ...body, requestId: req.id } });
   };
 }

@@ -1,5 +1,7 @@
 # Test Results
 
+> **Hosting preparation, 2026-10-17.** Backend 159/159, frontend 32/32, incognito judge browser 3/3 (real read-only Sepolia RPC), existing operator browser 4/4, local-chain E2E 8/8, and production frontend build passed. Optional paid live-AI tests were not rerun. Managed PostgreSQL and actual hosted TLS/proxy smoke tests await approved resources. Full details: [HOSTING_VALIDATION.md](HOSTING_VALIDATION.md).
+
 > **Update 2026-10-17, later (day-boundary gas fix, before the full public v2 run).** A clean sequential run, with the tree
 > hash `96140093…` identical at start and end, gave:
 > - contracts 53/53;

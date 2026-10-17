@@ -18,6 +18,9 @@ export const routes = [
     path: '/',
     element: <AppLayout />,
     children: [
+      { path: 'judge/evidence', element: null },
+      { path: 'judge/agent', element: null },
+      { path: 'judge/guide', element: null },
       { index: true, element: <Overview /> },
       { path: 'agent', element: <Agent /> },
       { path: 'proposals', element: <Proposals /> },

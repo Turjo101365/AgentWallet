@@ -3,9 +3,13 @@ import { Outlet } from 'react-router-dom';
 import { Topbar } from './Topbar.jsx';
 import { NetworkModeBanner } from './NetworkMode.jsx';
 import { AccessGate } from '../wallet/AccessGate.jsx';
+import { useApp } from '../../app/providers.jsx';
+import { Judge } from '../../pages/Judge.jsx';
 
 /** Dark frame around a rounded light canvas; every page renders inside it. */
 export function AppLayout() {
+  const { config } = useApp();
+  if (import.meta.env.VITE_APP_MODE === 'judge' || config?.appMode === 'judge') return <Judge />;
   return (
     <div className="min-h-screen bg-ink">
       <Topbar />
