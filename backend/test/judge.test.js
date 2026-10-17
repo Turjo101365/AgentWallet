@@ -40,6 +40,16 @@ describe('hosted configuration guards', () => {
     assert.equal(c.appOrigin, 'http://localhost:5173');
     assert.throws(() => loadConfig({ ...hosted, APP_ORIGIN: 'http://localhost:5173', CORS_ORIGINS: 'http://localhost:5173' }));
   });
+  test('one-launch profile refuses disabled AI, missing key, substituted provider/model and unverified database TLS', () => {
+    const live = { ...hosted, PUBLIC_AI_ENABLED: 'true', JUDGE_REQUIRE_LIVE_AI: 'true',
+      LLM_PROVIDER: 'openai-compatible', LLM_BASE_URL: 'https://api.openai.com/v1', LLM_MODEL: 'gpt-4.1-mini',
+      LLM_API_KEY: 'test-only-not-a-real-key', DATABASE_URL: 'postgres://example:placeholder@localhost/test?sslmode=verify-full' };
+    assert.equal(loadConfig(live).publicAi.required, true);
+    for (const patch of [{ PUBLIC_AI_ENABLED: 'false' }, { LLM_API_KEY: '' }, { LLM_MODEL: 'another-model' },
+      { LLM_BASE_URL: 'https://untrusted.example/v1' }, { DATABASE_URL: hosted.DATABASE_URL }]) {
+      assert.throws(() => loadConfig({ ...live, ...patch }));
+    }
+  });
 });
 
 describe('public judge boundaries on a real local test chain (not Sepolia evidence generation)', () => {
@@ -113,6 +123,37 @@ describe('public judge boundaries on a real local test chain (not Sepolia eviden
     assert.equal((await container.repos.proposals.list({ limit: 100 })).length, 0);
     assert.equal(await fx.wallet.paused(), true);
     assert.equal(await fx.wallet.agent(), ethers.ZeroAddress);
+  });
+  test('AI concurrency, bounded context and failure recovery never unlock execution', async () => {
+    const config = { ...container.config, publicAi: { enabled: true, dailyLimit: 30 } };
+    let release;
+    const llm = { available: true, name: 'injected-test-provider', model: 'test-only',
+      chat: () => new Promise((resolve) => { release = resolve; }) };
+    const judge = createJudgeService({ config, chain: container.chain, risk: container.risk, db: container.db, llm, logger: container.logger });
+    const pending = judge.analyze({ message: 'Explain evidence' });
+    for (let i = 0; i < 100 && !release; i++) await new Promise((r) => setTimeout(r, 1));
+    assert.ok(release);
+    await assert.rejects(judge.analyze({ message: 'Concurrent' }), { code: 'AI_BUSY' });
+    release({ stopReason: 'end', text: 'Injected unit-test answer', usage: { prompt_tokens: 123, completion_tokens: 10 } });
+    assert.deepEqual((await pending).usage, { modelCalls: 1, inputTokens: 123, outputTokens: 10 });
+    llm.chat = async () => { throw Object.assign(new Error('secret-provider-data'), { code: 'LLM_TIMEOUT' }); };
+    await assert.rejects(judge.analyze({ message: 'Timeout' }), { code: 'PUBLIC_AI_FAILED' });
+    llm.chat = async () => ({ stopReason: 'end', text: 'Recovered', usage: {} });
+    assert.equal((await judge.analyze({ message: 'Recover' })).text, 'Recovered');
+    const huge = createJudgeService({ config: { ...config, demoRecipients: [{ address: 'x'.repeat(25000) }] },
+      chain: container.chain, risk: container.risk, db: container.db, llm, logger: container.logger });
+    await assert.rejects(huge.analyze({ message: 'Too much context' }), { code: 'AI_CONTEXT_LIMIT' });
+    assert.equal(await fx.wallet.paused(), true);
+    assert.equal(await fx.wallet.agent(), ethers.ZeroAddress);
+  });
+  test('free-host liveness does not wake the database; full readiness fails when required AI is unconfigured', async () => {
+    const db = { ...container.db, ping: async () => { throw new Error('should not run during liveness'); } };
+    await request(createApp({ ...container, db })).get('/health/live').expect(200);
+    const required = createApp({ ...container, config: { ...container.config, publicAi: { enabled: true, required: true } },
+      llm: { available: false } });
+    const r = await request(required).get('/health/ready').expect(503);
+    assert.equal(r.body.ai.configured, false);
+    assert.equal(r.body.ai.providerVerified, false);
   });
   test('anonymous assessments are rate limited before expensive chain reads', async () => {
     const limited = createApp(container);

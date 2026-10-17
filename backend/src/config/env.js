@@ -42,6 +42,7 @@ const schema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   APP_MODE: z.enum(['operator', 'judge']).default('operator'),
   PUBLIC_AI_ENABLED: boolString.default(false),
+  JUDGE_REQUIRE_LIVE_AI: boolString.default(false),
   PUBLIC_AI_DAILY_LIMIT: z.coerce.number().int().min(1).max(500).default(30),
   HOST: z.string().default('127.0.0.1'),
   PORT: z.coerce.number().int().min(1).max(65535).default(4000),
@@ -222,6 +223,18 @@ export function loadConfig(env = process.env) {
   };
   if (llmKind === 'openai-compatible' && (!llm.baseUrl || !llm.model)) throw new Error('openai-compatible LLM needs LLM_BASE_URL and LLM_MODEL');
   Object.defineProperty(llm, 'apiKey', { value: llmKind === 'anthropic' ? e.ANTHROPIC_API_KEY || null : e.LLM_API_KEY || null, enumerable: false });
+  if (e.JUDGE_REQUIRE_LIVE_AI) {
+    if (e.APP_MODE !== 'judge' || !e.PUBLIC_AI_ENABLED || llmKind !== 'openai-compatible' ||
+        llm.baseUrl !== 'https://api.openai.com/v1' || llm.model !== 'gpt-4.1-mini' || !llm.apiKey?.trim()) {
+      throw new Error('JUDGE_REQUIRE_LIVE_AI requires judge mode, PUBLIC_AI_ENABLED=true and configured OpenAI GPT-4.1-mini credentials');
+    }
+    if (e.NODE_ENV === 'production') {
+      const database = new URL(e.DATABASE_URL);
+      if (!['postgres:', 'postgresql:'].includes(database.protocol) || database.searchParams.get('sslmode') !== 'verify-full') {
+        throw new Error('The live judge launch requires a PostgreSQL URL with sslmode=verify-full');
+      }
+    }
+  }
 
   const tokens = (deployment?.tokens || [{ symbol: 'ETH', address: ethers.ZeroAddress, decimals: 18, native: true }]).map((t) => ({
     symbol: String(t.symbol),
@@ -234,7 +247,7 @@ export function loadConfig(env = process.env) {
   const config = {
     nodeEnv: e.NODE_ENV,
     appMode: e.APP_MODE,
-    publicAi: { enabled: e.PUBLIC_AI_ENABLED, dailyLimit: e.PUBLIC_AI_DAILY_LIMIT },
+    publicAi: { enabled: e.PUBLIC_AI_ENABLED, required: e.JUDGE_REQUIRE_LIVE_AI, dailyLimit: e.PUBLIC_AI_DAILY_LIMIT },
     host: e.HOST,
     port: e.PORT,
     appOrigin: e.APP_ORIGIN,

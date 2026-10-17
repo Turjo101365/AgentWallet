@@ -42,8 +42,10 @@ export function createApp(container, { disableRateLimits = false } = {}) {
   app.get('/health/ready', async (_req, res) => {
     const database = await db.ping().then(() => true, () => false);
     const live = container.judge ? (await container.judge.overview()).live : null;
-    const ready = database && (live ? live.status === 'ok' && live.safeStopped : chain.status.ready);
-    res.status(ready ? 200 : 503).json({ status: ready ? 'ready' : 'degraded', database: database ? 'ok' : 'unavailable', chain: live?.status || (chain.status.ready ? 'ok' : 'unavailable'), safeStopped: live?.safeStopped ?? null });
+    const aiConfigured = Boolean(config.publicAi?.enabled && container.llm?.available);
+    const ready = database && (live ? live.status === 'ok' && live.safeStopped : chain.status.ready) && (!config.publicAi?.required || aiConfigured);
+    res.status(ready ? 200 : 503).json({ status: ready ? 'ready' : 'degraded', database: database ? 'ok' : 'unavailable', chain: live?.status || (chain.status.ready ? 'ok' : 'unavailable'), safeStopped: live?.safeStopped ?? null,
+      ai: { required: Boolean(config.publicAi?.required), configured: aiConfigured, providerVerified: false } });
   });
   app.get('/health', async (_req, res) => {
     if (container.judge) {

@@ -1,5 +1,9 @@
 # Hosted demonstration readiness audit
 
+## Current launch decision (2026-10-17)
+
+The owner's free-only, live-AI initial-launch requirements supersede the earlier paid infrastructure recommendation below. Current selection per final owner instruction: Vercel Hobby Free (static), Render Free (one Node service, no payment method), Neon Free (persistent PostgreSQL, certificate-verified TLS), existing GPT-4.1-mini on OpenAI. The owner authorized initial free deployment and one low-cost live AI smoke request; account confirmations remain required. See HOSTING_DEPLOYMENT.md for the current authoritative configuration and limitations. The previous implementation audit remains below as a dated record; AI-off tests demonstrate fallback behavior only, not the requested launch profile.
+
 Audit date: 2026-10-17. Starting code: 9f48f58; fetched GitHub main 2f19b11 has the same tree (PR #4 merge).
 The existing checkout and history are preserved. No resources, production secrets, DNS changes or transactions were created by this hosting work.
 

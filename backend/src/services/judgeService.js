@@ -115,11 +115,20 @@ export function createJudgeService({ config, chain, risk, db, llm, logger }) {
       }];
       const messages = [{ role: 'user', text: message }];
       const assessments = [];
+      const usage = { inputTokens: 0, outputTokens: 0, modelCalls: 0 };
       for (let i = 0; i < 3; i++) {
+        // Bound public input cost as well as output. UTF-8 bytes conservatively bound text tokens;
+        // the approved smoke-test budget additionally reserves room for protocol/tool overhead.
+        if (Buffer.byteLength(JSON.stringify({ system, messages, tools }), 'utf8') > 24000) {
+          throw unavailable('AI_CONTEXT_LIMIT', 'This analysis exceeds the public context limit. Ask a shorter question.');
+        }
         const r = await llm.chat({ system, messages, tools, maxOutputTokens: 1024 });
-        if (r.stopReason === 'refusal') return { status: 'REFUSED', text: r.text, assessments, readOnly: true, executesTransaction: false };
+        usage.modelCalls++;
+        usage.inputTokens += Number(r.usage?.prompt_tokens ?? r.usage?.input_tokens ?? 0);
+        usage.outputTokens += Number(r.usage?.completion_tokens ?? r.usage?.output_tokens ?? 0);
+        if (r.stopReason === 'refusal') return { status: 'REFUSED', text: r.text, assessments, usage, readOnly: true, executesTransaction: false };
         if (r.stopReason === 'max_tokens') throw unavailable('AI_INCOMPLETE', 'The AI response was incomplete; no action was taken.');
-        if (r.stopReason === 'end') return { status: 'COMPLETED', text: r.text, assessments, readOnly: true, executesTransaction: false, model: llm.model };
+        if (r.stopReason === 'end') return { status: 'COMPLETED', text: r.text, assessments, usage, readOnly: true, executesTransaction: false, model: llm.model };
         if (r.stopReason !== 'tool_use' || !r.toolCalls?.length || r.toolCalls.length > 4) throw unavailable('AI_INVALID_RESPONSE', 'The AI response was invalid; no action was taken.');
         messages.push({ role: 'assistant', text: r.text, toolCalls: r.toolCalls, raw: r.raw });
         const results = [];

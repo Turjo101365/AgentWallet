@@ -1,105 +1,93 @@
-# Vercel + Render deployment plan
+# Free infrastructure, live AI, one public launch
 
-Prepared 2026-10-17. STOP before creating resources, deploying, adding production secrets or changing DNS: owner approval is required. No new contract is needed. Do not enable or fund the public evidence contract.
+Prepared 2026-10-17. This plan supersedes the former paid Render database/backend recommendation. Nothing has been provisioned. The owner has approved Vercel Hobby, Render Free and Neon Free deployment plus ONE low-cost live AI smoke request. No broader paid validation run or paid hosting is authorized. No initial AI-disabled public launch is permitted.
 
-## Recommended configuration and cost
+## Final provider selection and eligibility
 
-| Resource | Prepared setting | Estimated monthly cost (USD) |
-|---|---|---|
-| Vercel static frontend | Repository root directory frontend; Vite; HTTPS; production branch main | Hobby $0 if eligible for personal/non-commercial use; otherwise Pro starts at $20 |
-| Render Node web service | One 0.5c-512mb instance (formerly Starter), Singapore | Published $7/month; no additional worker |
-| Render PostgreSQL | 0.1c-256mb, 1 GB disk, same region, external access denied | Published $6/month compute; page lists 1 GB included and expandable storage at $0.30/GB; confirm allocation charge at checkout |
-| RPC | Read-only Ethereum Sepolia provider | Public endpoint has no SLA; optionally a separate quota-limited provider plan |
-| AI | Off by default | $0 while off; usage-based provider bill only after explicit enablement |
+| Resource | Selection | Recurring hosting cost / limits | Card and account gate |
+|---|---|---|---|
+| Frontend | Vercel Hobby Free, static React on global CDN, provider-generated vercel.app URL | $0; 100 GB fast transfer and 1 million CDN requests/month | Confirm personal/non-commercial Hobby eligibility; no Pro upgrade or paid add-ons. |
+| Backend | Render Hobby workspace, one Free Node web service, Singapore | $0; 512 MB RAM, 0.1 CPU, 750 free instance hours/workspace/month, 5 GB outbound and 500 standard build minutes/month | MUST have no payment method. With a card, free services can incur bandwidth/build overages. If Render requires card verification or the workspace already has a card, stop; do not claim the zero-charge gate passed. |
+| Database | Neon Free, one project/branch, AWS Singapore (ap-southeast-1), direct PostgreSQL endpoint | $0; 100 CU-hours/project/month, 1 GB/project, 5 GB egress/project/month; suspend after 5 idle minutes | Neon explicitly requires no credit card for Free. Verify the organization is Free, not Launch/Scale/trial. If selected region/plan is unavailable, stop and report it. |
+| Domain | vercel.app and onrender.com | $0 | No domain purchase or DNS changes |
+| Blockchain | Existing Ethereum Sepolia v2, chain 11155111, public read-only RPC | $0 provider charge using the existing public endpoint; no uptime SLA | No key, funds, signing, deployment or transaction |
+| AI | Existing OpenAI API key, direct OpenAI GPT-4.1-mini integration | Paid API usage ONLY, at published $0.40/M input, $0.10/M cached input, $1.60/M output tokens | Existing OpenAI billing is separate from infrastructure. Do not put that payment method into hosting accounts. Explicit call approval required. |
 
-Published base is $13/month with eligible Vercel Hobby and Render Hobby workspaces. Reserve up to $0.30/month if the selected 1 GB allocation is billed separately; request approval for a $14/month base-resource ceiling before provisioning. Vercel Pro adds at least $20/month and requires separate approval. Taxes and usage overages are additional, not covered by that ceiling: Render Hobby currently includes 5 GB outbound bandwidth/month (then $0.15/GB) and 500 standard build minutes (then $5/1,000 minutes). Use provider subdomains, no paid RPC or AI, no extra seats, and no automatic storage expansion. Verify the final account-specific quote before creation; stop if it differs from the approved configuration.
+Infrastructure total: $0/month. Free quotas can interrupt access; there is no always-on/SLA promise. Render sleeps after 15 idle minutes and typically takes about a minute to wake. It can suspend unusually high outbound API/database traffic even below ordinary quotas. Do not auto-upgrade or use keepalive pings to evade limits. Neon stops compute when CU/egress limits are reached; storage-growing operations fail at its storage cap without deleting the existing data. Its Free restore window is short (6 hours / limited changes), not a paid backup guarantee.
 
-Render Free web services sleep after 15 minutes, can take about a minute to wake, and lose local files on restart. Free Render Postgres expires after 30 days and has no backups. They are unsuitable for a reliably available judging link. No background worker is needed because this profile has no autonomous execution.
+The owner explicitly selected Vercel Hobby. Confirm its personal/non-commercial eligibility in the account. A personal-repository collaborator cannot necessarily import the owner's repository; use the owner's authorized account or a supported local CLI deployment. Do not upgrade to Vercel Pro or change hosts without approval.
 
-Current provider sources (checked 2026-10-17): [Render pricing](https://render.com/pricing), [free-service limits](https://render.com/docs/free), [compute plan IDs](https://render.com/docs/compute-plans), [Vercel pricing](https://vercel.com/pricing), [Vercel Hobby eligibility](https://vercel.com/legal/terms). Account dashboards control actual billing and availability.
+Account-level eligibility is PENDING: no provider dashboard or account state is inferred from published pricing. Verify no hosting payment method, no paid plan/trial, no paid add-ons, no extra instances, no storage expansion, and no upgrade automation before resource creation. Set the Render build spend limit to $0 where offered. If a host cannot satisfy these gates, report a blocker and propose another free host for approval. Application settings alone cannot control an administrator later adding billing or changing a plan.
 
-## Manual account setup and approval
+Official sources checked 2026-10-17: [Cloudflare Pages limits](https://developers.cloudflare.com/pages/platform/limits/), [static request pricing](https://developers.cloudflare.com/pages/functions/pricing/), [Render Free](https://render.com/docs/free), [Render pricing](https://render.com/pricing), [Neon pricing](https://neon.com/pricing), [Neon plan enforcement](https://neon.com/docs/introduction/plans), [Neon regions](https://neon.com/docs/introduction/regions), [Vercel Hobby](https://vercel.com/docs/plans/hobby), [GPT-4.1-mini](https://developers.openai.com/api/docs/models/gpt-4.1-mini), [OpenAI deprecations](https://developers.openai.com/api/docs/deprecations).
 
-1. Approve the hosting budget, GitHub repository access, region and whether optional live AI may be enabled. Obtain separate approval for committing/merging this preparation.
-2. Create or use team-owned Vercel and Render accounts. Connect only Turjo101365/AgentWallet. Enable account MFA. Do not share recovery codes or API keys in Git/chat.
-3. Confirm Vercel plan eligibility, the actual Render service/database prices, backup retention and spending alerts. No custom domain is required; vercel.app and onrender.com provide HTTPS.
-4. Select exact production frontend/API hostnames. Register neither arbitrary Vercel preview origins nor wildcard domains in production CORS.
-5. After approval, configure protected deployment environments and secret values in provider dashboards. The prepared render.yaml does create paid resources if applied; do not click Deploy Blueprint before approval.
+GPT-4.1-mini is retained exactly as requested. Official docs currently mark the GPT-4.1 mini snapshot deprecated, with shutdown January 14, 2027. Test the owner's actual model access after approval; report a blocker if unavailable, never silently substitute a model.
 
-## Exact environment names
+## Required configuration (names only; no secret values)
 
-### Frontend (Vercel, build time)
+Frontend build: VITE_APP_MODE=judge; VITE_API_URL=<approved Render HTTPS origin>/api. These are public configuration only. Never put LLM_API_KEY, DATABASE_URL, RPC credentials or wallet secrets into VITE_*.
 
-| Name | Setting |
+Backend environment:
+
+| Name | Value / source |
 |---|---|
-| VITE_APP_MODE | judge |
-| VITE_API_URL | Approved public Render HTTPS URL followed by /api |
-
-Never put RPC provider keys, LLM keys, DATABASE_URL or any wallet credential in VITE_* variables; these values are shipped to browsers.
-
-### Backend (Render)
-
-| Name | Setting |
-|---|---|
-| NODE_ENV | production |
-| NODE_VERSION | 22 |
-| HOST | 0.0.0.0 |
-| PORT | Supplied by Render; do not hard-code |
+| NODE_ENV / NODE_VERSION / HOST / PORT | production / 22 / 0.0.0.0 / Render-supplied |
 | APP_MODE | judge |
 | CHAIN_ID | 11155111 |
-| DEPLOYMENT_FILE | contracts/deployments/sepolia-v2-full.json (root working directory) |
-| APP_ORIGIN | Exact approved frontend HTTPS origin, no trailing slash |
-| CORS_ORIGINS | Same exact origin; comma-separated only for separately reviewed hosts |
-| TRUST_PROXY | true (one trusted Render ingress hop; verify with smoke test) |
-| DATABASE_URL | Render internal PostgreSQL connection secret; same region |
-| RPC_URL | Read-only Ethereum Sepolia HTTPS RPC; use a quota-limited server-only URL |
-| BACKGROUND_JOBS | false |
-| ALLOW_PUBLIC_TESTNET_EXECUTION | false |
-| PUBLIC_AI_ENABLED | false initially |
-| PUBLIC_AI_DAILY_LIMIT | 30 (requests shared across the database, not a dollar limit) |
-| LLM_PROVIDER | none initially |
-| LLM_TIMEOUT_MS | 15000 |
+| DEPLOYMENT_FILE | contracts/deployments/sepolia-v2-full.json |
+| APP_ORIGIN / CORS_ORIGINS | Exact approved vercel.app HTTPS origin, no trailing slash or wildcard; no previews |
+| TRUST_PROXY | true; validate actual Render ingress/IP behavior during smoke test |
+| DATABASE_URL | Neon Free DIRECT endpoint connection string, backend secret, sslmode=verify-full |
+| RPC_URL | https://ethereum-sepolia-rpc.publicnode.com or separately approved free Sepolia provider |
+| PUBLIC_AI_ENABLED / JUDGE_REQUIRE_LIVE_AI | true / true |
+| PUBLIC_AI_DAILY_LIMIT | 30 |
+| LLM_PROVIDER / LLM_BASE_URL / LLM_MODEL | openai-compatible / https://api.openai.com/v1 / gpt-4.1-mini |
+| LLM_API_KEY | Existing OpenAI key entered ONLY in Render secret environment settings |
+| LLM_TIMEOUT_MS | 15000 per model call; at most 3 calls/request |
+| BACKGROUND_JOBS / ALLOW_PUBLIC_TESTNET_EXECUTION | false / false |
 | LOG_LEVEL | info |
 
-Only if live AI is later approved: set PUBLIC_AI_ENABLED=true, LLM_PROVIDER=openai-compatible, LLM_BASE_URL=https://api.openai.com/v1, LLM_MODEL=gpt-4.1-mini and LLM_API_KEY in the secret manager. Alternatively an approved Anthropic provider uses LLM_PROVIDER=anthropic, LLM_MODEL and ANTHROPIC_API_KEY. No new live provider validation is claimed here.
+Must be absent: AGENT_PRIVATE_KEY, LOCAL_DEV_AGENT_INDEX, AGENT_KEYSTORE_FILE, AGENT_KEYSTORE_PASSWORD, AGENT_KEYSTORE_PASSWORD_FILE, OWNER_PRIVATE_KEY, DEPLOYER_PRIVATE_KEY, owner/deployer keystores, AGENT_WALLET_ENV_FILE. Do not upload local .env, wallet databases or browser state. Production does not automatically load backend/.env.
 
-Must be absent: AGENT_PRIVATE_KEY, LOCAL_DEV_AGENT_INDEX, AGENT_KEYSTORE_FILE, AGENT_KEYSTORE_PASSWORD, AGENT_KEYSTORE_PASSWORD_FILE, owner/deployer secrets, and AGENT_WALLET_ENV_FILE. Production does not load the local backend/.env by default.
+The JUDGE_REQUIRE_LIVE_AI gate refuses disabled AI, a missing key, another provider URL/model, or a non-verified production PostgreSQL URL. Readiness checks configuration, database and actual paused/revoked chain state. It never spends money just to check health and does NOT claim provider verification; the paid smoke supplies that evidence.
 
-No PGLITE_DIR or RL_SERVICE_URL is required. No session-signing secret or cookie-domain setting is needed: sessions use random server-stored opaque bearer tokens.
+## Retained safety and API-spend bounds
 
-## Deployment commands and provider settings (after approval)
+Public tools: assess_transfer only. No proposal writer, signer, owner operation, scheduler, grant or execution reference is exposed to the public assistant. Unknown tools fail closed. All old operator API routes stay blocked even for the SIWE owner. Existing operator/local features and v1/v2 evidence remain intact.
 
-1. Commit and merge the reviewed hosting changes to main only after approval. Pin the approved commit as the release.
-2. Render: use render.yaml from the repository root. Build command: npm ci --prefix backend --omit=dev. Start command: node backend/src/server.js. Health check: /health/ready. Keep one instance and automatic deployment disabled. The runtime needs committed shared/abi, contracts/deployments, database/migrations and evidence/sepolia-v2-full files; selecting backend as the Render root directory would omit them.
-3. Create a NEW PostgreSQL database. The blueprint denies external DB connections and uses the internal connection URL. If using an external provider instead, require certificate-verified TLS (for pg, use the provider's verified connection string, e.g. sslmode=verify-full); never disable certificate verification to make it connect.
-4. Startup applies migrations 001–003 transactionally; PostgreSQL advisory locking prevents competing starts applying the same migration. No PGlite-to-PostgreSQL data migration is necessary for the public profile: sessions start fresh and evidence stays committed. Never import historical signed approvals, grants, conversations or signer files. Keep existing evidence files byte-for-byte.
-5. Set the approved exact frontend origin and RPC/database values in Render. Verify /health/ready returns ready and executionEnabled is false in /health before proceeding.
-6. Vercel: import the repository with Root Directory frontend. Install npm ci; build npm run build; output dist. frontend/vercel.json supplies SPA rewrites and response headers. Set both VITE_* values for Production only. A changed API URL requires rebuilding the frontend.
-7. Select the approved main release. Confirm a direct load/reload of /judge/evidence, /judge/agent and /judge/guide returns the React app.
-8. Run the smoke checklist below. Share the URL with judges only after it passes.
+Limits: 3 AI requests/IP/hour, one inflight request on the single backend instance, persistent atomic shared UTC daily quota of 30 requests (including failures/refusals), at most 3 model calls/request, at most 4 tool calls/response, at most 1,024 output tokens/model call, 1,200 user characters, and 24 KB serialized context/model call. No automatic provider retries; client never automatically retries a paid POST. General/IP rate buckets reset on process restart; the SQL daily budget survives it. Daily quotas count requests, not dollars. Configure an OpenAI project budget alert/restricted key if supported; provider budget alerts are not a guaranteed hard spending cap.
 
-Do not run contracts/scripts/deploy.js or any sepolia:* / v2:execute / demo:sepolia command for hosting. No funding, private key, contract change or transaction broadcast is needed.
+At the published uncached rates, reserving 26,000 input tokens/call for context plus framing and 1,024 output tokens gives about $0.0362/request, $1.09/day at the full 30-request quota, or about $32.51 for 30 full days. This is a conservative planning estimate, not a promise about an external invoice or activity on the same key elsewhere. Typical short answers should cost much less. The owner's ongoing API-use approval must cover this request quota; never imply AI is included in free hosting.
 
-## Production smoke checklist
+Current paid-test authorization: ONE low-cost hosted GPT-4.1-mini analysis request, maximum 3 model calls and 1,024 output tokens/call. Conservative reserve about $0.037; stop after the one request. Do not run the broader local/hosted live-smoke scripts or paid test suites. Perform essential website, API, native PostgreSQL, Sepolia, AI and blocked-operator smoke checks only.
 
-- Open the frontend in an incognito desktop browser with no wallet. All four judge pages work.
-- Repeat on a 390-pixel mobile viewport. Navigation wraps; table scrolls inside its container.
-- See Ethereum Sepolia 11155111 and the exact public v2 address. Live read shows paused=true and zero agent, with a read timestamp and block number.
-- Evidence contains 12 historical receipts and the recorded 26 security checks. Explorer URLs use sepolia.etherscan.io; no mainnet links or claims of fresh execution.
-- Refresh deep links. Confirm HTTPS, no mixed content, correct API URL, no missing JS assets.
-- POST /api/public/assess with 0.0001 ETH to the evidence recipient reports actual pause/executor blockers. Above-cap input adds the cap failure. A request with overrideState is rejected.
-- POST /api/proposals, /api/tasks, /api/agent/chat and /api/automation/resume returns 403 JUDGE_READ_ONLY, even with an owner session. There is no signing/execution button.
-- Check an allowed-origin OPTIONS preflight allows Content-Type/Authorization and only the approved origin. A foreign Origin is rejected; no access-control-allow-credentials header appears.
-- If testing optional SIWE, sign only the sign-in message from the approved domain; a viewer stays a viewer. No EIP-712 execution is enabled. Test expired/replayed nonces and account-change logout on a separate test wallet.
-- /health/live is 200. /health/ready is 200 with database ok, chain ok and safeStopped=true. Provider outages produce degraded readiness and an explicit unavailable live-state message.
-- Restart Render. Confirm PostgreSQL remains connected, migrations are idempotent and session/quota state survives. No PGlite data or RL model load appears.
-- If live AI was approved, verify an ordinary question and a malicious spending request; only assess_transfer is advertised. Verify three/IP/hour and daily quota. Inspect only redacted logs; do not publish raw sessions/prompts or provider keys.
-- Check Render logs for request IDs and migration summary; no RPC credentials, DB password, bearer token or private key. Set uptime and spending alerts.
+## Deployment order after explicit approval
 
-## Rollback
+1. Review and publish the free-launch changes through a PR to main. Preserve the old release and evidence; do not amend history. Approve the exact code/release before provider creation.
+2. Sign in to Vercel, Render and Neon. Account creation/terms, MFA and repository permission prompts may need the owner. Confirm the free-only account gates above. No card is to be added to hosting; if required, stop.
+3. Do not repeat local test suites or run any paid local smoke. Existing local validation is sufficient; proceed to the live deployment.
+4. Create the approved Neon Free project/branch in Singapore, PostgreSQL 16 if offered. Use the direct endpoint for this small five-connection Node pool and transaction migrations. Keep five-minute scale-to-zero. Place the URL with sslmode=verify-full only in Render secrets. Do not import old approvals, grants, conversations or wallet data.
+5. Confirm the Vercel Hobby account and select the frontend project name. Reserve its expected vercel.app origin; do not publish an AI-disabled placeholder. Configure the exact origin in Render CORS before the frontend deployment.
+6. Create ONE Render Free service from the repository ROOT/main release; do not use backend as its root. Build npm ci --prefix backend --omit=dev; start node backend/src/server.js. All shared ABI, migrations, deployment and evidence files are required. render.yaml now contains only the Free service; it creates NO Render database. Manual service creation is acceptable if Blueprint requests a card. Set every approved environment value, including live AI and the existing key, BEFORE its first deploy. Never deploy with AI off as an intermediate public version.
+7. The startup migration applies 001–003 in a transaction with a PostgreSQL advisory transaction lock. No PGlite data migration is needed for a fresh public judge database. Use /health/live for Render platform polling so it does not continuously wake Neon or call RPC. Use /health/ready and /health for the real launch gates. No external uptime keepalive loop. Verify native PostgreSQL TLS, migrations and current paused/revoked state before creating the frontend deployment.
+8. Verify backend /health/ready, native PostgreSQL connectivity, public Sepolia overview and blocked operator endpoints WITHOUT paid AI calls.
+9. Vercel: repository root frontend; npm ci; npm run build; output dist; use frontend/vercel.json. Set VITE_APP_MODE=judge and VITE_API_URL to the actual Render HTTPS API plus /api. Deploy only with live AI already configured in the backend. Use only Vercel Hobby; complete any account/repository permission confirmation with the owner.
+10. Run the actual hosted incognito browser smoke and persistence checks below before calling the site judge-ready or sharing it. Deployment operations necessarily start services in sequence; this is one coordinated complete launch, not an AI-disabled public demo followed by an upgrade.
 
-1. Disable PUBLIC_AI_ENABLED first if abuse/cost is suspected; no chain action is necessary.
-2. Restore the previous approved Render deploy and Vercel deployment with the SAME database and judge safety flags. Never roll back to a release without judge mode: use a maintenance page instead.
-3. Migration 003 is additive. Do not drop tables or downgrade the database during a code rollback. Take a managed backup before future schema changes; restore into a separate database and verify it before repointing DATABASE_URL.
-4. If API readiness fails, keep the frontend's evidence links/maintenance message visible and fix RPC/origin/DB configuration. Rebuild if VITE_API_URL changed.
-5. Never unpause the public contract, set an agent or import historical approvals as a hosting rollback step.
+## Production smoke checklist (all required)
+
+- Dashboard screenshots/records show Vercel Hobby Free, Render Free/Hobby with NO payment method, Neon Free with no paid plan/trial. Record actual $0 recurring hosting, region, free URLs and exact release commit. No upgrade automation, paid workers, extra instance, paid RPC, custom domain or new blockchain transaction.
+- /health/live 200; /health/ready 200 with database ok, configured required AI, actual safeStopped true; /health shows judge and executionEnabled false. providerVerified=false in readiness is deliberate: configuration is not proof of a paid model response.
+- Neon SQL console: migrations 001–003 present. Read the current UTC judge_ai_usage row after the one approved AI call. Restart the Render process using provider controls, reconnect, and confirm the SAME row/count persists. The one approved AI call creates or increments that row by one. Keep SQL screenshots redacted; never publish connection strings or signed sessions. Native DB/TLS/restart remain unverified until this is done.
+- Exact vercel.app Origin gets Access-Control-Allow-Origin only for that host; foreign Origin gets 403, no credential cookies; Authorization preflight works. Verify trusted-proxy IP behavior and rate limiting on Render without exhausting the judge's paid allowance.
+- Fresh incognito browser has no wallet/session; all four pages work over HTTPS, including direct reload of /judge/evidence, /judge/agent and /judge/guide. 12 SUCCESS historical receipt links, 26 recorded passing checks, preserved original sources, and actual current paused/zero-agent state are distinct. No stale chain state is called current after an RPC error.
+- AI button is enabled on the first website release. The browser's ONE paid request returns real GPT-4.1-mini text with nonzero provider token usage and no execution. Real tool smoke reports pause/agent blockers; operator endpoints are 403. No key in page source, JS, network payloads or logs.
+- Do not run broader hosted browser/API AI suites: the current authorization is one paid request. Submit one public explanation or read-only transfer assessment through the actual website and record its real response/token usage.
+- 390 px mobile navigation/guide has no page overflow. Wait for a natural 15+ minute Render idle period, then visit as a new judge: clear waking state, bounded retries (up to about 135 seconds), manual Retry connection on exhaustion, no duplicate paid submissions. Retry GETs only; a suspension or exhausted quota must remain an honest error.
+- Restore all temporary testing flags. Record returned token usage and estimated cost of the single approved paid request. If the provider fails or a gate fails, stop and report the issue; do not fabricate a response or announce the site live.
+
+## Rollback and availability
+
+Keep main release 0ad8ff6e9be03737a971e57f7885bb46162ef143 and its v1/v2 evidence. It predates the new live-AI launch requirement: do NOT deploy that AI-disabled profile as a fallback judge launch. If a safety issue occurs after launch, suspend the public backend/withdraw the judge link, rotate a leaked API key if needed, and repair/roll forward under review. Emergency disabling AI is allowed as a safety response but means the complete demo is unavailable and must be reported as such.
+
+Do not roll back/drop the PostgreSQL schema or clear the daily budget to retry tests. Preserve the Neon data and take the available free snapshot before risky changes. Free restore is limited; local model archives and evidence remain versioned in Git. Never redeploy or modify the existing Sepolia contract, unpause it, restore its agent or broadcast a transaction.

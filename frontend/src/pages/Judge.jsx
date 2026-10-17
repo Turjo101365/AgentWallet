@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useApp } from '../app/providers.jsx';
 import { get, post, describeError } from '../lib/api.js';
 import { Card, CardContent, CardHeader } from '../components/ui/Card.jsx';
 import { Button } from '../components/ui/Button.jsx';
 import { Alert } from '../components/ui/Alert.jsx';
+import { readAfterColdStart } from '../lib/coldStart.js';
 
 const field = 'w-full rounded-xl border border-slate-300 p-3 bg-white text-sm';
 const ext = { target: '_blank', rel: 'noopener noreferrer' };
@@ -17,13 +18,17 @@ export function Judge() {
   const [amount, setAmount] = useState('0.0001'), [recipient, setRecipient] = useState(''), [assessment, setAssessment] = useState(null);
   const [message, setMessage] = useState('Explain the authorization and security controls demonstrated by this contract.'), [analysis, setAnalysis] = useState(null);
   const [working, setWorking] = useState(false), [actionError, setActionError] = useState(null);
+  const [attempt, setAttempt] = useState(1);
+  const currentRead = useRef(null);
   async function refresh() {
-    setLoading(true);
-    try { setData(await get('/public/overview', { signal: AbortSignal.timeout(20000) })); setError(null); }
-    catch (e) { setError(describeError(e)); }
-    finally { setLoading(false); }
+    currentRead.current?.abort();
+    const controller = new AbortController(); currentRead.current = controller;
+    setLoading(true); setError(null);
+    try { setData(await readAfterColdStart((signal) => get('/public/overview', { signal }), { signal: controller.signal, onAttempt: setAttempt })); }
+    catch (e) { if (!controller.signal.aborted) setError(describeError(e)); }
+    finally { if (!controller.signal.aborted) setLoading(false); }
   }
-  useEffect(() => { refresh(); }, []);
+  useEffect(() => { refresh(); return () => currentRead.current?.abort(); }, []);
   async function assess(e) {
     e.preventDefault(); setWorking(true); setActionError(null); setAssessment(null);
     try { setAssessment(await post('/public/assess', { token: config?.tokens?.[0]?.address || '0x0000000000000000000000000000000000000000', recipient: recipient || data.recipients[0]?.address, amount }, { signal: AbortSignal.timeout(20000) })); }
@@ -51,8 +56,8 @@ export function Judge() {
       <main className="max-w-7xl mx-auto px-4 sm:px-8 py-8 space-y-6">
         <Alert title="Public competition demonstration">No wallet or testnet funds required. This website cannot sign, approve, unpause, or spend. Historical transactions are labeled separately from current chain reads.</Alert>
         {error && <Alert variant="error" title="Backend unavailable">{error}. Please retry; the deployment may be waking up. <a href="https://sepolia.etherscan.io/address/0x3C9389E704331B8a12381F9ab5A68a7F3F59582F" {...ext}>View the public contract directly.</a></Alert>}
-        {!data && !error && <p role="status">Loading public evidence…</p>}
-        <div className="flex gap-3 items-center"><Button size="sm" variant="secondary" onClick={refresh} disabled={loading}>{loading ? 'Reading…' : 'Refresh chain state'}</Button><span className="text-xs text-slate-500">Reads are cached for up to 15 seconds.</span></div>
+        {loading && <p role="status" aria-live="polite">{attempt === 1 ? 'Loading public evidence…' : `Waking the free backend — retry ${attempt} of 6…`} First visits after inactivity can take about a minute; please keep this page open. Only reads retry automatically.</p>}
+        <div className="flex flex-wrap gap-3 items-center"><Button size="sm" variant="secondary" onClick={refresh} disabled={loading}>{loading ? 'Reading…' : error ? 'Retry connection' : 'Refresh chain state'}</Button><span className="text-xs text-slate-500">Reads are cached for up to 15 seconds.</span></div>
         {data && <>
           {data.live.status !== 'ok' && <Alert variant="warning" title="Current chain state unavailable">{data.live.message}</Alert>}
           {data.live.status === 'ok' && !data.live.safeStopped && <Alert variant="error" title="Contract state changed">The contract no longer matches the expected paused and revoked state. Operator actions remain disabled on this website.</Alert>}
@@ -100,7 +105,7 @@ export function Judge() {
             <Card><CardHeader title="AI evidence assistant" subtitle={data.ai.enabled ? `${data.ai.provider} · ${data.ai.model} · read-only tools` : 'Live AI unavailable'}/><CardContent className="space-y-3">
               <p className="text-sm">{data.ai.enabled ? 'Only submit public demonstration questions. Your text and public chain context are sent to the configured AI provider. Limits: three requests per IP per hour and a shared daily quota.' : data.ai.reason}</p>
               <form className="space-y-3" onSubmit={analyze}><label className="block text-sm">Question<textarea className={field} maxLength={1200} value={message} onChange={(e) => setMessage(e.target.value)} required disabled={!data.ai.enabled}/></label><Button type="submit" disabled={!data.ai.enabled || working}>{working ? 'Checking…' : 'Ask AI assistant'}</Button></form>
-              {analysis && <div aria-live="polite"><p className="font-bold">{analysis.status} · AI-generated explanation</p><p className="whitespace-pre-wrap text-sm">{analysis.text}</p><p className="text-xs mt-2">Trusted policy assessments returned: {analysis.assessments.length}. No transaction was executed.</p></div>}
+              {analysis && <div aria-live="polite"><p className="font-bold">{analysis.status} · AI-generated explanation</p><p className="whitespace-pre-wrap text-sm">{analysis.text}</p><p className="text-xs mt-2">Trusted policy assessments returned: {analysis.assessments.length}. No transaction was executed.</p>{analysis.usage && <p className="text-xs">Provider usage: {analysis.usage.modelCalls} model calls, {analysis.usage.inputTokens} input tokens, {analysis.usage.outputTokens} output tokens.</p>}</div>}
             </CardContent></Card>
             {actionError && <Alert variant="error">{actionError}</Alert>}
           </>}
