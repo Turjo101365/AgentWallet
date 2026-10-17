@@ -1,7 +1,9 @@
 # Known Limitations
 
 As of the end of Phase 2 (2026-10-15), with 2026-10-17 additions:
-- **Contract v2 is local only.** The public Sepolia contract is v1. On it, the owner's approval and task grants are verified by the backend, not the contract, so a stolen agent key could spend within the caps to allowlisted recipients until `emergencyStop`. v2 closes this on-chain but is not deployed ([CONTRACT_V2.md](CONTRACT_V2.md)).
+- **Two public contracts, two trust models.** On v1 (`0x8A44…`), the owner's approval and task grants are verified by the backend, not the contract, so a stolen agent key could spend within the caps to allowlisted recipients until `emergencyStop`. v2 (`0x3C93…582F`, complete public run) closes this on-chain. Claims must name the contract they refer to ([V2_PUBLIC_RUNS.md](V2_PUBLIC_RUNS.md)).
+- **v2 source is not verified on Etherscan.** Its deployed bytecode is checked byte-for-byte against the compiled artifact (`public-verify.json`), but there is no explorer source verification.
+- **Gas limits are estimate-based.** The executor sends `eth_estimateGas × (1 + EXECUTOR_GAS_MARGIN_PCT)`, capped at `EXECUTOR_GAS_LIMIT_CAP`. A state change between estimation and inclusion can still exhaust the margin. The one known case, the UTC day change, is guarded: the executor waits out the last `DAY_BOUNDARY_GUARD_SECONDS` (120) of a day. Other such changes are not guarded; a failure reverts cleanly and is not retried.
 - **On v2, a grant's schedule is enforced off-chain.** The contract enforces its signature, expiry, remaining runs and total, and revocation.
 - **Public signing used a test-only wallet bridge.** Real MetaMask was verified on local Hardhat chains (11/11 on v2).
 

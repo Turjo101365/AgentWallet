@@ -4,7 +4,9 @@
 
 > **Contract versions.** Everything tagged **[PUBLIC]** ran on contract **v1** (Ethereum Sepolia `0x8A44…956a6`). On v1 the
 > owner's EIP-712 approval is verified by the backend; the contract trusts the agent key within its caps.
-> Contract **v2** verifies the owner's approval and task grants **on-chain**. It is **[LOCAL]** only: not deployed.
+> Contract **v2** verifies the owner's approval and task grants **on-chain**. It is **[LOCAL]**-tested in full and has a **complete [PUBLIC] Sepolia run**
+> (`0x3C9389E704331B8a12381F9ab5A68a7F3F59582F`, 12/12 SUCCESS, `evidence/sepolia-v2-full/`), after an earlier partial run (`0x23bA…4458`).
+> See [docs/V2_PUBLIC_RUNS.md](../../docs/V2_PUBLIC_RUNS.md).
 > See [docs/CONTRACT_V2.md](../../docs/CONTRACT_V2.md).
 
 **Status legend.** Every capability below is tagged:
@@ -38,7 +40,7 @@ The public evidence is in `evidence/sepolia/`. The contract is `0x8A44716Efabb6C
 
 The editable source is `architecture.svg`; it has three trust boundaries. `architecture-v2.svg` / `.png` shows the same system as a six-stage payment flow.
 
-> **Contract version shown.** Both diagrams show the contract **as deployed on Ethereum Sepolia (v1)**: the agent key calls `executeTransfer`, and the owner's EIP-712 approval and task grants are verified by the backend. The current source (`contracts/src/AgentWallet.sol`, **v2**, local only, not deployed) replaces `executeTransfer` with `executeApprovedTransfer` and `executeGrantTransfer`. Those verify the owner's signature, the signed deadline and the grant bounds **on-chain**, and add `revokeGrant` / `cancelIntent`. Everything else in the diagrams is unchanged in v2. See [docs/CONTRACT_V2.md](../../docs/CONTRACT_V2.md).
+> **Contract version shown.** Both diagrams show the contract **as deployed on Ethereum Sepolia (v1)**: the agent key calls `executeTransfer`, and the owner's EIP-712 approval and task grants are verified by the backend. The current source (`contracts/src/AgentWallet.sol`, **v2**, publicly run on Sepolia at `0x3C93…582F`, see [V2_PUBLIC_RUNS.md](../../docs/V2_PUBLIC_RUNS.md)) replaces `executeTransfer` with `executeApprovedTransfer` and `executeGrantTransfer`. Those verify the owner's signature, the signed deadline and the grant bounds **on-chain**, and add `revokeGrant` / `cancelIntent`. Everything else in the diagrams is unchanged in v2. See [docs/CONTRACT_V2.md](../../docs/CONTRACT_V2.md).
 
 | Layer | Component | Technology | Trust |
 |---|---|---|---|
@@ -247,7 +249,7 @@ every step ─▶ audit_log (hash-chained)
 ## 8. Security boundaries (summary)
 
 - The owner key never reaches the backend. In the automated public run, a local script held it (test-only bridge, risk R17).
-- The backend holds only the agent key. The v1 contract limits it to `executeTransfer` within caps and the allowlist. The v2 contract (local, not deployed) also requires the owner's signature for every transfer.
+- The backend holds only the agent key. The v1 contract limits it to `executeTransfer` within caps and the allowlist. The v2 contract also requires the owner's signature for every transfer.
 - The LLM and RL outputs are untrusted. Neither can sign, approve, change recipients or loosen limits.
 - Network allowlist: 31337, 84532 and 11155111 only. Mainnets are refused. Public Hardhat keys are refused on public networks.
 - Public deploys require `CONFIRM_PUBLIC_DEPLOY=yes`, which is currently `no`.
@@ -266,7 +268,7 @@ every step ─▶ audit_log (hash-chained)
 | Multi-asset (ERC-20) treasury, USD valuation | [LOCAL] (mock token and synthetic feeds) |
 | Owner-only swaps (`executeSwap`) | [IMPLEMENTED] in the contract and deployed bytecode; backend service unwired; no UI |
 | Execution-time deadline and signature re-verification (audit F1, F3) | [LOCAL], both contract versions |
-| On-chain owner-signature and grant verification, grant and intent revocation (contract v2, audit F2) | [LOCAL]: implemented and tested, **not deployed**; the public contract is v1 |
+| On-chain owner-signature and grant verification, grant and intent revocation (contract v2, audit F2) | [LOCAL]: implemented and tested. [PUBLIC]: v2 Sepolia `0x3C93…582F`, 12/12 SUCCESS: owner signature verified on-chain (`0x564129e2…`), autonomous grant run (`0xbcdd8685…`), on-chain grant revocation (`0x4b8b8efd…`), 26/26 read-only checks. An earlier partial run (`0x23bA…`) reverted its grant run (day-boundary gas issue, fixed) |
 | Policy-bounded treasury rebalancing | [PLANNED]: see `submission/scoring-readiness/SCORING_READINESS.md` §5 |
 | On-chain anchoring of the audit head | [PLANNED] |
 | Multisig owner | [PLANNED] (R1) |

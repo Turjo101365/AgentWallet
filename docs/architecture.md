@@ -5,8 +5,9 @@ Status as of Phase 2 (2026-10-15), updated 2026-10-17 for contract v2. For what 
 
 > **Two contract versions exist.** **v1** is deployed on Ethereum Sepolia (`0x8A44…956a6`, the 11-transaction
 > public run). Its agent key may call `executeTransfer` with no signature; the owner's EIP-712 approval is
-> checked by the backend. **v2** (the current `contracts/src`, local only, not deployed) verifies the owner's
-> approval or task grant on-chain. The backend supports both and detects which one it is talking to.
+> checked by the backend. **v2** (the current `contracts/src`) verifies the owner's approval or task grant on-chain. v2 has a
+> complete public run on Ethereum Sepolia (`0x3C93…582F`, 12/12 transactions: owner-signed transfer, autonomous grant run, on-chain
+> grant revocation, pause/unpause, emergency stop, withdrawal), after an earlier partial run (`0x23bA…4458`). See [V2_PUBLIC_RUNS.md](V2_PUBLIC_RUNS.md). The backend supports both and detects which one it is talking to.
 > Details: [CONTRACT_V2.md](CONTRACT_V2.md).
 
 ## 1. Principle
