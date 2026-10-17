@@ -5,3 +5,8 @@ playwright-report/
 storageState*.json
 ms-playwright/
 blob-report/
+
+.vercel
+.env*
+!.env.example
+!.env.*.example

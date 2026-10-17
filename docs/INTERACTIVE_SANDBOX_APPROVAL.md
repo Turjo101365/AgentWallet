@@ -2,7 +2,7 @@
 
 ## Status
 
-Interactive code is implemented locally; hosted rollout is pending. The separately approved sandbox has been deployed and funded on Sepolia at `0x59a33154288009e030aa2072De46D32fC7d40d85`. The published judge application has not yet been changed by this work.
+The interactive judge application is deployed at https://agentwallet-judge.vercel.app with the existing Render Free backend and Neon PostgreSQL. Runtime release: `62d63df9fd43e2554a970d364893c2dd83dc7257` (PR #7). The separately approved sandbox is `0x59a33154288009e030aa2072De46D32fC7d40d85` on Ethereum Sepolia.
 The public evidence contract `0x3C9389E704331B8a12381F9ab5A68a7F3F59582F` remains outside the execution paths.
 Its evidence files, 12 historical successful transactions and 26 recorded checks are preserved under `/evidence`.
 Historical records are not represented as transactions from a new judge session.
@@ -86,3 +86,7 @@ The backend test file `backend/test/demo.wallet.test.js` exercises actual v2 byt
 `frontend/tests/judgeEntry.test.jsx` checks the no-account default journey, invite forwarding, personal-wallet selection and admin sign-in selection. Frontend production compilation is checked separately. No broad regression cycle was requested or run. Hosted sandbox persistence, real MetaMask clicks, live GPT proposal creation and actual new Sepolia execution remain approval-gated checks. Free backend cold starts and browser-driven automation are operational limitations.
 
 Local results on 2026-10-17: backend focused file **14/14 passed**, frontend entry tests **4/4 passed**, production frontend build passed. The build reports a 637.64 kB main JavaScript chunk (211.40 kB gzip); this is a performance warning, not a build failure. `git diff --check` passed, with only Git CRLF normalization notices.
+
+Hosted smoke completed on 2026-10-17: real GPT-4.1-mini planning (4 model calls, 5,561 input / 331 output tokens), browser confirmation, one successful 0.0001 ETH Sepolia payment, verified receipt, replay rejection (409), no-invite execution rejection (403), admin/legacy operator endpoint protection, strict CORS, mobile rendering with live treasury balance, evidence routing, and Neon proposal/session/daily-budget persistence after a Render service restart. The one-use smoke invite was revoked and a subsequent confirmation refused with `INVITE_REQUIRED` (403). No grants or unrestricted background jobs were enabled.
+
+Live payment: https://sepolia.etherscan.io/tx/0x62ab63fafa92a9a1ae7f8037e90f1dfd59fe82ea925ee90911b68638e7ad7eaf . Remaining treasury after this payment: 0.0004 ETH. The original 12 successful transactions and 26 historical verification checks remain available, with the historical contract still paused and agent revoked. Public smoke data is in `evidence/interactive-sandbox/hosted-smoke.json`; operator instructions are in `docs/JUDGE_LIVE_QUICKSTART.md`.
