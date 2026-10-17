@@ -21,7 +21,7 @@ function Bar({ pct, target }) {
 }
 
 export function Portfolio() {
-  const { isOwner } = useApp();
+  const { isOwner, judgeSite } = useApp();
   const overview = usePolling(() => get('/portfolio'), 10000);
   const [days, setDays] = useState(30);
   const spending = usePolling(() => get(`/portfolio/spending?days=${days}`), 15000, [days]);
@@ -53,8 +53,8 @@ export function Portfolio() {
             {[
               ['mint', 'Total value', o.totalUsd ? `$${formatAmount(o.totalUsd, 2)}` : '—', o.valuationNote],
               ['sky', 'Largest allocation', `${o.exposure.largestAllocationPct ?? '—'}%`, 'Share of the valued portfolio'],
-              ['butter', 'Agent daily capacity', `$${formatAmount(o.exposure.agentDailyCapacityUsd, 2)}`, `${o.exposure.agentDailyCapacityPctOfPortfolio ?? '—'}% of portfolio (sum of daily caps)`],
-              ['lilac', 'Executor gas runway', o.exposure.executorTxRunway === null || o.exposure.executorTxRunway === undefined ? '—' : new Intl.NumberFormat('en', { notation: 'compact', maximumFractionDigits: 1 }).format(o.exposure.executorTxRunway), `transfers at current gas (${formatAmount(o.exposure.executorGasEth, 6)} ETH)`],
+              ['butter', 'Daily spending capacity', o.exposure.agentDailyCapacityUsd == null ? 'Not valued' : `$${formatAmount(o.exposure.agentDailyCapacityUsd, 2)}`, 'USD value is shown only when price feeds are available'],
+              ['lilac', 'Estimated payments covered', o.exposure.executorTxRunway === null || o.exposure.executorTxRunway === undefined ? '—' : new Intl.NumberFormat('en', { notation: 'compact', maximumFractionDigits: 1 }).format(o.exposure.executorTxRunway), `At current fees · ${formatAmount(o.exposure.executorGasEth, 6)} ETH fee balance`],
             ].map(([tone, label, value, hint]) => (
               <Card key={label} tone={tone} className="p-5 sm:p-6">
                 <div className="eyebrow opacity-70">{label}</div>
@@ -128,7 +128,7 @@ export function Portfolio() {
             <div key={sym}>
               <div className="font-semibold mb-1">{sym} ({pts.length} snapshots)</div>
               {pts.slice(-8).map((p) => <div key={p.takenAt}>{formatDateTime(p.takenAt)} · {p.balanceFormatted}{p.priceUsd ? ` @ $${p.priceUsd}` : ''}</div>)}
-              {pts.length === 0 && <div className="text-slate-400">No snapshots yet; the backend records one every 15 minutes.</div>}
+              {pts.length === 0 && <div className="text-slate-500">{judgeSite ? 'No balance snapshots available. This hosted demo does not continuously record background history.' : 'No snapshots yet; the service records one every 15 minutes while background jobs are enabled.'}</div>}
             </div>
           ))}
         </CardContent>

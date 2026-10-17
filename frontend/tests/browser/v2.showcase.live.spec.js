@@ -126,7 +126,7 @@ async function api(page, method, p, body) {
 }
 async function ask(page, message) {
   const response = page.waitForResponse((r) => r.url() === `${base}/agent/chat` && r.request().method() === 'POST', { timeout: 90000 });
-  await page.getByPlaceholder('Ask the agent…').fill(message);
+  await page.getByPlaceholder('Ask your AI assistant…').fill(message);
   await page.getByRole('button', { name: 'Send', exact: true }).click();
   const res = await response;
   expect(res.status()).toBe(200);
@@ -170,7 +170,7 @@ test('LOCAL v2 showcase: AI drafting, owner approval, autonomous grant run, on-c
   await caption(page, '2 · Owner approval: EIP-712 signature over this exact transfer and its execution deadline.\nOn v2 the CONTRACT verifies the signature (executeApprovedTransfer).');
   await expect(page.getByTestId('signed-deadline').first()).toBeVisible();
   await sleep(2500);
-  await page.getByRole('button', { name: 'Approve & sign' }).first().click();
+  await page.getByRole('button', { name: 'Confirm in wallet' }).first().click();
   const approved = await until(async () => { const p = await api(page, 'GET', `/proposals/${prop.id}`); return p.status === 'CONFIRMED' ? p : null; });
   await expect(page.getByText('Execution: CONFIRMED').first()).toBeVisible();
   const approvedMethod = await methodOf(approved.execution.txHash);

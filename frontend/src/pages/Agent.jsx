@@ -50,7 +50,7 @@ function ToolCall({ inv }) {
 }
 
 function ActionLink({ a }) {
-  if (a.type === 'proposal') return <Link className="underline" to="/proposals">Proposal {a.id.slice(0, 8)} · {a.status}</Link>;
+  if (a.type === 'proposal') return <Link className="underline font-semibold" to="/proposals">Review payment →</Link>;
   if (a.type === 'task') return <Link className="underline" to="/automation">Task {a.id.slice(0, 8)} · {a.status}</Link>;
   if (a.type === 'rejected') return <span className="text-amber-800">Rejected by trusted code: {a.reason}</span>;
   if (a.type === 'automation') return <span>Automation paused</span>;
@@ -73,11 +73,11 @@ function Turn({ turn }) {
           <div className="text-xs">
             <div className="font-bold text-ink text-[13px] mb-1.5">Plan: {turn.plan.goal}</div>
             <ol className="list-decimal pl-5 space-y-0.5 text-slate-600">
-              {turn.plan.steps.map((s, i) => <li key={i}>{s.description} <span className="font-mono text-slate-400">({s.tool})</span></li>)}
+              {turn.plan.steps.map((s, i) => <li key={i}>{s.description}</li>)}
             </ol>
           </div>
         )}
-        {turn.toolInvocations?.length > 0 && <div className="space-y-1.5">{turn.toolInvocations.map((inv) => <ToolCall key={inv.id} inv={inv} />)}</div>}
+        {turn.toolInvocations?.length > 0 && <details className="technical-details"><summary>How the assistant checked this</summary><div className="space-y-1.5">{turn.toolInvocations.map((inv) => <ToolCall key={inv.id} inv={inv} />)}</div></details>}
         {turn.finalText && <div className="text-[15px] leading-relaxed text-ink whitespace-pre-wrap">{turn.finalText}</div>}
         {turn.error && <Alert variant="error">{turn.error}</Alert>}
         {turn.actions?.length > 0 && (
@@ -143,17 +143,17 @@ export function Agent() {
 
   return (
     <div className="space-y-6">
-      <PageHeader eyebrow={`AI command center · ${llm ? (llm.available ? `${llm.provider} · ${llm.model}` : 'model unavailable') : 'checking model…'}`} title="AI agent">
+      <PageHeader eyebrow={`AI assistant · ${llm ? (llm.available ? `${llm.provider} · ${llm.model}` : 'model unavailable') : 'checking model…'}`} title="AI Assistant">
         {isDemo
-          ? 'GPT-4.1-mini plans and calls tools on the demo sandbox. It cannot sign or approve: a drafted payment runs the policy engine and a dry run, then waits for your explicit confirmation.'
-          : 'The language model plans and calls tools. It cannot sign or approve: transfers wait for your approval, schedules wait for your signed grant, and every action passes the policy engine and the contract limits.'}
+          ? 'Ask for a payment, a spending summary or help with an automatic payment. Your assistant prepares and checks the details. You review and confirm before any demo funds move.'
+          : 'Tell your assistant what you need. It prepares payments and checks your spending rules. You authorize payments in your wallet and can follow each verified receipt.'}
       </PageHeader>
       {llm && !llm.available && (
-        <Alert variant="warning" title="No language model configured">
-          {llm.reason}. The rest of the console works without it. Set ANTHROPIC_API_KEY (or an OpenAI-compatible endpoint) in backend/.env and restart the backend.
+        <Alert variant="warning" title="Your AI assistant is temporarily unavailable">
+          You can still review payments and explore your wallet. Try again shortly, or contact the team if this continues.
         </Alert>
       )}
-      {!canChat && <Alert variant="warning">Only the contract owner can use the agent.</Alert>}
+      {!canChat && <Alert variant="warning">Connect the wallet that owns this sandbox to use the assistant.</Alert>}
       <div className="grid lg:grid-cols-4 gap-6">
         <Card className="lg:col-span-1">
           <CardHeader title="Conversations" action={<Button size="sm" variant="secondary" onClick={() => load(null)}>New</Button>} />
@@ -161,7 +161,7 @@ export function Agent() {
             {list.data?.map((c) => (
               <button key={c.id} onClick={() => load(c.id)} className={`block w-full text-left px-3 py-2 rounded-xl truncate transition-colors ${c.id === conversationId ? 'bg-ink text-white' : 'hover:bg-slate-50'}`}>{c.title}</button>
             ))}
-            {list.data?.length === 0 && <div className="text-slate-400">No conversations yet.</div>}
+            {list.data?.length === 0 && <div className="text-slate-400">Your first conversation starts here.</div>}
             <div className="pt-3 text-[11px] text-slate-400">
               Model: {llm ? (llm.available ? `${llm.provider} · ${llm.model}` : 'unavailable') : '…'}
             </div>
@@ -180,7 +180,7 @@ export function Agent() {
             {isDemo && drafted.map((p) => <ProposalCard key={p.id} proposal={p} onChanged={async () => setDrafted(await Promise.all(drafted.map((d) => get(`/proposals/${d.id}`))))} />)}
             <div ref={bottom} />
           </div>
-          {error && <Alert variant="error">{error}</Alert>}
+        {error && <Alert variant="error" title="We couldn’t complete that request">Try again in a moment.<details className="mt-2 text-xs"><summary className="cursor-pointer">Technical details</summary>{error}</details></Alert>}
           <form onSubmit={send} className="flex items-end gap-2 bg-white shadow-card rounded-[28px] p-2 pl-5 focus-within:ring-2 focus-within:ring-ink transition">
             <textarea
               className="flex-1 py-2.5 bg-transparent text-[15px] resize-none focus:outline-none"
@@ -189,7 +189,7 @@ export function Agent() {
               maxLength={isDemo ? 1200 : 4000}
               onChange={(e) => setMessage(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) send(e); }}
-              placeholder="Ask the agent…"
+              placeholder="Ask your AI assistant…"
               disabled={!canChat || busy}
             />
             <Button type="submit" disabled={!canChat || busy || !message.trim()} icon="send">{busy ? 'Thinking…' : 'Send'}</Button>

@@ -87,7 +87,7 @@ async function signIn(page, pathname) {
 }
 async function ask(page, message) {
   const response = page.waitForResponse(r => r.url() === `${base}/agent/chat` && r.request().method() === 'POST', { timeout: 90000 });
-  await page.getByPlaceholder('Ask the agent…').fill(message);
+  await page.getByPlaceholder('Ask your AI assistant…').fill(message);
   await page.getByRole('button', { name: 'Send', exact: true }).click();
   const res = await response;
   expect(res.status()).toBe(200);
@@ -120,7 +120,7 @@ test('real LLM: instruction -> tool calls -> policy -> draft proposal and task s
 
   // The draft is on the Proposals page waiting for the owner; nothing moved on chain.
   await page.locator('a[href="/proposals"]').first().click();
-  await expect(page.getByRole('button', { name: 'Approve & sign' }).first()).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Confirm in wallet' }).first()).toBeVisible();
   expect(await chain.provider.getBalance(fixture.payeeA.address)).toBe(payeeBefore);
   const detail = await (await fetch(`${base}/config`)).json();
   console.log('LIVE_BROWSER_EVIDENCE', JSON.stringify({ proposalId: proposal.id, taskId: task.id, transferMs, scheduleMs, network: detail.data?.chainId ?? null }));

@@ -52,11 +52,11 @@ export function Topbar() {
           {session && (
             <button
               onClick={signOut}
-              aria-label="Sign out"
+              aria-label={isDemo ? 'Leave demo' : 'Sign out'}
               className="inline-flex items-center gap-1.5 h-8 px-2.5 sm:px-3 rounded-full text-[12px] font-semibold text-white/75 hover:text-white hover:bg-white/10 transition-colors"
             >
               <span aria-hidden="true" className="material-symbols-outlined text-[18px]">logout</span>
-              <span className="hidden sm:inline">{isDemo ? 'Leave demo' : 'Sign out'}</span>
+              <span>{isDemo ? 'Leave demo' : 'Sign out'}</span>
             </button>
           )}
         </div>

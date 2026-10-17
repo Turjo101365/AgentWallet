@@ -69,7 +69,7 @@ describe('approval flow', () => {
     const calls = mockFetch(() => ({ status: 503, body: { success: false, error: { code: 'CHAIN_UNAVAILABLE', message: 'down' } } }));
     const { value } = renderWith(<ProposalCard proposal={proposal()} />, { getSigner: vi.fn(async () => signer) });
 
-    fireEvent.click(screen.getByText('Approve & sign'));
+    fireEvent.click(screen.getByText('Confirm in wallet'));
     await screen.findByText('down');
     expect(value.getSigner).toHaveBeenCalled();
     expect(signer.signTypedData).toHaveBeenCalledWith(typedData.domain, typedData.types, typedData.message);
@@ -80,7 +80,7 @@ describe('approval flow', () => {
     expect(key).toMatch(/^approve-/);
 
     // A retry after a failure must reuse the same key so it can never double-approve.
-    fireEvent.click(screen.getByText('Approve & sign'));
+    fireEvent.click(screen.getByText('Confirm in wallet'));
     await waitFor(() => expect(calls.length).toBe(2));
     expect(calls[1].init.headers['Idempotency-Key']).toBe(key);
   });
@@ -88,36 +88,36 @@ describe('approval flow', () => {
   it('does not sign when the wallet is on the wrong network', async () => {
     const calls = mockFetch(() => ({ body: { success: true, data: {} } }));
     renderWith(<ProposalCard proposal={proposal()} />, { getSigner: vi.fn(async () => { throw new Error('Wallet is on chain 1; switch to Hardhat Local (31337) first.'); }) });
-    fireEvent.click(screen.getByText('Approve & sign'));
+    fireEvent.click(screen.getByText('Confirm in wallet'));
     await screen.findByText(/switch to Hardhat Local/);
     expect(calls).toHaveLength(0);
   });
 
   it('viewers cannot approve or reject', () => {
     renderWith(<ProposalCard proposal={proposal()} />, { isOwner: false });
-    expect(screen.getByText('Approve & sign').closest('button').disabled).toBe(true);
-    expect(screen.getByText('Reject').closest('button').disabled).toBe(true);
+    expect(screen.getByText('Confirm in wallet').closest('button').disabled).toBe(true);
+    expect(screen.getByText('Decline payment').closest('button').disabled).toBe(true);
     expect(screen.getByText('Only the contract owner can approve.')).toBeTruthy();
   });
 
   it('an expired proposal offers no approval', () => {
     renderWith(<ProposalCard proposal={proposal({ expiresAt: Math.floor(Date.now() / 1000) - 1 })} />);
-    expect(screen.queryByText('Approve & sign')).toBeNull();
+    expect(screen.queryByText('Confirm in wallet')).toBeNull();
     expect(screen.getByText('Expired')).toBeTruthy();
   });
 
   it('never shows success while the transaction only has a hash', () => {
     renderWith(<ProposalCard proposal={proposal({ status: 'SUBMITTED', approvalTypedData: null, execution: { status: 'SUBMITTED', txHash: '0x' + 'cd'.repeat(32) } })} />);
-    expect(screen.getByText('Submitted · awaiting receipt')).toBeTruthy();
-    expect(screen.queryByText('Confirmed on-chain')).toBeNull();
+    expect(screen.getByText('Sent · awaiting confirmation')).toBeTruthy();
+    expect(screen.queryByText('Payment completed')).toBeNull();
   });
 
   it('shows confirmed only for a CONFIRMED proposal and lists failures with their reason', () => {
     renderWith(<ProposalCard proposal={proposal({ status: 'CONFIRMED', approvalTypedData: null, execution: { status: 'CONFIRMED', txHash: '0x' + 'cd'.repeat(32), blockNumber: 9, gasUsed: '60000' } })} />);
-    expect(screen.getByText('Confirmed on-chain')).toBeTruthy();
+    expect(screen.getByText('Payment completed')).toBeTruthy();
     cleanup();
     renderWith(<ProposalCard proposal={proposal({ status: 'POLICY_REJECTED', approvalTypedData: null, policyResult: { checks: [], violations: [{ id: 'RECIPIENT_ALLOWLISTED', message: 'Recipient is not on the on-chain allowlist' }] } })} />);
-    expect(screen.getByText('Blocked by policy', { selector: 'span' })).toBeTruthy();
+    expect(screen.getByText('Blocked by a safety rule', { selector: 'span' })).toBeTruthy();
     expect(screen.getByText('Recipient is not on the on-chain allowlist')).toBeTruthy();
   });
 });

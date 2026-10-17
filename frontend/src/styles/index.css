@@ -9,21 +9,24 @@
   body {
     background-color: #121411;
     color: #121411;
-    font-family: 'Fustat', 'Inter', system-ui, sans-serif;
+    font-family: 'Inter Tight', 'Inter', system-ui, sans-serif;
+    letter-spacing: -0.04em;
+    line-height: 1.55;
     font-feature-settings: 'ss01';
   }
 
-  /* Display type: Faculty Glyphic ships a single weight, so hierarchy comes from size, not boldness. */
+  /* Inter Tight, with the requested -4% tracking. */
   h1, h2, h3, .font-display {
-    font-family: 'Faculty Glyphic', Georgia, serif;
-    font-weight: 400;
-    letter-spacing: -0.01em;
+    font-family: 'Inter Tight', 'Inter', system-ui, sans-serif;
+    font-weight: 500;
+    letter-spacing: -0.04em;
   }
 
   /* Force tabular numbers in financial numbers and addresses */
   .font-mono {
     font-family: 'JetBrains Mono', ui-monospace, monospace;
     font-variant-numeric: tabular-nums;
+    letter-spacing: 0;
   }
 
   :focus-visible {
@@ -39,16 +42,18 @@
 @layer components {
   /* Big display numerals for balances and stat tiles. */
   .numeral {
-    font-family: 'Faculty Glyphic', Georgia, serif;
+    font-family: 'Inter Tight', 'Inter', system-ui, sans-serif;
+    font-weight: 500;
     font-variant-numeric: tabular-nums lining-nums;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.04em;
     line-height: 0.95;
   }
 
   .eyebrow {
-    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-family: 'Inter Tight', 'Inter', system-ui, sans-serif;
     font-size: 11px;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.04em;
+    font-weight: 600;
     text-transform: uppercase;
   }
 
@@ -59,6 +64,16 @@
 
   .field {
     @apply w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono transition-colors focus:outline-none focus:bg-white focus:border-ink focus:ring-0;
+  }
+
+  .technical-details {
+    @apply rounded-2xl border border-slate-200 bg-white/60 p-4 text-sm;
+  }
+  .technical-details > summary {
+    @apply cursor-pointer font-semibold text-slate-700;
+  }
+  .technical-details[open] > summary {
+    @apply mb-4;
   }
 }
 

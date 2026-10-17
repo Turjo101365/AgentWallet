@@ -11,7 +11,7 @@ export function describeEvent(ev, tokens) {
   const a = ev.args || {};
   switch (ev.name) {
     case 'TransferExecuted':
-      return `Agent transfer of ${amount(tokens, a.token, a.amount)} to ${truncateAddress(a.recipient)}`;
+      return `Payment sent — ${amount(tokens, a.token, a.amount)} to ${truncateAddress(a.recipient)}`;
     case 'Deposited':
       return `Deposit of ${formatAmount(formatUnits(a.amount, 18))} ETH from ${truncateAddress(a.from)}`;
     case 'Withdrawn':
@@ -19,9 +19,9 @@ export function describeEvent(ev, tokens) {
     case 'EmergencyWithdrawal':
       return `Emergency withdrawal of ${amount(tokens, a.token, a.amount)} to ${truncateAddress(a.to)}`;
     case 'RecipientUpdated':
-      return `${a.allowed ? 'Allowlisted' : 'Removed'} recipient ${truncateAddress(a.recipient)}`;
+      return `${a.allowed ? 'Approved' : 'Removed'} recipient ${truncateAddress(a.recipient)}`;
     case 'TokenPolicyUpdated':
-      return `Limits set: per-tx ${amount(tokens, a.token, a.perTxLimit)}, daily ${amount(tokens, a.token, a.dailyLimit)}, ${a.enabled ? 'enabled' : 'disabled'}`;
+      return `Spending rules updated: per payment ${amount(tokens, a.token, a.perTxLimit)}, daily ${amount(tokens, a.token, a.dailyLimit)}, ${a.enabled ? 'enabled' : 'disabled'}`;
     case 'AgentUpdated':
       return `Agent changed ${truncateAddress(a.previousAgent)} → ${truncateAddress(a.newAgent)}`;
     case 'EmergencyStop':

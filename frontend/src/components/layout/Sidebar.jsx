@@ -3,17 +3,12 @@ import { NavLink } from 'react-router-dom';
 import { useApp } from '../../app/providers.jsx';
 
 export const NAV = [
-  { to: '/', label: 'Overview', icon: 'grid_view' },
-  { to: '/agent', label: 'AI agent', icon: 'smart_toy' },
-  { to: '/proposals', label: 'Approvals', icon: 'fact_check' },
-  { to: '/automation', label: 'Automation', icon: 'event_repeat' },
-  { to: '/portfolio', label: 'Portfolio', icon: 'pie_chart' },
-  { to: '/treasury', label: 'Treasury', icon: 'account_balance_wallet' },
-  { to: '/controls', label: 'Risk controls', icon: 'shield_lock' },
-  { to: '/transactions', label: 'Transactions', icon: 'receipt_long' },
-  { to: '/audit', label: 'Audit log', icon: 'history_edu' },
-  { to: '/rl', label: 'RL timing', icon: 'insights' },
-  { to: '/security', label: 'Security', icon: 'settings' },
+  { to: '/', label: 'Home', icon: 'home' },
+  { to: '/agent', label: 'AI Assistant', icon: 'auto_awesome' },
+  { to: '/proposals', label: 'Payments', icon: 'payments' },
+  { to: '/automation', label: 'Automations', icon: 'event_repeat' },
+  { to: '/controls', label: 'Security', icon: 'shield_lock' },
+  { to: '/security', label: 'Settings', icon: 'settings' },
 ];
 
 /**
@@ -23,9 +18,9 @@ export const NAV = [
 export function PrimaryNav({ className = '' }) {
   const { judgeSite } = useApp();
   // Public judge site: no RL service is deployed; historical evidence is its own section.
-  const items = judgeSite ? [...NAV.filter((i) => i.to !== '/rl'), { to: '/evidence', label: 'Evidence', icon: 'verified' }] : NAV;
+  const items = judgeSite ? [...NAV, { to: '/evidence', label: 'Evidence', icon: 'verified' }] : NAV;
   return (
-    <nav aria-label="Primary" className={`flex items-center gap-1 overflow-x-auto no-scrollbar ${className}`}>
+    <nav aria-label="Primary" className={`flex min-w-0 items-center gap-1 overflow-x-auto ${className}`}>
       {items.map((item) => (
         <NavLink
           key={item.to}
@@ -35,14 +30,14 @@ export function PrimaryNav({ className = '' }) {
           title={item.label}
           className={({ isActive }) =>
             `group relative shrink-0 flex items-center gap-2 h-10 rounded-full text-[13px] font-semibold transition-all duration-200 ${
-              isActive ? 'bg-white text-ink pl-3 pr-4' : 'text-white/70 hover:text-white hover:bg-white/10 px-3 lg:w-10 lg:px-0 lg:justify-center'
+              isActive ? 'bg-white text-ink pl-3 pr-4' : 'text-white/80 hover:text-white hover:bg-white/10 px-3'
             }`
           }
         >
           {({ isActive }) => (
             <>
               <span aria-hidden="true" className="material-symbols-outlined text-[20px]">{item.icon}</span>
-              <span className={isActive ? '' : 'lg:sr-only'}>{item.label}</span>
+              <span>{item.label}</span>
             </>
           )}
         </NavLink>

@@ -28,10 +28,10 @@ function Tag({ kind }) {
 function Receipt({ receipt }) {
   return (
     <div className="rounded-2xl bg-mint-soft text-mint-deep p-3.5 text-xs font-mono space-y-0.5" data-testid="demo-receipt">
-      <div className="font-bold font-sans text-[13px] flex items-center gap-2"><Tag kind="LIVE" /> Verified Sepolia receipt</div>
-      <div>Status: {receipt.status === 1 ? 'SUCCESS (1)' : `REVERTED (${receipt.status})`} · block {receipt.blockNumber} · gas used {receipt.gasUsed}</div>
-      <div className="break-all">Tx: <a className="underline" href={receipt.explorerUrl} target="_blank" rel="noreferrer">{receipt.txHash}</a></div>
-      <div className="break-all">From {receipt.from} (demo agent key) → contract {receipt.to}</div>
+      <div className="font-bold font-sans text-base flex items-center gap-2"><Tag kind="LIVE" /> {receipt.status === 1 ? 'Payment confirmed' : 'Payment failed'}</div>
+      <p className="font-sans text-sm">{receipt.status === 1 ? 'Verified on Ethereum Sepolia. This payment uses test ETH.' : 'The transaction reverted. Do not treat it as a completed payment.'}</p>
+      <a className="inline-block font-sans font-semibold underline py-1" href={receipt.explorerUrl} target="_blank" rel="noreferrer">View verified Sepolia receipt ↗</a>
+      <details><summary className="cursor-pointer py-1">Receipt details</summary><div>Status {receipt.status} · block {receipt.blockNumber} · gas used {receipt.gasUsed}</div><div className="break-all">{receipt.txHash}</div><div className="break-all">From {receipt.from} → contract {receipt.to}</div></details>
     </div>
   );
 }
@@ -43,6 +43,7 @@ function Receipt({ receipt }) {
 function DemoConfirm({ proposal, onDone }) {
   const { demo } = useApp();
   const [checked, setChecked] = useState(false);
+  const [reviewing, setReviewing] = useState(true);
   const [working, setWorking] = useState(false);
   const [error, setError] = useState(null);
   const mine = proposal.demo?.mine;
@@ -62,19 +63,20 @@ function DemoConfirm({ proposal, onDone }) {
   }
 
   if (!mine) return <div className="text-xs text-slate-500">Drafted by another demo session; only that session can confirm it.</div>;
-  if (!allowed) return <Alert variant="warning" title="Explore mode">Live demo transactions need an invite code. Choose “Switch role or wallet” and enter the code to execute this payment on Sepolia.</Alert>;
+  if (!allowed) return <Alert variant="warning" title="You're exploring — no payment will be sent">Ask the team for a live-demo invite. Choose “Switch role or wallet” and enter it to start an authorized session, then ask AI to prepare your payment there. This payment stays in its original session.</Alert>;
+  if (!reviewing) return <div className="flex flex-wrap items-center justify-between gap-3 text-sm"><span>Payment still pending. You can review it later.</span><Button variant="secondary" onClick={() => setReviewing(true)}>Review payment</Button></div>;
   return (
     <div className="rounded-3xl bg-slate-50 p-4 space-y-3">
       <label className="flex items-start gap-3 text-[13.5px] text-ink cursor-pointer">
         <input type="checkbox" className="mt-1 w-4 h-4" checked={checked} onChange={(e) => setChecked(e.target.checked)} data-testid="demo-confirm-checkbox" />
         <span>
-          I confirm sending <strong>{proposal.amountFormatted} {proposal.token.symbol}</strong> to <span className="font-mono">{truncateAddress(proposal.recipient, 10, 6)}</span> on Ethereum Sepolia.
-          I understand that the <strong>sandbox demo owner key held by the server</strong> will sign the EIP-712 approval after this confirmation. My own wallet does not sign.
+          I confirm this <strong>{proposal.amountFormatted} {proposal.token.symbol}</strong> payment on Sepolia using shared demo funds. The backend-controlled demo wallet signs after my confirmation; my personal wallet does not sign.
         </span>
       </label>
       {error && <Alert variant="error">{describeError(error)}</Alert>}
-      <div className="flex justify-end">
-        <Button onClick={confirm} disabled={!checked || working} icon="verified_user">{working ? 'Signing and executing on Sepolia…' : 'Confirm demo authorization'}</Button>
+      <div className="flex flex-wrap justify-end gap-2">
+        <Button variant="secondary" disabled={working} onClick={() => { setChecked(false); setReviewing(false); }}>Cancel</Button>
+        <Button onClick={confirm} disabled={!checked || working} icon="verified_user">{working ? 'Sending — waiting for a receipt…' : 'Confirm demo payment'}</Button>
       </div>
     </div>
   );
@@ -135,7 +137,7 @@ export function ProposalCard({ proposal: initial, recipientLabel, onChanged, com
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <StatusBadge status={expired ? 'EXPIRED' : proposal.status} />
-              <span className="text-[11px] font-mono text-slate-500">#{proposal.id.slice(0, 8)} · {proposal.source}</span>
+              <span className="text-xs text-slate-500">{isDemo ? 'Demo wallet' : 'Personal wallet'}</span>
             </div>
             <div className="mt-3 flex items-baseline gap-2">
               <span className="numeral text-[40px] text-ink">{formatAmount(proposal.amountFormatted, proposal.token.decimals)}</span>
@@ -154,10 +156,25 @@ export function ProposalCard({ proposal: initial, recipientLabel, onChanged, com
           )}
         </div>
 
+        {awaiting && !expired && <section aria-label="Payment review" className="rounded-3xl bg-slate-50 p-4 sm:p-5 space-y-4">
+          <h3 className="text-xl">Review your payment</h3>
+          <dl className="grid sm:grid-cols-2 gap-4 text-sm">
+            <div><dt className="text-slate-600">Amount</dt><dd className="font-semibold text-lg">{proposal.amountFormatted} {proposal.token.symbol}</dd></div>
+            <div><dt className="text-slate-600">Network</dt><dd className="font-semibold">{config.networkName}{config.isPublicNetwork ? ' · test funds only' : ' · local simulation'}</dd></div>
+            <div className="sm:col-span-2 min-w-0"><dt className="text-slate-600">Recipient{recipientLabel ? ` · ${recipientLabel}` : ''}</dt><dd className="font-mono text-xs sm:text-sm break-all mt-1 select-all">{proposal.recipient}</dd></div>
+            <div><dt className="text-slate-600">Estimated maximum network fee</dt><dd className="font-semibold">{sim?.maxNetworkFeeEth != null ? Number(sim.maxNetworkFeeEth)>0 && Number(sim.maxNetworkFeeEth)<0.00000001 ? '<0.00000001 ETH' : `${formatAmount(sim.maxNetworkFeeEth,8)} ETH` : 'Unavailable — checked again before sending'}</dd><dd className="text-xs text-slate-600">Paid from the separate {isDemo ? 'demo' : 'relay'} fee balance. Final fees may differ.</dd></div>
+            <div><dt className="text-slate-600">Security check</dt><dd className="font-semibold">{proposal.policyResult?.passed === true && sim?.success ? 'Passed · ready for your approval' : 'Review the check results below'}</dd></div>
+            <div className="sm:col-span-2"><dt className="text-slate-600">How this is authorized</dt><dd>{isDemo ? 'Shared demo funds. After you confirm, the backend-controlled demo wallet signs this exact payment. Your personal wallet does not sign.' : 'Your wallet asks you to sign approval for this exact payment. Your private key stays in your wallet.'}</dd></div>
+          </dl>
+          <p className="text-sm text-slate-600">After confirmation, follow the payment status. It is complete only when a verified receipt appears.</p>
+        </section>}
+
         {!compact && (
+          <details className="technical-details">
+          <summary>Technical details · security checks & authorization</summary>
           <div className="grid md:grid-cols-2 gap-3">
             <div className="rounded-3xl bg-slate-50 p-4">
-              <div className="eyebrow text-slate-500 mb-2.5">Policy checks (block {proposal.policyResult?.blockNumber ?? '—'})</div>
+              <div className="eyebrow text-slate-500 mb-2.5">Security checks (block {proposal.policyResult?.blockNumber ?? '—'})</div>
               <PolicyChecks result={proposal.policyResult} />
             </div>
             <div className="space-y-2 text-xs rounded-3xl bg-slate-50 p-4">
@@ -177,22 +194,24 @@ export function ProposalCard({ proposal: initial, recipientLabel, onChanged, com
               <div className="font-mono break-all text-slate-600">{proposal.intentId}</div>
             </div>
           </div>
+          <p className="text-xs font-mono text-slate-500 mt-3">Payment #{proposal.id} · source {proposal.source} · {proposal.approvalKind === 'TASK_GRANT' ? 'Bounded task grant' : 'EIP-712 authorization'}</p>
+          </details>
         )}
 
         {exec && (
           <div className={`text-xs rounded-2xl p-3.5 space-y-1 font-mono ${exec.status === 'CONFIRMED' ? 'bg-mint-soft text-mint-deep' : exec.status === 'FAILED' ? 'bg-blush-soft text-blush-deep' : 'bg-slate-50 text-slate-700'}`}>
-            <div>{config?.isPublicNetwork && <><Tag kind="LIVE" />{' '}</>}Execution: {exec.status}{exec.errorCode ? ` — ${exec.errorCode}: ${exec.errorMessage}` : ''}</div>
+            <div className="font-sans text-sm font-semibold">{config?.isPublicNetwork && <><Tag kind="LIVE" />{' '}</>}{exec.status === 'CONFIRMED' ? 'Payment confirmed — receipt verified' : exec.status === 'FAILED' ? 'Payment failed — no confirmed payment' : 'Payment in progress — waiting for confirmation'}</div>
             {exec.txHash && (
               <div className="break-all">
-                Tx: {txLink ? <a className="underline" href={txLink} target="_blank" rel="noreferrer">{exec.txHash}</a> : exec.txHash}
+                {txLink ? <a className="underline font-sans font-semibold" title={exec.txHash} href={txLink} target="_blank" rel="noreferrer">{exec.status === 'CONFIRMED' ? 'View verified receipt ↗' : 'Track transaction ↗'}</a> : exec.txHash}
               </div>
             )}
-            {exec.blockNumber && <div>Block {exec.blockNumber} · gas used {exec.gasUsed}</div>}
+            <details><summary className="cursor-pointer mt-2">Transaction details</summary><div className="break-all">{exec.txHash}</div>{exec.blockNumber && <div>Block {exec.blockNumber} · gas used {exec.gasUsed}</div>}{exec.errorCode && <div>{exec.errorCode}: {exec.errorMessage}</div>}</details>
           </div>
         )}
 
         {proposal.status === 'POLICY_REJECTED' && proposal.policyResult?.violations?.length > 0 && (
-          <Alert variant="error" title="Blocked by policy">{proposal.policyResult.violations.map((v) => v.message).join(' · ')}</Alert>
+          <Alert variant="error" title="Payment blocked by a safety rule">{proposal.policyResult.violations.map((v) => v.message).join(' · ')}</Alert>
         )}
         {proposal.resolutionReason && !['POLICY_REJECTED'].includes(proposal.status) && (
           <div className="text-xs text-slate-500">Reason: {proposal.resolutionReason}</div>
@@ -203,7 +222,7 @@ export function ProposalCard({ proposal: initial, recipientLabel, onChanged, com
             {proposal.approvalKind === 'TASK_GRANT' ? `Approved by signed task grant (${proposal.approvedBy})` : `Approved by ${truncateAddress(proposal.approvedBy)}`} at {formatDateTime(proposal.approvedAt)}
           </div>
         )}
-        {isDemo && proposal.demo?.authorization && <div className="text-xs text-slate-600" data-testid="demo-authorization-label">{proposal.demo.authorization.label}</div>}
+        {isDemo && proposal.demo?.authorization && <details className="text-xs text-slate-600"><summary className="cursor-pointer">Demo signature details</summary><div data-testid="demo-authorization-label">{proposal.demo.authorization.label}</div></details>}
         {demoResult?.receipt && demoResult.id === proposal.id && <Receipt receipt={demoResult.receipt} />}
         {demoResult?.pending && demoResult.id === proposal.id && <Alert>Submitted; still waiting for the Sepolia receipt. This page refreshes the status.</Alert>}
 
@@ -211,8 +230,8 @@ export function ProposalCard({ proposal: initial, recipientLabel, onChanged, com
 
         {awaiting && !expired && (
           <div className="text-xs text-slate-600" data-testid="signed-deadline">
-            Execution deadline (signed): <span className="font-mono">{formatDateTime(proposal.expiresAt)}</span>. {isDemo ? 'The demo approval' : 'Your signature'} authorizes this
-            exact transfer only until then; if it has not executed by that time it fails and is never extended.
+            Approval expires <span className="font-mono">{formatDateTime(proposal.expiresAt)}</span>. This payment cannot execute after that deadline.
+            <details className="mt-1"><summary className="cursor-pointer">Signed deadline details</summary>Execution deadline (signed): {formatDateTime(proposal.expiresAt)}. The signed deadline is never extended.</details>
           </div>
         )}
 
@@ -222,10 +241,10 @@ export function ProposalCard({ proposal: initial, recipientLabel, onChanged, com
           <div className="flex flex-wrap gap-2 justify-end items-center pt-1">
             {!isOwner && <span className="text-xs text-slate-500 self-center">Only the contract owner can approve.</span>}
             <Button variant="secondary" onClick={reject} disabled={!isOwner || Boolean(working)}>
-              {working === 'reject' ? 'Rejecting…' : 'Reject'}
+              {working === 'reject' ? 'Declining…' : 'Decline payment'}
             </Button>
             <Button onClick={approve} disabled={!isOwner || Boolean(working) || !proposal.approvalTypedData} icon="draw">
-              {working === 'approve' ? 'Sign in wallet…' : 'Approve & sign'}
+              {working === 'approve' ? 'Confirm in your wallet…' : 'Confirm in wallet'}
             </Button>
           </div>
         )}

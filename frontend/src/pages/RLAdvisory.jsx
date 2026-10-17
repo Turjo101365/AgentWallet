@@ -62,7 +62,7 @@ export function RLAdvisory() {
         PPO and DQN policies decide <em>when</em> an already-authorized payment is submitted inside its execution window, to pay lower network fees. They cannot choose recipients or amounts, cannot skip the deadline, and never bypass policy checks.
       </PageHeader>
       {error && <Alert variant="error">{error}</Alert>}
-      {models.error && <Alert variant="warning" title="RL service unavailable">{describeError(models.error)}. Scheduled payments still run; they execute at the start of their window without timing advice.</Alert>}
+      {models.error && <Alert variant="warning" title="Timing advice unavailable">Timing advice is optional. Payments still require authorization and an active scheduler.<details className="mt-2 text-xs"><summary className="cursor-pointer">Technical details</summary>{describeError(models.error)}</details></Alert>}
 
       <div className="grid lg:grid-cols-2 gap-6">
         {models.data?.map((m) => (

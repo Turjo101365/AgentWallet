@@ -9,7 +9,7 @@ export function BalancesCard({ state }) {
   return (
     <Card>
       <CardHeader
-        title="Contract treasury"
+        title="Available balance"
         subtitle={`Read on-chain at block ${state.blockNumber}`}
         badge={state.paused ? <Badge variant="error">Contract paused</Badge> : <Badge variant="success">Contract active</Badge>}
       />

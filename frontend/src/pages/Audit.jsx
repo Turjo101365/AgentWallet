@@ -11,13 +11,13 @@ export function Audit() {
   const verify = usePolling(() => get('/audit/verify'), 15000);
   return (
     <div className="space-y-6">
-      <PageHeader eyebrow="Execution evidence" title="Audit log">
+      <PageHeader eyebrow="Security & transparency" title="Activity log">
         Append-only and hash-chained. The database rejects updates and deletes.
       </PageHeader>
       <Card>
         <CardHeader
-          title="Integrity"
-          subtitle="Each entry stores the SHA-256 of the previous one; verification recomputes the whole chain."
+          title="Activity record integrity"
+          subtitle="Checks that recorded activity has not been altered. Technical hashes remain available below."
           badge={
             verify.data ? (
               verify.data.valid ? (

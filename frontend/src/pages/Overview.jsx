@@ -4,21 +4,21 @@ import { formatUnits } from 'ethers';
 import { Card, CardHeader, CardContent, PageHeader } from '../components/ui/Card.jsx';
 import { Badge } from '../components/ui/Badge.jsx';
 import { Alert } from '../components/ui/Alert.jsx';
-import { LinkButton } from '../components/ui/Button.jsx';
+import { Button, LinkButton } from '../components/ui/Button.jsx';
 import { ProposalCard } from '../components/proposals/ProposalCard.jsx';
 import { StatusBadge } from '../components/proposals/StatusBadge.jsx';
 import { useApp } from '../app/providers.jsx';
 import {
-  useWalletState, useProposals, useRecipients, useAgentStatus, useTransactions, useAuditLog, useAuditVerify, useTasks, usePolicy, usePortfolio, labelFor,
+  useWalletState, useProposals, useRecipients, useAgentStatus, useTransactions, useAuditLog, useAuditVerify, useTasks, usePolicy, labelFor,
 } from '../hooks/useData.js';
 import { usePolling } from '../hooks/usePolling.js';
 import { get, describeError } from '../lib/api.js';
 import { explorerAddress } from '../lib/networks.js';
 import { describeEvent, EVENT_ICON, auditIcon } from '../lib/events.js';
 import { useNetworkMode } from '../components/layout/NetworkMode.jsx';
-import { formatAmount, formatGas, formatTimeAgo, formatDateTime, truncateAddress, percentOf, humanizeAction } from '../utils/formatters.js';
+import { formatAmount, formatTimeAgo, formatDateTime, truncateAddress, percentOf, humanizeAction } from '../utils/formatters.js';
 
-const EXAMPLES = ['Send 0.0001 ETH to my approved recipient.', 'Show my portfolio and recent spending.', 'Stop all automated payments.'];
+const EXAMPLES = ['Send 0.0001 ETH to my approved recipient.', 'Show my recent payments.', 'Help me set up an automatic payment.'];
 
 function Icon({ name, className = '' }) {
   return <span aria-hidden="true" className={`material-symbols-outlined ${className}`}>{name}</span>;
@@ -28,21 +28,22 @@ function Dot({ ok }) {
   return <span aria-hidden="true" className={`inline-block w-2 h-2 rounded-full ${ok ? 'bg-mint-deep' : 'bg-blush-deep'}`} />;
 }
 
-const units = (value, decimals) => (value === undefined || value === null ? null : formatUnits(value, decimals));
+
 
 // ---------------------------------------------------------------------------------------- treasury
 
 function TreasuryCard({ state, config }) {
+  const { isDemo, isOwner } = useApp();
   const { isPublic } = useNetworkMode();
-  if (!state) return <Card tone="mint" className="min-h-[300px] animate-pulse" />;
+  if (!state) return <Card tone="mint" aria-busy="true" className="min-h-[300px] p-7 animate-pulse"><h3 className="text-2xl">Available balance</h3><p className="mt-4 text-mint-deep">Loading your live balance…</p></Card>;
   const [main, ...rest] = state.tokens;
   const contractLink = explorerAddress(config, config.contractAddress);
   return (
     <Card tone="mint" className="relative overflow-hidden flex flex-col">
       <CardHeader
-        eyebrow={`Contract treasury · block ${state.blockNumber}`}
-        title="Balance"
-        badge={state.paused ? <Badge variant="error">Contract paused</Badge> : <Badge variant="success" pulse>Contract active</Badge>}
+        eyebrow={isDemo ? 'Shared demo wallet' : 'Wallet balance'}
+        title="Available balance"
+        badge={state.paused ? <Badge variant="error">Payments paused</Badge> : <Badge variant="success">{isPublic ? 'Test ETH' : 'Local simulation'}</Badge>}
       />
       <CardContent className="pt-3 flex-1 flex flex-col justify-between gap-6">
         <div>
@@ -51,7 +52,7 @@ function TreasuryCard({ state, config }) {
             <span className="font-display text-2xl text-mint-deep">{main.symbol}</span>
           </div>
           <div className="mt-2 text-[13px] text-mint-deep/90">
-            Read on-chain from the contract{isPublic ? '' : ' on the local simulation chain'}. No price feed is assumed.
+            {isPublic ? 'Sepolia test ETH — no real money.' : 'Local simulation funds — no real money.'} {isDemo ? 'Shared demo funds managed by the team, not your personal wallet.' : 'Read directly from your wallet contract.'}
           </div>
         </div>
         {rest.length > 0 && (
@@ -68,14 +69,14 @@ function TreasuryCard({ state, config }) {
           <span className="font-mono text-mint-deep" title={config.contractAddress}>
             {contractLink ? (
               <a className="underline hover:text-ink" href={contractLink} target="_blank" rel="noreferrer">
-                {truncateAddress(config.contractAddress, 8, 6)} ↗
+                View wallet on explorer ↗
               </a>
             ) : (
               <>{truncateAddress(config.contractAddress, 8, 6)} · local, no explorer</>
             )}
           </span>
           <Link to="/treasury" className="font-semibold text-ink inline-flex items-center gap-1 hover:gap-2 transition-all">
-            Deposit or withdraw <Icon name="arrow_forward" className="text-[16px]" />
+            {isDemo ? 'Wallet details' : isOwner ? 'Manage funds' : 'View balance'} <Icon name="arrow_forward" className="text-[16px]" />
           </Link>
         </div>
       </CardContent>
@@ -83,7 +84,7 @@ function TreasuryCard({ state, config }) {
   );
 }
 
-function StatTile({ tone, icon, label, value, hint, to }) {
+function StatTile({ tone, icon, label, value, hint, to, action }) {
   const inner = (
     <Card tone={tone} className="h-full p-5 flex flex-col justify-between gap-5 group hover:-translate-y-0.5 transition-transform">
       <div className="flex items-center justify-between">
@@ -93,7 +94,8 @@ function StatTile({ tone, icon, label, value, hint, to }) {
       <div>
         <div className="numeral text-[40px] text-ink">{value}</div>
         <div className="text-[13px] font-bold mt-1.5">{label}</div>
-        {hint && <div className="text-[12px] opacity-70 mt-0.5 leading-snug">{hint}</div>}
+        {hint && <div className="text-sm text-slate-700 mt-1 leading-snug">{hint}</div>}
+        {action && <div className="mt-4 text-sm font-semibold underline underline-offset-4">{action} →</div>}
       </div>
     </Card>
   );
@@ -103,10 +105,10 @@ function StatTile({ tone, icon, label, value, hint, to }) {
 // ---------------------------------------------------------------------------------------- AI command center
 
 function CommandCenter({ status }) {
-  const { isOwner } = useApp();
+  const { isOwner, isDemo } = useApp();
   const navigate = useNavigate();
   const [draft, setDraft] = useState('');
-  const conversations = usePolling(() => get('/agent/conversations'), 20000, [], { enabled: isOwner });
+  const conversations = usePolling(() => get('/agent/conversations'), 20000, [], { enabled: isOwner || isDemo });
   const llm = status?.llm;
 
   function open(e) {
@@ -119,27 +121,27 @@ function CommandCenter({ status }) {
     <Card tone="ink" className="relative overflow-hidden">
       <div aria-hidden="true" className="absolute -right-24 -top-24 w-72 h-72 rounded-full bg-[#9fdcb8]/10 blur-2xl" />
       <CardHeader
-        eyebrow="AI command center"
-        title="Tell the agent what to do"
+        eyebrow="Your AI assistant"
+        title="What would you like your AI to do?"
         badge={
           llm ? (
-            llm.available ? <Badge variant="dark" pulse>{llm.provider} · {llm.model}</Badge> : <Badge variant="error">Model unavailable</Badge>
+            llm.available ? <Badge variant="dark" pulse>AI connected</Badge> : <Badge variant="error">Model unavailable</Badge>
           ) : null
         }
       />
       <CardContent className="pt-4 space-y-5 relative">
-        <form onSubmit={open} className="flex items-center gap-2 rounded-full bg-white/[0.07] ring-1 ring-white/10 focus-within:ring-white/40 pl-5 pr-1.5 py-1.5 transition">
+        <form onSubmit={open} className="flex flex-wrap sm:flex-nowrap items-center gap-2 rounded-3xl bg-white/10 ring-1 ring-white/20 focus-within:ring-white/60 p-3 transition">
           <Icon name="auto_awesome" className="text-[20px] text-[#9fdcb8]" />
           <input
-            aria-label="Instruction for the agent"
+            aria-label="Ask your AI assistant"
             className="flex-1 min-w-0 bg-transparent text-white placeholder:text-white/45 text-[15px] focus:outline-none py-2"
-            placeholder="e.g. pay my supplier 0.002 ETH every Monday"
+            placeholder="Tell me what you need…"
             value={draft}
-            maxLength={4000}
+            maxLength={1200}
             onChange={(e) => setDraft(e.target.value)}
           />
-          <button type="submit" className="h-10 px-4 rounded-full bg-white text-ink text-sm font-semibold inline-flex items-center gap-1.5 hover:bg-mint transition-colors">
-            Open in agent <Icon name="arrow_forward" className="text-[18px]" />
+          <button type="submit" className="h-11 px-4 rounded-full bg-mint text-ink text-sm font-semibold inline-flex items-center gap-1.5 hover:bg-white transition-colors shrink-0">
+            Ask AI <Icon name="arrow_forward" className="text-[18px]" />
           </button>
         </form>
         <div className="flex flex-wrap gap-2">
@@ -151,9 +153,9 @@ function CommandCenter({ status }) {
         </div>
         <div className="grid sm:grid-cols-3 gap-2 text-[12px]">
           {[
-            ['edit_note', 'Plans and drafts', 'Calls typed tools; never holds a key'],
-            ['draw', 'You authorize', 'EIP-712 signature or a bounded task grant'],
-            ['gpp_good', 'Contract enforces', 'Allowlist, per-tx and daily caps'],
+            ['edit_note', '1. Ask & review', 'Your assistant prepares a payment and checks its risk.'],
+            ['draw', '2. Confirm', isDemo ? 'You confirm; the demo wallet signs within its limits.' : 'You approve the exact payment in your wallet.'],
+            ['receipt_long', '3. See the receipt', 'Only a verified receipt means the payment was sent.'],
           ].map(([icon, title, body]) => (
             <div key={title} className="rounded-2xl bg-white/[0.05] p-3.5">
               <Icon name={icon} className="text-[19px] text-[#9fdcb8]" />
@@ -191,67 +193,26 @@ function Meter({ pct, tone = 'ink' }) {
   );
 }
 
-function RiskEngine({ state, policy, proposals, recipients }) {
-  if (!state) return <Card className="min-h-[320px] animate-pulse" />;
-  const decisions = (proposals || []).slice(0, 5);
-  return (
-    <Card className="flex flex-col">
-      <CardHeader eyebrow="Risk engine" title="Limits & decisions" action={<LinkButton to="/controls" size="sm" icon="tune">Adjust</LinkButton>} />
-      <CardContent className="pt-4 space-y-6 flex-1">
-        {state.tokens.filter((t) => t.enabled).map((t) => {
-          const used = percentOf(t.formatted.spentToday, t.formatted.dailyLimit);
-          const auto = units(policy?.autoApprovalMaxPerTx?.[t.address], t.decimals);
-          const floor = units(policy?.reserveFloors?.[t.address], t.decimals);
-          return (
-            <div key={t.address} className="space-y-2.5">
-              <div className="flex items-baseline justify-between gap-2">
-                <span className="font-bold text-[14px]">{t.symbol} daily allowance</span>
-                <span className="font-mono text-[12px] text-slate-600">
-                  {formatAmount(t.formatted.spentToday)} / {formatAmount(t.formatted.dailyLimit)} used
-                </span>
-              </div>
-              <Meter pct={used} />
-              <div className="grid grid-cols-3 gap-2 text-[11.5px]">
-                <div className="rounded-xl bg-slate-50 px-3 py-2"><div className="text-slate-500">Per-tx cap</div><div className="font-mono font-semibold text-ink">{formatAmount(t.formatted.perTxLimit)}</div></div>
-                <div className="rounded-xl bg-slate-50 px-3 py-2"><div className="text-slate-500">Auto-approve ≤</div><div className="font-mono font-semibold text-ink">{auto ? formatAmount(auto) : 'off'}</div></div>
-                <div className="rounded-xl bg-slate-50 px-3 py-2"><div className="text-slate-500">Reserve floor</div><div className="font-mono font-semibold text-ink">{floor ? formatAmount(floor) : 'none'}</div></div>
-              </div>
-            </div>
-          );
-        })}
-        <div className="text-[11.5px] text-slate-500 -mt-2">
-          Caps are enforced by the contract; auto-approval, reserves and the circuit breaker
-          {policy ? ` (${policy.circuitBreaker.maxConsecutiveFailures} consecutive failures)` : ''} by the backend policy engine. Daily caps reset 00:00 UTC.
-        </div>
-        <div>
-          <div className="eyebrow text-slate-500 mb-2.5">Recent policy decisions</div>
-          {decisions.length === 0 && <div className="text-[13px] text-slate-500">No transfer has been evaluated yet.</div>}
-          <ul className="space-y-1.5">
-            {decisions.map((p) => {
-              const failed = p.policyResult?.violations?.map((v) => v.id || v.check).filter(Boolean) || [];
-              const passed = p.policyResult?.passed;
-              return (
-                <li key={p.id} className="flex items-center gap-3 rounded-2xl px-3 py-2 hover:bg-slate-50 transition-colors">
-                  <span className={`w-7 h-7 shrink-0 rounded-full flex items-center justify-center ${passed === false ? 'bg-blush text-blush-deep' : 'bg-mint text-mint-deep'}`}>
-                    <Icon name={passed === false ? 'block' : 'check'} className="text-[16px]" />
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <div className="text-[13px] font-semibold truncate">
-                      {formatAmount(p.amountFormatted, 6)} {p.token.symbol} → {labelFor(recipients, p.recipient) || truncateAddress(p.recipient)}
-                    </div>
-                    <div className="text-[11.5px] text-slate-500 truncate font-mono">
-                      {passed === false ? `failed: ${failed.join(', ') || 'policy'}` : `${p.policyResult?.checks?.length ?? 0} checks passed`} · {p.source}
-                    </div>
-                  </div>
-                  <span className="hidden sm:inline"><StatusBadge status={p.status} /></span>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      </CardContent>
-    </Card>
-  );
+function RiskEngine({ state, policy, demoStatus }) {
+  const { isOwner, isDemo } = useApp();
+  if (!state) return <Card className="p-7 min-h-[240px] animate-pulse" aria-busy="true"><p>Loading spending rules…</p></Card>;
+  return <Card>
+    <CardHeader title="Your AI's spending rules" subtitle="Your AI cannot exceed these contract-enforced limits." action={<LinkButton to="/controls" size="sm">{isOwner ? 'Manage rules' : 'View rules'}</LinkButton>} />
+    <CardContent className="space-y-5 pt-5">
+      {state.tokens.filter(t => t.enabled).map(t => {
+        const remaining = BigInt(t.dailyLimit) > BigInt(t.spentToday) ? BigInt(t.dailyLimit) - BigInt(t.spentToday) : 0n;
+        return <div key={t.address} className="space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            {[["Per payment", t.formatted.perTxLimit], ["Per day", t.formatted.dailyLimit], ["Spent today", t.formatted.spentToday], ["Daily allowance left", formatUnits(remaining, t.decimals)]].map(([label,value]) => <div key={label} className="rounded-2xl bg-slate-50 p-3.5"><div className="text-sm text-slate-600">{label}</div><div className="font-semibold text-lg mt-1 tabular-nums">{formatAmount(value,6)} <span className="text-sm text-slate-600">{t.symbol}</span></div></div>)}
+          </div>
+          <Meter pct={percentOf(t.formatted.spentToday,t.formatted.dailyLimit)} />
+        </div>;
+      })}
+      <p className="text-xs text-slate-600">Daily limits reset at 00:00 UTC. Available funds and other safety checks may limit a payment further.</p>
+      {isDemo && <div className="rounded-2xl bg-butter-soft p-4 text-sm text-butter-deep"><strong>Demo access budget — separate from the contract</strong>{demoStatus ? <p className="mt-1">Up to {demoStatus.limits.maxTxPerSession} payments per session and {demoStatus.limits.dailyTxLimit} per day across all judges. {Math.max(0,demoStatus.limits.dailyTxLimit-demoStatus.today.txCount)} payments left in today's shared budget. The server also protects a {demoStatus.limits.minTreasuryEth} ETH treasury reserve and a transaction-fee budget.</p> : <p className="mt-1">Live payments also need an invite and must fit the shared session, daily and fee budgets. Loading current budgets…</p>}</div>}
+      <details className="technical-details"><summary>How these rules are enforced</summary><p className="text-slate-600">Payment and daily caps are verified by the smart contract. Approved recipients, reserves, authorization and failure protections are checked again before execution.</p><p className="text-xs text-slate-500 mt-2">Latest chain block: {state.blockNumber}. {policy?.circuitBreaker?.maxConsecutiveFailures ? 'Failure protection stops a task after '+policy.circuitBreaker.maxConsecutiveFailures+' consecutive failures.' : ''}</p></details>
+    </CardContent>
+  </Card>;
 }
 
 // ---------------------------------------------------------------------------------------- autonomy
@@ -259,6 +220,7 @@ function RiskEngine({ state, policy, proposals, recipients }) {
 const TASK_TONE = { ACTIVE: 'success', PENDING_AUTHORIZATION: 'warning', PAUSED: 'warning', FAILED: 'error' };
 
 function AutonomousOps({ status, tasks, recipients }) {
+  const { judgeSite } = useApp();
   const automationPaused = status?.automation?.paused;
   const list = (tasks || []).filter((t) => ['ACTIVE', 'PENDING_AUTHORIZATION', 'PAUSED'].includes(t.status));
   const done = (tasks || []).filter((t) => !['ACTIVE', 'PENDING_AUTHORIZATION', 'PAUSED'].includes(t.status));
@@ -266,19 +228,20 @@ function AutonomousOps({ status, tasks, recipients }) {
   return (
     <Card tone="lilac" className="flex flex-col">
       <CardHeader
-        eyebrow="Autonomous operations"
-        title="Signed task grants"
-        badge={status ? automationPaused ? <Badge variant="error">Automation paused</Badge> : <Badge variant="success" pulse>Scheduler on</Badge> : null}
+        eyebrow="Approved permissions"
+        title="Automatic payments"
+        badge={status ? automationPaused ? <Badge variant="error">Automation paused</Badge> : <Badge variant="neutral">{judgeSite ? 'Requires open page' : 'Available'}</Badge> : null}
       />
       <CardContent className="pt-4 space-y-4 flex-1 flex flex-col">
+        <p className="text-sm text-lilac-deep">Let your AI complete approved payments within the limits you set.</p>
         <div className="grid grid-cols-3 gap-2">
           {[
-            ['Live grants', list.filter((t) => t.status === 'ACTIVE').length],
-            ['Awaiting grant', list.filter((t) => t.status === 'PENDING_AUTHORIZATION').length],
-            ['Finished', done.length],
+            ['Active', list.filter((t) => t.status === 'ACTIVE').length],
+            ['Needs approval', list.filter((t) => t.status === 'PENDING_AUTHORIZATION').length],
+            ['Finished / expired', done.length],
           ].map(([label, n]) => (
             <div key={label} className="rounded-2xl bg-white/55 px-3 py-2.5">
-              <div className="numeral text-[30px]">{n}</div>
+              <div className="numeral text-[30px]">{tasks ? n : '—'}</div>
               <div className="text-[11.5px] font-semibold text-lilac-deep mt-1">{label}</div>
             </div>
           ))}
@@ -288,7 +251,7 @@ function AutonomousOps({ status, tasks, recipients }) {
             <li key={t.id} className="rounded-2xl bg-white/70 px-4 py-3">
               <div className="flex items-center justify-between gap-2">
                 <span className="font-semibold text-[13.5px] truncate">{t.title}</span>
-                <Badge variant={TASK_TONE[t.status] || 'neutral'}>{t.status === 'PENDING_AUTHORIZATION' ? 'needs grant' : t.status.toLowerCase()}</Badge>
+                <Badge variant={TASK_TONE[t.status] || 'neutral'}>{t.status === 'PENDING_AUTHORIZATION' ? 'needs approval' : t.status.toLowerCase()}</Badge>
               </div>
               <div className="text-[12px] text-slate-600 font-mono mt-1 truncate">
                 {t.amountFormatted} {t.token.symbol} → {labelFor(recipients, t.recipient) || truncateAddress(t.recipient)} · {t.scheduleDescription}
@@ -298,15 +261,16 @@ function AutonomousOps({ status, tasks, recipients }) {
               </div>
             </li>
           ))}
-          {list.length + done.length === 0 && (
+          {!tasks && <li className="text-sm text-lilac-deep">Loading automatic payments…</li>}
+          {tasks && list.length + done.length === 0 && (
             <li className="rounded-2xl bg-white/50 px-4 py-4 text-[13px] text-lilac-deep">
-              No grants yet. Ask the agent to schedule a payment, then sign its bounded grant; runs within your auto-approval limit execute with no further signature.
+              No automatic payments yet. Set a limit and authorize your first payment schedule on the Automations page.
             </li>
           )}
         </ul>
         <div className="flex items-center justify-between text-[12px] text-lilac-deep">
-          <span>{lastTick ? `Scheduler tick ${formatTimeAgo(Math.floor(lastTick / 1000))}` : 'Scheduler has not ticked yet'}</span>
-          <Link to="/automation" className="font-semibold text-ink inline-flex items-center gap-1 hover:gap-2 transition-all">Automation <Icon name="arrow_forward" className="text-[16px]" /></Link>
+          <span>{judgeSite ? 'Process due payments on the Automations page.' : lastTick ? 'Last checked '+formatTimeAgo(Math.floor(lastTick / 1000)) : 'No schedules processed yet.'}</span>
+          <Link to="/automation" className="font-semibold text-ink inline-flex items-center gap-1 hover:gap-2 transition-all">Manage automations <Icon name="arrow_forward" className="text-[16px]" /></Link>
         </div>
       </CardContent>
     </Card>
@@ -320,32 +284,32 @@ function RecentTransactions({ txs, config }) {
   return (
     <Card>
       <CardHeader
-        eyebrow="Verified history"
-        title="Transactions"
-        subtitle="From mined receipts and contract events only."
-        action={<LinkButton to="/transactions" size="sm">All</LinkButton>}
+        eyebrow="Verified payment history"
+        title="Recent activity"
+        subtitle="Payments and wallet updates, backed by real receipts."
+        action={<LinkButton to="/transactions" size="sm">View history</LinkButton>}
       />
       <CardContent className="pt-3">
         {!txs && <div className="text-[13px] text-slate-500">Loading…</div>}
-        {txs?.length === 0 && <div className="text-[13px] text-slate-500">No transactions yet.</div>}
+        {txs?.length === 0 && <div className="text-[13px] text-slate-500">No payments sent yet. Your first confirmed payment will appear here.</div>}
         <ul className="divide-y divide-slate-100">
           {txs?.slice(0, 6).map((t) => {
-            const ev = t.events[0];
+            const ev = t.events.find(e => e.name === 'TransferExecuted') || t.events[0];
             return (
               <li key={t.txHash} className="flex items-center gap-3.5 py-3">
                 <span className={`w-9 h-9 shrink-0 rounded-full flex items-center justify-center ${t.status === 'FAILED' ? 'bg-blush text-blush-deep' : ev?.name === 'TransferExecuted' ? 'bg-sky text-sky-deep' : 'bg-slate-100 text-slate-700'}`}>
                   <Icon name={t.status === 'FAILED' ? 'error' : EVENT_ICON[ev?.name] || 'receipt_long'} className="text-[18px]" />
                 </span>
                 <div className="min-w-0 flex-1">
-                  <div className="text-[13.5px] font-semibold truncate">{ev ? describeEvent(ev, config.tokens) : t.execution?.errorCode || 'Transaction'}</div>
+                  <div className="text-[13.5px] font-semibold break-words">{ev ? describeEvent(ev, config.tokens) : t.status === 'FAILED' ? 'Payment failed' : 'Payment in progress'}</div>
                   <div className="text-[11.5px] text-slate-500 font-mono truncate">
-                    block {t.blockNumber ?? 'pending'} · {t.blockTimestamp ? formatTimeAgo(t.blockTimestamp) : '—'}
+                    {t.status === 'CONFIRMED' ? 'Confirmed' : t.status === 'FAILED' ? 'Failed' : 'Pending'} · {t.blockTimestamp ? formatTimeAgo(t.blockTimestamp) : 'Time unavailable'}
                     {t.events.length > 1 ? ` · +${t.events.length - 1} event${t.events.length > 2 ? 's' : ''}` : ''}
                   </div>
                 </div>
                 {t.explorerUrl ? (
                   <a href={t.explorerUrl} target="_blank" rel="noreferrer" className="shrink-0 inline-flex items-center gap-1 rounded-full bg-sky px-2.5 py-1 text-[11px] font-mono font-semibold text-sky-deep hover:bg-[#c5daee]" title={t.txHash}>
-                    {t.txHash.slice(0, 8)}… <Icon name="open_in_new" className="text-[13px]" />
+                    View receipt <Icon name="open_in_new" className="text-[13px]" />
                   </a>
                 ) : (
                   <span className="shrink-0 rounded-full bg-butter sim-hatch px-2.5 py-1 text-[11px] font-mono font-semibold text-butter-deep" title={`${t.txHash} (local chain, no public explorer)`}>
@@ -363,17 +327,19 @@ function RecentTransactions({ txs, config }) {
 
 // ---------------------------------------------------------------------------------------- rail
 
-function KillSwitch({ state, status }) {
+function KillSwitch({ state, status, demoStatus }) {
+  const { isDemo, isOwner, judgeSite } = useApp();
   if (!state) return null;
   const rows = [
-    ['Contract', !state.paused, state.paused ? 'Paused on-chain' : 'Active'],
-    ['Agent key', state.executorIsOnChainAgent, state.executorIsOnChainAgent ? 'Authorized executor' : 'Not the on-chain agent'],
-    ['Off-chain agent', !state.agentPaused?.paused, state.agentPaused?.paused ? 'Paused' : 'Active'],
-    ['Automation', !status?.automation?.paused, status?.automation?.paused ? 'Paused' : 'On'],
+    ...(isDemo && demoStatus ? [['Demo payment access', demoStatus.executionEnabled, demoStatus.executionEnabled ? demoStatus.session?.executionAllowed ? 'Enabled for this session' : 'Invite required' : 'Paused by admin']] : []),
+    ['Wallet payments', !state.paused, state.paused ? 'Paused' : 'Enabled'],
+    ['Payment submitter', state.executorIsOnChainAgent, state.executorIsOnChainAgent ? 'Authorized' : 'Not authorized'],
+    ['AI assistant', !state.agentPaused?.paused, state.agentPaused?.paused ? 'Paused' : 'Available'],
+    ['Automatic payments', !status?.automation?.paused, status?.automation?.paused ? 'Paused' : judgeSite ? 'Page must stay open' : 'Available'],
   ];
   return (
     <Card tone="blush">
-      <CardHeader eyebrow="Emergency" title="Kill switches" />
+      <CardHeader eyebrow="Emergency" title="Emergency controls" />
       <CardContent className="pt-4 space-y-4">
         <ul className="space-y-2">
           {rows.map(([label, ok, text]) => (
@@ -384,9 +350,9 @@ function KillSwitch({ state, status }) {
           ))}
         </ul>
         <p className="text-[12px] text-blush-deep leading-snug">
-          Pause stops every transfer at the contract. Emergency stop also revokes the agent key in the same transaction. Both are owner-signed in your wallet.
+          Pause blocks new payments. Emergency stop also removes the AI's permission to submit payments. {isDemo ? 'Only the team admin can stop this shared demo wallet.' : 'Only the wallet owner can change these controls.'}
         </p>
-        <LinkButton to="/controls" variant="primary" icon="emergency_home" className="w-full">Open emergency controls</LinkButton>
+        <LinkButton to="/controls" variant="primary" icon="emergency_home" className="w-full">{isOwner ? 'Manage emergency controls' : 'View safety controls'}</LinkButton>
       </CardContent>
     </Card>
   );
@@ -397,8 +363,8 @@ function ActivityRail({ log, verify }) {
     <Card className="flex flex-col">
       <CardHeader
         eyebrow="Audit trail"
-        title="Live activity"
-        badge={verify ? verify.valid ? <Badge variant="success">Chain valid</Badge> : <Badge variant="error">Broken at #{verify.brokenAt}</Badge> : null}
+        title="Activity record integrity"
+        badge={verify ? verify.valid ? <Badge variant="success">Verified</Badge> : <Badge variant="error">Broken at #{verify.brokenAt}</Badge> : null}
       />
       <CardContent className="pt-4">
         {!log && <div className="text-[13px] text-slate-500">Loading…</div>}
@@ -428,109 +394,45 @@ function ActivityRail({ log, verify }) {
 // ---------------------------------------------------------------------------------------- page
 
 export function Overview() {
-  const { config } = useApp();
-  const wallet = useWalletState();
-  const status = useAgentStatus();
-  const recipients = useRecipients();
+  const { config, isDemo, isOwner } = useApp();
+  const wallet = useWalletState(), status = useAgentStatus(), recipients = useRecipients();
   const active = useProposals('AWAITING_APPROVAL,APPROVED,SUBMITTED');
-  const recent = useProposals(null, 8000);
-  const txs = useTransactions();
-  const log = useAuditLog();
-  const verify = useAuditVerify();
-  const tasks = useTasks();
-  const policy = usePolicy();
-  const portfolio = usePortfolio();
-  const s = wallet.data;
-  const transfers = txs.data?.filter((t) => t.events.some((e) => e.name === 'TransferExecuted')).length;
-  const runway = portfolio.data?.exposure?.executorTxRunway;
-  const runwayText = runway === undefined || runway === null ? '—' : new Intl.NumberFormat('en', { notation: 'compact', maximumFractionDigits: 1 }).format(runway);
-
-  return (
-    <div className="space-y-8">
-      <PageHeader
-        eyebrow={`Treasury command${s ? ` · ${config.networkName} · block ${s.blockNumber}` : ''}`}
-        title={<>Treasury, <span className="text-tertiary">on policy.</span></>}
-        actions={
-          <>
-            <LinkButton to="/agent" variant="primary" icon="smart_toy">Ask the agent</LinkButton>
-            <LinkButton to="/proposals" icon="add">New proposal</LinkButton>
-          </>
-        }
-      >
-        An AI agent drafts and schedules payments. You authorize them with a signature, and the smart contract enforces the allowlist and spending caps on every transfer.
-      </PageHeader>
-
-      {wallet.error && <Alert variant="error" title="Wallet state unavailable">{describeError(wallet.error)}</Alert>}
-
-      <div className="grid xl:grid-cols-[minmax(0,1fr)_360px] gap-5">
-        <div className="space-y-5 min-w-0">
-          <div className="grid md:grid-cols-2 gap-5">
-            <TreasuryCard state={s} config={config} />
-            <div className="grid grid-cols-2 gap-5">
-              <StatTile tone="butter" icon="pending_actions" label="Awaiting approval" value={status.data?.pendingApprovals ?? '—'} hint="Need your EIP-712 signature" to="/proposals" />
-              <StatTile tone="sky" icon="north_east" label="Agent transfers" value={transfers ?? '—'} hint="Confirmed, from receipts" to="/transactions" />
-              <StatTile tone="lilac" icon="verified" label="Audit chain" value={verify.data ? (verify.data.valid ? 'Valid' : 'Broken') : '—'} hint={verify.data ? `${verify.data.entries} hash-linked entries` : 'Verifying…'} to="/audit" />
-              <StatTile
-                tone="white"
-                icon="local_gas_station"
-                label="Gas runway"
-                value={runwayText}
-                hint={s ? `transfers · ${s.executorBalanceEth === null ? '—' : `${formatAmount(s.executorBalanceEth, 5)} ETH`} at ${formatGas(s.gasPriceGwei)}` : ''}
-                to="/portfolio"
-              />
-            </div>
-          </div>
-
-          <CommandCenter status={status.data} />
-
-          <div className="grid lg:grid-cols-2 gap-5">
-            <RiskEngine state={s} policy={policy.data} proposals={recent.data} recipients={recipients.data} />
-            <AutonomousOps status={status.data} tasks={tasks.data} recipients={recipients.data} />
-          </div>
-
-          <section aria-labelledby="approvals-heading" className="space-y-4">
-            <div className="flex items-end justify-between gap-3 pt-2">
-              <div>
-                <div className="eyebrow text-slate-500 mb-1.5">Owner authorization</div>
-                <h2 id="approvals-heading" className="text-[34px] sm:text-[40px] leading-none">Needs attention</h2>
-              </div>
-              <Link to="/proposals" className="text-[13px] font-semibold inline-flex items-center gap-1 hover:gap-2 transition-all">
-                All proposals <Icon name="arrow_forward" className="text-[16px]" />
-              </Link>
-            </div>
-            {active.data?.length ? (
-              <div className="space-y-4">
-                {active.data.map((p) => (
-                  <ProposalCard
-                    key={p.id}
-                    proposal={p}
-                    recipientLabel={labelFor(recipients.data, p.recipient)}
-                    onChanged={() => {
-                      active.refresh();
-                      wallet.refresh();
-                    }}
-                  />
-                ))}
-              </div>
-            ) : (
-              <Card tone="canvas" className="p-7 flex flex-wrap items-center gap-4 shadow-none ring-1 ring-inset ring-slate-200">
-                <span className="w-11 h-11 rounded-full bg-mint text-mint-deep flex items-center justify-center"><Icon name="done_all" /></span>
-                <div className="flex-1 min-w-[200px]">
-                  <div className="font-bold">Nothing is awaiting approval or executing.</div>
-                  <div className="text-[13px] text-slate-500">Create a transfer intent on the Proposals page, or ask the agent to draft one.</div>
-                </div>
-              </Card>
-            )}
-          </section>
-
-          <RecentTransactions txs={txs.data} config={config} />
-        </div>
-
-        <aside className="space-y-5 xl:sticky xl:top-24 self-start min-w-0">
-          <KillSwitch state={s} status={status.data} />
-          <ActivityRail log={log.data} verify={verify.data} />
-        </aside>
-      </div>
+  const txs = useTransactions(), log = useAuditLog(), verify = useAuditVerify(), tasks = useTasks(), policy = usePolicy();
+  const demoStatus = usePolling(() => get('/sandbox-status'),15000,[],{enabled:isDemo});
+  const state = wallet.data;
+  const pending = active.data?.filter(p => p.status==='AWAITING_APPROVAL');
+  const completed = txs.data?.filter(t => t.status==='CONFIRMED' && t.events.some(e => e.name==='TransferExecuted'));
+  return <div className="space-y-6 sm:space-y-8">
+    <PageHeader eyebrow={isDemo ? 'Your demo wallet' : 'Your wallet'} title={<>Your money,<br/><span className="text-tertiary">under your control.</span></>} actions={<LinkButton to="/controls" variant="secondary" icon="shield_lock">Safety controls</LinkButton>}>
+      Tell your AI what you need. Review payments, set spending rules, and track everything in one place.
+    </PageHeader>
+    {wallet.error && <LoadNotice message="We couldn't load your balance." error={wallet.error} retry={wallet.refresh} />}
+    <div className="grid xl:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] gap-5 items-stretch">
+      <TreasuryCard state={state} config={config} />
+      <CommandCenter status={status.data} />
     </div>
-  );
+    <section aria-label="Important payment activity" className="grid sm:grid-cols-2 gap-5">
+      <StatTile tone="butter" icon="pending_actions" label="Payments to review" value={pending?.length ?? '—'} hint={pending ? pending.length ? 'Review the details before you approve a payment.' : "You're all caught up. No payments need your approval." : 'Loading payments…'} to="/proposals" action="View payments" />
+      <StatTile tone="sky" icon="check_circle" label="Payments completed" value={completed?.length ?? '—'} hint={completed ? 'Confirmed transfers from this wallet. Historical evidence is separate.' : 'Loading confirmed payments…'} to="/transactions" action="View history" />
+    </section>
+    {(active.error || txs.error) && <LoadNotice message="We couldn't load your recent payments." error={active.error || txs.error} retry={() => {active.refresh();txs.refresh();}} />}
+    {pending?.length > 0 && <section aria-labelledby="approvals-heading" className="space-y-4"><h2 id="approvals-heading" className="text-3xl">Ready for your review</h2>{pending.slice(0,2).map(p => <ProposalCard key={p.id} proposal={p} recipientLabel={labelFor(recipients.data,p.recipient)} onChanged={() => {active.refresh();wallet.refresh();}} />)}{pending.length>2 && <LinkButton to="/proposals">View all payments</LinkButton>}</section>}
+    <div className="grid lg:grid-cols-2 gap-5">
+      <RiskEngine state={state} policy={policy.data} demoStatus={demoStatus.data} />
+      <AutonomousOps status={status.data} tasks={tasks.data} recipients={recipients.data} />
+    </div>
+    <RecentTransactions txs={txs.data} config={config} />
+    <div className="grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-5 items-start">
+      <KillSwitch state={state} status={status.data} demoStatus={demoStatus.data} />
+      <details className="technical-details sm:p-6"><summary>Technical details & activity integrity</summary><div className="space-y-4">
+        <dl className="text-sm space-y-3"><div><dt className="text-slate-600">Transaction fee balance</dt><dd className="font-semibold">{state?.executorBalanceEth != null ? formatAmount(state.executorBalanceEth,8)+' ETH' : 'Unavailable'}</dd><dd className="text-xs text-slate-600">Pays network fees; separate from the available wallet balance.</dd></div><div><dt className="text-slate-600">Network</dt><dd>{config?.networkName} · {config?.chainId}</dd></div></dl>
+        <ActivityRail log={log.data} verify={verify.data} />
+        <div className="flex flex-wrap gap-3"><Link to="/portfolio" className="underline font-semibold text-sm">Portfolio</Link><Link to="/audit" className="underline font-semibold text-sm">Activity log</Link><Link to="/security" className="underline font-semibold text-sm">Wallet settings</Link></div>
+      </div></details>
+    </div>
+  </div>;
+}
+
+function LoadNotice({ message, error, retry }) {
+  return <Alert variant="warning" title={message}><div className="flex flex-wrap gap-3 items-center"><span>The service may be waking up. Try again in a moment.</span><Button size="sm" variant="secondary" onClick={retry}>Try again</Button></div><details className="mt-3 text-xs"><summary className="cursor-pointer">Technical details</summary>{describeError(error)}</details></Alert>;
 }

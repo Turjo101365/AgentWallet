@@ -21,7 +21,7 @@ function toUnits(value, decimals) {
 }
 
 export function Treasury() {
-  const { config, isOwner, account } = useApp();
+  const { config, isOwner, account, isDemo } = useApp();
   const wallet = useWalletState();
   const tx = useOwnerTx();
   const [depositToken, setDepositToken] = useState(config.tokens[0].address);
@@ -72,13 +72,14 @@ export function Treasury() {
 
   return (
     <div className="space-y-6">
-      <PageHeader eyebrow="Contract treasury" title="Treasury">
-        Fund the contract, or withdraw as the owner. Owner withdrawals are not limited by agent caps; emergency withdrawal needs the contract paused first.
+      <PageHeader eyebrow="Your wallet" title="Balance & funding">
+        {isDemo ? 'Shared Sepolia test funds managed by the team. You do not need to deposit funds to explore this demo.' : 'Add funds to your wallet or, as its owner, withdraw them. These are wallet-signed transactions.'}
       </PageHeader>
       <BalancesCard state={wallet.data} />
       <TxStatus tx={tx} />
       {formError && <Alert variant="error">{formError}</Alert>}
-      <div className="grid lg:grid-cols-2 gap-6">
+      {isDemo && <Alert title="Demo funds — not personal custody">Only the team manages funding and withdrawals for the shared wallet. Ask for an invite to make a small approved test payment.</Alert>}
+      {!isDemo && <div className="grid lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader title="Deposit" subtitle="Anyone can fund the contract. Signed in your wallet." />
           <CardContent>
@@ -114,7 +115,7 @@ export function Treasury() {
             </form>
           </CardContent>
         </Card>
-      </div>
+      </div>}
     </div>
   );
 }
