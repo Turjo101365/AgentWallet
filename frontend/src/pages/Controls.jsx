@@ -22,8 +22,8 @@ function LimitRow({ token, onSave, disabled }) {
   return (
     <div className="grid grid-cols-12 gap-3 items-end text-xs py-3 border-b border-slate-100 last:border-0">
       <div className="col-span-12 sm:col-span-2 font-semibold font-mono">{token.symbol}</div>
-      <label className="col-span-5 sm:col-span-3 space-y-1 text-slate-500"><span>Per-tx cap</span><input className={input} value={perTx} onChange={(e) => setPerTx(e.target.value)} /></label>
-      <label className="col-span-5 sm:col-span-3 space-y-1 text-slate-500"><span>Daily cap</span><input className={input} value={daily} onChange={(e) => setDaily(e.target.value)} /></label>
+      <label className="col-span-5 sm:col-span-3 space-y-1 text-slate-500"><span>Per payment</span><input className={input} value={perTx} onChange={(e) => setPerTx(e.target.value)} /></label>
+      <label className="col-span-5 sm:col-span-3 space-y-1 text-slate-500"><span>Per day</span><input className={input} value={daily} onChange={(e) => setDaily(e.target.value)} /></label>
       <label className="col-span-2 sm:col-span-2 flex items-center gap-1.5 text-slate-600 pb-2"><input type="checkbox" checked={enabled} onChange={(e) => setEnabled(e.target.checked)} /> on</label>
       <div className="col-span-12 sm:col-span-2"><Button size="sm" disabled={disabled} onClick={() => onSave(token, perTx, daily, enabled)}>Save</Button></div>
     </div>
@@ -31,7 +31,7 @@ function LimitRow({ token, onSave, disabled }) {
 }
 
 export function Controls() {
-  const { config, isOwner } = useApp();
+  const { config, isOwner, isDemo } = useApp();
   const wallet = useWalletState();
   const recipients = useRecipients();
   const tx = useOwnerTx();
@@ -91,13 +91,13 @@ export function Controls() {
     }
   }
 
-  if (!s) return <div className="text-sm text-slate-500">Loading on-chain state…</div>;
+  if (!s) return wallet.error ? <Alert variant="warning" title="We couldn’t load your security controls"><Button variant="secondary" onClick={wallet.refresh}>Try again</Button></Alert> : <div role="status" className="text-sm text-slate-500">Loading security controls…</div>;
   return (
     <div className="space-y-6">
-      <PageHeader eyebrow="Risk engine · owner-signed" title="Risk controls">
-        On-chain controls are owner transactions signed in your wallet and enforced by the contract.
+      <PageHeader eyebrow="Spending rules & emergency controls" title="Security">
+        See how your funds are protected. Only an authorized owner or team admin can change limits or stop payments.
       </PageHeader>
-      {!isOwner && <Alert variant="warning">You are signed in as a viewer. Only the contract owner ({truncateAddress(s.owner)}) can change controls.</Alert>}
+      {!isOwner && <Alert variant="warning">{isDemo ? 'These shared demo controls are read-only. The team admin can manage limits and emergency controls from Owner / Admin.' : 'Only the wallet owner can change these controls.'}</Alert>}
       <TxStatus tx={tx} />
       {error && <Alert variant="error">{error}</Alert>}
 
@@ -151,23 +151,23 @@ export function Controls() {
       </Card>
 
       <Card>
-        <CardHeader title="Recipient allowlist" subtitle="The agent can only pay these addresses (checked on-chain)" />
+        <CardHeader title="Approved recipients" subtitle="The agent can only pay these addresses (checked on-chain)" />
         <CardContent className="space-y-3">
           {recipients.data?.map((r) => (
             <div key={r.address} className="flex flex-wrap items-center justify-between gap-2 text-xs border-b border-slate-50 pb-2">
-              <span className="font-mono">{r.address}</span>
+              <span className="font-mono break-all">{r.address}</span>
               <span className="text-slate-500">{r.label || 'no label'}</span>
               <Button size="sm" variant="danger" disabled={busy} onClick={() => tx.send(`Remove ${truncateAddress(r.address)}`, ({ wallet: w }) => w.setRecipient(r.address, false)).then(done)}>
                 Remove
               </Button>
             </div>
           ))}
-          {recipients.data?.length === 0 && <div className="text-xs text-slate-500">No allowlisted recipients.</div>}
-          <form onSubmit={addRecipient} className="grid sm:grid-cols-5 gap-2">
+          {recipients.data?.length === 0 && <div className="text-xs text-slate-500">No approved recipients yet.</div>}
+          {isOwner && <form onSubmit={addRecipient} className="grid sm:grid-cols-5 gap-2">
             <input className={`${input} sm:col-span-3`} placeholder="0x… recipient" value={newRecipient} onChange={(e) => setNewRecipient(e.target.value)} />
             <input className={input} placeholder="Label" maxLength={80} value={newLabel} onChange={(e) => setNewLabel(e.target.value)} />
             <Button type="submit" disabled={busy}>Add</Button>
-          </form>
+          </form>}
         </CardContent>
       </Card>
 
@@ -180,7 +180,7 @@ export function Controls() {
           </div>
           <div>Backend executor: <span className="font-mono">{config.executorAddress || 'not configured'}</span></div>
           <div className="flex flex-wrap gap-2">
-            <input className={`${input} max-w-md`} placeholder="New agent 0x…" value={newAgent} onChange={(e) => setNewAgent(e.target.value)} />
+            <input className={`${input} max-w-md`} disabled={!isOwner} aria-label="New agent address" placeholder="New agent 0x…" value={newAgent} onChange={(e) => setNewAgent(e.target.value)} />
             <Button disabled={busy || !isAddress(newAgent)} onClick={() => tx.send('Set agent', ({ wallet: w }) => w.setAgent(newAgent)).then(done)}>Set agent</Button>
             <Button variant="danger" disabled={busy} onClick={() => tx.send('Revoke agent', ({ wallet: w }) => w.revokeAgent()).then(done)}>Revoke agent</Button>
           </div>

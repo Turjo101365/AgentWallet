@@ -82,6 +82,6 @@ test('mobile guide is usable without a wallet or horizontal page overflow', asyn
   await expect(page.getByRole('heading', { name: 'Judge quick start' })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await page.screenshot({ path: path.join(root, 'frontend/test-results/judge-mobile-guide.png'), fullPage: true });
-  await page.getByRole('link', { name: 'Overview', exact: true }).click();
+  await page.getByRole('link', { name: 'Home', exact: true }).click();
   await expect(page.getByRole('heading', { name: /The AI plans/ })).toBeVisible();
 });

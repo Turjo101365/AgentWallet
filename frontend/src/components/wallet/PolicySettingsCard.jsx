@@ -79,7 +79,7 @@ export function PolicySettingsCard() {
 
   return (
     <Card>
-      <CardHeader title="Policy settings" subtitle="Enforced by the backend risk engine before anything is signed. The AI agent can only tighten these." />
+      <CardHeader title="Additional spending safeguards" subtitle="Extra server-side safety checks, separate from contract-enforced limits." />
       <CardContent className="space-y-4 text-xs">
         <table className="w-full">
           <thead><tr className="text-left text-[10px] uppercase text-slate-400"><th className="py-1">Asset</th><th>Reserve floor</th><th>Auto-approve task runs up to</th><th>Hourly autonomous outflow cap</th></tr></thead>
@@ -108,7 +108,7 @@ export function PolicySettingsCard() {
         )}
         {error && <Alert variant="error">{error}</Alert>}
         {saved && <Alert variant="info">Saved and recorded in the audit log.</Alert>}
-        <div className="flex justify-end"><Button size="sm" disabled={!isOwner} onClick={() => save(false)}>Save policy</Button></div>
+        {isOwner && <div className="flex justify-end"><Button size="sm" onClick={() => save(false)}>Save safeguards</Button></div>}
       </CardContent>
     </Card>
   );

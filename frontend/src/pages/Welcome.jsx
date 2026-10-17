@@ -69,18 +69,18 @@ export function Welcome() {
           <form onSubmit={enter} className="max-w-6xl mx-auto space-y-10 animate-rise">
             <div className="max-w-3xl">
               <div className="eyebrow text-slate-500 mb-3">FinTechathon · Ethereum Sepolia testnet · no account needed</div>
-              <h1 className="text-[44px] sm:text-[72px] leading-[0.95] text-ink">The AI plans.<br />You authorize.<br /><span className="text-tertiary">The contract enforces.</span></h1>
-              <p className="text-slate-600 mt-5 text-base leading-relaxed max-w-2xl">Ask the agent to prepare a payment, review its risk checks, then authorize a bounded transaction on a live Sepolia sandbox and inspect the verified receipt.</p>
+              <h1 className="text-[44px] sm:text-[72px] leading-[0.95] text-ink">Your money,<br /><span className="text-tertiary">under your control.</span></h1>
+              <p className="text-slate-600 mt-5 text-base leading-relaxed max-w-2xl">Tell your AI what you need. Review payments, set spending rules, and track everything in one place. This demo uses Sepolia test ETH, not real money.</p>
             </div>
 
             <section aria-labelledby="role-heading" className="space-y-4">
               <h2 id="role-heading" className="eyebrow text-slate-500">1 · Who are you?</h2>
               <div className="grid md:grid-cols-2 gap-4">
                 <Choice icon="gavel" title="Judge" selected={role === 'judge'} onClick={() => setRole('judge')} badge="no sign-up">
-                  Explore the dashboard, the AI agent, risk analysis and evidence. Run live sandbox transactions with the demo wallet or your own wallet.
+                  Explore payments, your AI assistant and security evidence without an account. Use an invite for small live test payments.
                 </Choice>
                 <Choice icon="admin_panel_settings" title="Owner / Admin" selected={role === 'admin'} onClick={() => setRole('admin')}>
-                  Sign in with your wallet (SIWE). The server checks its admin allowlist before showing demo access, limits and emergency controls.
+                  Sign in with your approved wallet to manage demo access, spending limits and emergency controls. Your role is verified by the server.
                 </Choice>
               </div>
             </section>
@@ -90,10 +90,10 @@ export function Welcome() {
                 <h2 id="wallet-heading" className="eyebrow text-slate-500">2 · Which wallet?</h2>
                 <div className="grid md:grid-cols-2 gap-4">
                   <Choice icon="toll" title="Use demo wallet" selected={wallet === 'demo'} onClick={() => setWallet('demo')} badge="default">
-                    No MetaMask or test ETH needed. A dedicated Sepolia sandbox whose keys stay on the server. You confirm each payment; the sandbox demo key signs it for you.
+                    No MetaMask or test ETH needed. Use shared test funds managed by the team. You confirm a payment; the backend-controlled demo wallet signs it.
                   </Choice>
                   <Choice icon="account_balance_wallet" title="Connect my own wallet" selected={wallet === 'personal'} onClick={() => setWallet('personal')}>
-                    MetaMask-compatible wallet on Sepolia. You sign in with SIWE and sign every approval yourself (EIP-712). Never share a private key.
+                    Use a MetaMask-compatible wallet on Sepolia and a separate registered sandbox you own. You sign approvals in your wallet. Never share a private key.
                   </Choice>
                 </div>
               </section>

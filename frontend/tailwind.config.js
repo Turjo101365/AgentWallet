@@ -1,5 +1,5 @@
 /** @type {import('tailwindcss').Config} */
-// Design language: dark frame, soft neutral canvas, white and pastel bento cards, big serif display type.
+// Design language: dark frame, warm canvas, pastel cards and editorial Inter Tight typography.
 // `slate` is remapped to a warm neutral scale so every existing page picks up the new palette.
 const neutral = {
   50: '#f6f6f2',
@@ -52,8 +52,8 @@ export default {
         background: '#ecece6',
       },
       fontFamily: {
-        display: ["'Faculty Glyphic'", 'Georgia', 'serif'],
-        sans: ["'Fustat'", "'Inter'", 'system-ui', 'sans-serif'],
+        display: ["'Inter Tight'", "'Inter'", 'system-ui', 'sans-serif'],
+        sans: ["'Inter Tight'", "'Inter'", 'system-ui', 'sans-serif'],
         mono: ["'JetBrains Mono'", 'ui-monospace', 'monospace'],
       },
       borderRadius: {

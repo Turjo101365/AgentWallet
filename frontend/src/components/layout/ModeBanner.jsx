@@ -13,7 +13,7 @@ export function ModeBanner() {
   if (mode.role === 'admin') {
     return (
       <Strip icon="admin_panel_settings" title="Owner / Admin" onSwitch={resetMode}>
-        Access is decided by the server: a wallet signature (SIWE) from an address on its admin allowlist.
+        Sign in with an approved wallet to manage access and safety controls. The server verifies your permissions.
       </Strip>
     );
   }
@@ -25,19 +25,16 @@ export function ModeBanner() {
     );
   }
   return (
-    <Strip icon="toll" title="Demo wallet · Sepolia sandbox" onSwitch={resetMode} testId="demo-mode-banner">
+    <Strip icon="toll" title="Demo Wallet · Sepolia test ETH" onSwitch={resetMode} testId="demo-mode-banner">
       {s ? (
         <>
-          Contract <a className="underline font-mono" href={s.sandbox.contractUrl} target="_blank" rel="noreferrer">{truncateAddress(s.sandbox.contract)}</a> · keys held by the server
-          {' · '}
           {s.session?.executionAllowed
-            ? <strong>live transactions on · {s.session.txRemaining} left this session</strong>
-            : <strong>explore mode · invite needed for live transactions</strong>}
-          {!s.executionEnabled && <strong> · live execution paused by the admin</strong>}
-          {' · '}max {s.limits.maxAmountEth} ETH per payment
+            ? <span>Live payment access · {s.session.txRemaining} left this session.</span>
+            : <span>Explore freely. Ask the team for an invite to send test payments.</span>}
+          {!s.executionEnabled && <strong> Payments are paused by the admin.</strong>}
+          <details className="mt-1"><summary className="cursor-pointer text-xs text-slate-600">Demo details & evidence labels</summary><p className="mt-2">Shared test funds, not real money. The backend-controlled demo wallet signs after you confirm. Max {s.limits.maxAmountEth} ETH per payment.</p><a className="underline font-mono break-all" href={s.sandbox.contractUrl} target="_blank" rel="noreferrer">{s.sandbox.contract}</a><p>LIVE: real Sepolia transactions. SIMULATED: a safety dry run, nothing sent. HISTORICAL: the preserved run under Evidence.</p></details>
         </>
       ) : 'Loading sandbox status…'}
-      <span className="block opacity-80 mt-0.5">LIVE = real Sepolia transactions in this sandbox · SIMULATED = pre-flight dry run, nothing sent · HISTORICAL = the frozen public run under Evidence.</span>
     </Strip>
   );
 }

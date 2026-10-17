@@ -24,19 +24,22 @@ function DemoAutomation() {
   const run=async()=>{if(running.current)return;running.current=true;try{await post('/automation/run-due',{});tasks.refresh();}catch(e){setError(describeError(e));}finally{running.current=false;}};
   useEffect(()=>{if(!active||!demo?.executionAllowed)return;const timer=setInterval(run,10000);return()=>clearInterval(timer);},[active,demo?.executionAllowed]);
   const act=async(fn)=>{try{setError(null);await fn();tasks.refresh();}catch(e){setError(describeError(e));}};
-  return <div className="space-y-5"><PageHeader title="Bounded demo automation" eyebrow="Explicit grant confirmation">Each grant permits at most two payments, 30 seconds apart, for ten minutes. While this page is open, authenticated requests process eligible grants. No unrestricted background worker runs.</PageHeader>
-    <Card><CardContent className="space-y-3"><input aria-label="Grant amount ETH" className="field" value={amount} onChange={(e)=>setAmount(e.target.value)}/>
-      <select aria-label="Grant recipient" className="field" value={recipient} onChange={(e)=>setRecipient(e.target.value)}><option value="">Select allowlisted recipient</option>{(recipients.data||[]).map((r)=><option key={r.address} value={r.address}>{r.label||r.address}</option>)}</select>
-      <Button onClick={()=>act(()=>post('/tasks',{amount,recipient}))}>Draft two-payment grant</Button>
+  return <div className="space-y-5"><PageHeader title="Automatic payments" eyebrow="You set the limits">Let your AI complete approved payments within the limits you set. Demo permissions allow up to two payments, 30 seconds apart, and expire after ten minutes. Keep this page open to process due payments; this free demo does not run unattended.</PageHeader>
+    <Card><CardHeader title="Set up an automatic payment" subtitle="Choose who to pay and how much each payment may send."/><CardContent className="space-y-3"><label className="block text-sm font-semibold">Amount per payment (ETH)<input aria-label="Grant amount ETH" inputMode="decimal" className="field mt-1" value={amount} onChange={(e)=>setAmount(e.target.value)}/></label>
+      <label className="block text-sm font-semibold">Approved recipient<select aria-label="Grant recipient" className="field" value={recipient} onChange={(e)=>setRecipient(e.target.value)}><option value="">Select approved recipient</option>{(recipients.data||[]).map((r)=><option key={r.address} value={r.address}>{r.label||r.address}</option>)}</select></label>
+      <Button onClick={()=>act(()=>post('/tasks',{amount,recipient}))}>Prepare automatic payment</Button>
     </CardContent></Card>
-    {error&&<Alert variant="error">{error}</Alert>}
-    {(tasks.data||[]).map((t)=><Card key={t.id}><CardContent className="space-y-3"><h2 className="text-xl">{t.amountFormatted} ETH × {t.maxRuns} → {truncateAddress(t.recipient)}</h2><p>{t.status} · expires {formatDateTime(t.validUntil)} · {t.runsCount} runs</p>
-      <p className="text-sm">Demo authorization: you confirm the exact grant; the server-held demo owner key signs EIP-712. Your personal wallet does not sign.</p>
-      {t.status==='PENDING_AUTHORIZATION'&&<Button disabled={!demo?.executionAllowed} onClick={()=>window.confirm(`Authorize up to TWO ${t.amountFormatted} ETH payments to ${t.recipient} until ${formatDateTime(t.validUntil)} using the server demo key?`)&&act(()=>post('/tasks/'+t.id+'/confirm-grant',{confirm:true,digest:t.grantDigest}))}>Confirm bounded demo grant</Button>}
-      {['ACTIVE','PAUSED'].includes(t.status)&&<Button variant="danger" onClick={()=>act(()=>post('/tasks/'+t.id+'/revoke-demo',{}))}>Revoke my demo grant</Button>}
+    {error&&<Alert variant="error" title="We couldn’t complete that action"><details className="text-xs"><summary className="cursor-pointer">Technical details</summary>{error}</details></Alert>}
+    {!tasks.data && !tasks.error && <p role="status" className="text-sm text-slate-600">Loading automatic payments…</p>}
+    {tasks.data?.length===0 && <Card tone="lilac"><CardContent><h2 className="text-xl">No automatic payments yet</h2><p className="mt-2 text-sm">Set a spending limit and authorize your first schedule. No payment runs before you approve it.</p></CardContent></Card>}
+    {!demo?.executionAllowed && <Alert title="Invite needed to send payments">You can explore here. Ask the team for a live-demo invite before authorizing an automatic payment.</Alert>}
+    {(tasks.data||[]).map((t)=><Card key={t.id}><CardContent className="space-y-3"><h2 className="text-xl">{t.amountFormatted} ETH × {t.maxRuns} → {truncateAddress(t.recipient)}</h2><p className="text-sm">{t.status==='PENDING_AUTHORIZATION'?'Needs your approval':t.status.toLowerCase().replace(/_/g,' ')} · expires {formatDateTime(t.validUntil)} · {t.runsCount} payments processed</p><details className="technical-details"><summary>Authorization details</summary><p className="font-mono text-xs break-all">EIP-712 grant: {t.grantDigest || 'Not signed yet'}</p><p>Up to {t.maxRuns} payments. Each payment remains subject to spending and fee limits.</p></details>
+      <p className="text-sm">You confirm the payment limit and recipient; the backend-controlled demo wallet signs the permission. Your personal wallet does not sign.</p>
+      {t.status==='PENDING_AUTHORIZATION'&&<Button disabled={!demo?.executionAllowed} onClick={()=>window.confirm(`Authorize up to TWO ${t.amountFormatted} ETH payments to ${t.recipient} until ${formatDateTime(t.validUntil)} using the server demo key?`)&&act(()=>post('/tasks/'+t.id+'/confirm-grant',{confirm:true,digest:t.grantDigest}))}>Authorize these payments</Button>}
+      {['ACTIVE','PAUSED'].includes(t.status)&&<Button variant="danger" onClick={()=>act(()=>post('/tasks/'+t.id+'/revoke-demo',{}))}>Revoke permission</Button>}
       {(t.runs||[]).map((r)=><div key={r.id} className="text-sm">{r.status} {r.proposalId&&<Link className="underline" to="/proposals">View payment and receipt</Link>}</div>)}
     </CardContent></Card>)}
-    <Button disabled={!demo?.executionAllowed} onClick={run}>Process eligible signed grants now</Button>
+    <Button disabled={!demo?.executionAllowed} onClick={run}>Check for due payments</Button>
   </div>;
 }
 
@@ -80,12 +83,12 @@ function NewTaskForm({ recipients, onCreated }) {
 
   return (
     <Card>
-      <CardHeader title="New scheduled or conditional payment" subtitle="Creates a bounded grant you sign. Nothing runs until it is signed." />
+      <CardHeader title="New scheduled or conditional payment" subtitle="Set clear limits and approve them in your wallet. Nothing runs before authorization." />
       <CardContent>
         <form onSubmit={submit} className="space-y-3 text-xs text-slate-500">
           <div className="grid sm:grid-cols-4 gap-3">
             <label className="space-y-1"><span>Asset</span><select className={input} value={f.token} onChange={set('token')}>{config.tokens.map((t) => <option key={t.address} value={t.address}>{t.symbol}</option>)}</select></label>
-            <label className="space-y-1 sm:col-span-2"><span>Recipient (allowlisted)</span><select className={input} value={f.recipient} onChange={set('recipient')} required><option value="">—</option>{recipients.map((r) => <option key={r.address} value={r.address}>{r.label || r.address}</option>)}</select></label>
+            <label className="space-y-1 sm:col-span-2"><span>Approved recipient</span><select className={input} value={f.recipient} onChange={set('recipient')} required><option value="">—</option>{recipients.map((r) => <option key={r.address} value={r.address}>{r.label || r.address}</option>)}</select></label>
             <label className="space-y-1"><span>Amount per run</span><input className={input} value={f.amount} onChange={set('amount')} placeholder="0.002" required /></label>
           </div>
           <div className="grid sm:grid-cols-4 gap-3">
@@ -228,8 +231,8 @@ export function Automation() {
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow="Autonomous operations"
-        title="Automation"
+        eyebrow="Approved payment schedules"
+        title="Automatic payments"
         actions={
           <>
           {automation.data && (paused ? <Badge variant="error">Automation paused</Badge> : <Badge variant="success">Automation on</Badge>)}
@@ -237,15 +240,15 @@ export function Automation() {
           </>
         }
       >
-        Scheduled, recurring and conditional payments under signed, bounded grants. A signed grant bounds the recipient, amount, run count and validity; runs within your auto-approval limit execute with no further signature.
+        Set the recipient, amount, schedule and total limit. Approve a bounded permission in your wallet before any automatic payment can run. You can pause or revoke it.
       </PageHeader>
       {paused && automation.data?.reason && <Alert variant="warning">Paused: {automation.data.reason} ({automation.data.by})</Alert>}
       {error && <Alert variant="error">{error}</Alert>}
-      {personal&&<Button onClick={()=>post('/automation/run-due',{}).then(()=>tasks.refresh()).catch((e)=>setError(describeError(e)))}>Process eligible owner-signed grants</Button>}
+      {personal&&<Button onClick={()=>post('/automation/run-due',{}).then(()=>tasks.refresh()).catch((e)=>setError(describeError(e)))}>Check for due authorized payments</Button>}
       <NewTaskForm recipients={recipients.data || []} onCreated={() => tasks.refresh()} />
       <div className="space-y-4">
         {tasks.data?.map((t) => <TaskCard key={t.id} task={t} recipients={recipients.data} onChanged={tasks.refresh} />)}
-        {tasks.data?.length === 0 && <div className="text-sm text-slate-500">No tasks yet.</div>}
+        {tasks.data?.length === 0 && <div className="text-sm text-slate-500">No automatic payments yet. Set a limit and authorize your first schedule.</div>}
       </div>
     </div>
   );

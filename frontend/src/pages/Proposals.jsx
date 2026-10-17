@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { Button, LinkButton } from '../components/ui/Button.jsx';
+import { Alert } from '../components/ui/Alert.jsx';
 import { PageHeader } from '../components/ui/Card.jsx';
 import { NewProposalForm } from '../components/proposals/NewProposalForm.jsx';
 import { ProposalCard } from '../components/proposals/ProposalCard.jsx';
@@ -22,11 +24,11 @@ export function Proposals() {
 
   return (
     <div className="space-y-7">
-      <PageHeader eyebrow="Owner authorization" title="Proposals">
-        Every transfer intent with its policy checks and pre-flight simulation. Approving signs exactly this transfer (EIP-712); nothing moves without that signature or a signed task grant.
+      <PageHeader eyebrow="Review & approve" title="Payments" actions={<LinkButton to="/transactions" variant="secondary">View history</LinkButton>}>
+        See what needs your approval, review the recipient and amount, and track confirmed payments. Nothing is sent without the required authorization.
       </PageHeader>
       {isDemo
-        ? <p className="text-sm text-slate-600">In the demo wallet, payments are drafted by the AI agent; open AI agent to ask for one. Payments drafted in this session can be confirmed here.</p>
+        ? <p className="text-sm text-slate-600">Ask your AI Assistant to prepare a demo payment. Review and confirm payments created in this session here.</p>
         : <NewProposalForm recipients={recipients.data || []} onCreated={() => proposals.refresh()} />}
       <div className="flex flex-wrap gap-2" role="group" aria-label="Filter proposals">
         {FILTERS.map(([label, value]) => (
@@ -43,10 +45,12 @@ export function Proposals() {
         ))}
       </div>
       <div className="space-y-4">
+        {proposals.error && <Alert variant="warning" title="We couldn’t load your payments"><Button variant="secondary" size="sm" onClick={proposals.refresh}>Try again</Button></Alert>}
+        {!proposals.data && !proposals.error && <p role="status" className="text-sm text-slate-600">Loading your payments…</p>}
         {proposals.data?.map((p) => (
           <ProposalCard key={p.id} proposal={p} recipientLabel={labelFor(recipients.data, p.recipient)} onChanged={proposals.refresh} />
         ))}
-        {proposals.data && proposals.data.length === 0 && <div className="text-sm text-slate-500">No proposals in this view.</div>}
+        {proposals.data && proposals.data.length === 0 && <div className="text-sm text-slate-500">You’re all caught up. No payments match this view.</div>}
       </div>
     </div>
   );

@@ -20,11 +20,11 @@ export function NetworkModePill() {
   if (!config) return null;
   return isPublic ? (
     <span
-      className="inline-flex items-center gap-1.5 h-8 pl-2 pr-3 rounded-full text-[11px] font-mono font-bold uppercase tracking-wider bg-sky text-sky-deep"
+      className="hidden sm:inline-flex items-center gap-1.5 h-8 pl-2 pr-3 rounded-full text-[11px] font-mono font-bold uppercase tracking-wider bg-sky text-sky-deep"
       title={`${config.networkName} (chain ${config.chainId}) is a public testnet: transactions are publicly verifiable. Test ETH only.`}
     >
       <span aria-hidden="true" className="material-symbols-outlined text-[16px]">public</span>
-      Public testnet
+      {config.networkName} · test ETH
     </span>
   ) : (
     <span
@@ -39,8 +39,10 @@ export function NetworkModePill() {
 
 /** Full-width strip at the top of the canvas so the mode is never ambiguous, including in screenshots. */
 export function NetworkModeBanner() {
+  const { isDemo } = useApp();
   const { isPublic, config, explorerHost } = useNetworkMode();
   if (!config) return null;
+  if (isPublic && isDemo) return null;
   return isPublic ? (
     <div className="flex flex-wrap items-center gap-x-3 gap-y-1 px-5 sm:px-8 py-2.5 bg-sky text-sky-deep text-[12.5px]">
       <span aria-hidden="true" className="material-symbols-outlined text-[18px]">public</span>

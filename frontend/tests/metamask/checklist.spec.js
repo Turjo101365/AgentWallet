@@ -251,11 +251,11 @@ test('docs/METAMASK_DEMO.md checklist with the real MetaMask extension', async (
     await signIn(r, 'owner');
   });
 
-  await row(4, 'Approve & sign 0.001 ETH to Acme (#2)', async (r) => {
+  await row(4, 'Confirm in wallet 0.001 ETH to Acme (#2)', async (r) => {
     await navigate('/proposals');
     const before = await chain.provider.getBalance(fixture.payeeA.address);
     r.evidence.proposalId = (await createProposal('MetaMask row 4', '0.001')).id;
-    await page.getByRole('button', { name: 'Approve & sign' }).first().click();
+    await page.getByRole('button', { name: 'Confirm in wallet' }).first().click();
     const { text } = await popup(r, 'typed-data', { approve: true, mustShow: [/ApproveTransfer/, addr(contract), '1000000000000000', addr(fixture.payeeA.address)] });
     if (!/AgentWallet Operator Approval/i.test(text)) r.notes.push('domain name "AgentWallet Operator Approval" not shown; MetaMask shows primary type ApproveTransfer and the verifying contract');
     r.evidence.fieldsShown = ['proposalId', 'intentId', 'token', 'recipient', 'amount', 'deadline'].filter((f) => new RegExp(f, 'i').test(text));
@@ -274,7 +274,7 @@ test('docs/METAMASK_DEMO.md checklist with the real MetaMask extension', async (
     await navigate('/proposals');
     const before = await chain.provider.getBalance(fixture.payeeA.address);
     r.evidence.proposalId = (await createProposal('MetaMask row 5', '0.001')).id;
-    await page.getByRole('button', { name: 'Approve & sign' }).first().click();
+    await page.getByRole('button', { name: 'Confirm in wallet' }).first().click();
     await popup(r, 'typed-data-reject', { approve: false });
     await expect(page.getByText('You rejected the request in your wallet.')).toBeVisible({ timeout: 15000 });
     expect(await chain.provider.getBalance(fixture.payeeA.address)).toBe(before);
@@ -330,7 +330,7 @@ test('docs/METAMASK_DEMO.md checklist with the real MetaMask extension', async (
     if (process.env.LIVE_LLM !== '1') throw new Blocked('needs LIVE_LLM=1 and LLM_* in backend/.env (paid API call)');
     await navigate('/agent');
     const chat = page.waitForResponse((res) => res.url().endsWith('/api/agent/chat') && res.request().method() === 'POST', { timeout: 90000 });
-    await page.getByPlaceholder('Ask the agent…').fill('Send 0.005 ETH to my approved supplier.');
+    await page.getByPlaceholder('Ask your AI assistant…').fill('Send 0.005 ETH to my approved supplier.');
     await page.getByRole('button', { name: 'Send', exact: true }).click();
     r.evidence.popupDuringAgentRun = await popupAppears(mm, 45000);
     if (r.evidence.popupDuringAgentRun) throw new Error('MetaMask opened a request while the agent was working');
@@ -343,7 +343,7 @@ test('docs/METAMASK_DEMO.md checklist with the real MetaMask extension', async (
     // Scope everything to the card of the proposal the agent drafted, never the first card on the page.
     const card = page.getByText(`#${drafted.id.slice(0, 8)}`, { exact: false }).locator('xpath=ancestor::div[contains(@class,"space-y-5")][1]');
     await expect(card.getByText('Awaiting approval', { exact: true })).toBeVisible({ timeout: 30000 });
-    await card.getByRole('button', { name: 'Approve & sign' }).click();
+    await card.getByRole('button', { name: 'Confirm in wallet' }).click();
     await popup(r, 'typed-data', { approve: true, mustShow: [/ApproveTransfer/, addr(contract), '5000000000000000', addr(fixture.payeeA.address), drafted.id] });
     await expect(card.getByText('Execution: CONFIRMED')).toBeVisible({ timeout: 60000 });
     const txHash = (await card.getByText(/^Tx: 0x/).textContent()).match(/0x[0-9a-f]{64}/i)[0];

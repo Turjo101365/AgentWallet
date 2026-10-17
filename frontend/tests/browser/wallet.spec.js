@@ -96,10 +96,10 @@ test('wallet network selection, SIWE, approval/rejection, mined transfer and ind
   const before = await chain.provider.getBalance(fixture.payeeA.address);
   const created = await proposal(page, 'Browser approved payment');
   await page.evaluate(() => window.__rejectNextWalletRequest());
-  await page.getByRole('button', { name: 'Approve & sign' }).click();
+  await page.getByRole('button', { name: 'Confirm in wallet' }).click();
   await expect(page.getByText('You rejected the request in your wallet.')).toBeVisible();
   expect(await chain.provider.getBalance(fixture.payeeA.address)).toBe(before);
-  await page.getByRole('button', { name: 'Approve & sign' }).click();
+  await page.getByRole('button', { name: 'Confirm in wallet' }).click();
   await expect(page.getByText('Execution: CONFIRMED')).toBeVisible({ timeout: 30000 });
   const txHash = (await page.getByText(/^Tx: 0x/).textContent()).match(/0x[0-9a-f]{64}/i)[0];
   const receipt = await chain.provider.getTransactionReceipt(txHash);
@@ -141,7 +141,7 @@ test('portfolio prices, bounded automation grant lifecycle, and truthful unavail
   await expect(page.getByText('CANCELLED', { exact: true })).toBeVisible();
   await navigate(page, '/agent');
   await expect(page.getByText('No language model configured', { exact: true })).toBeVisible();
-  await page.getByPlaceholder('Ask the agent…').fill('Show my portfolio');
+  await page.getByPlaceholder('Ask your AI assistant…').fill('Show my portfolio');
   await page.getByRole('button', { name: 'Send', exact: true }).click();
   await expect(page.getByText('UNAVAILABLE', { exact: true })).toBeVisible();
 });

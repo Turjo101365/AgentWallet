@@ -12,9 +12,10 @@ export const TONES = {
   canvas: 'bg-slate-50 text-on-surface',
 };
 
-export function Card({ children, className = '', highlight = false, onClick, tone = 'white', as: Tag = 'div' }) {
+export function Card({ children, className = '', highlight = false, onClick, tone = 'white', as: Tag = 'div', ...rest }) {
   return (
     <Tag
+      {...rest}
       onClick={onClick}
       className={`min-w-0 rounded-4xl transition-shadow duration-200 ${TONES[tone] || TONES.white} ${
         highlight ? 'ring-2 ring-ink shadow-floating' : 'shadow-card'

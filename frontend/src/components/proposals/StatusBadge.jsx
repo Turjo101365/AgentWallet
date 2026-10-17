@@ -2,13 +2,13 @@ import React from 'react';
 import { Badge } from '../ui/Badge.jsx';
 
 const VARIANTS = {
-  AWAITING_APPROVAL: ['warning', 'Awaiting approval'],
-  APPROVED: ['warning', 'Approved · executing'],
-  SUBMITTED: ['warning', 'Submitted · awaiting receipt'],
-  CONFIRMED: ['success', 'Confirmed on-chain'],
+  AWAITING_APPROVAL: ['warning', 'Needs your approval'],
+  APPROVED: ['warning', 'Approved · processing'],
+  SUBMITTED: ['warning', 'Sent · awaiting confirmation'],
+  CONFIRMED: ['success', 'Payment completed'],
   FAILED: ['error', 'Failed'],
-  POLICY_REJECTED: ['error', 'Blocked by policy'],
-  REJECTED: ['neutral', 'Rejected by operator'],
+  POLICY_REJECTED: ['error', 'Blocked by a safety rule'],
+  REJECTED: ['neutral', 'Declined'],
   EXPIRED: ['neutral', 'Expired'],
 };
 

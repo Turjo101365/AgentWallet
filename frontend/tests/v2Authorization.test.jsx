@@ -140,13 +140,13 @@ describe('signed execution deadline on the approval card', () => {
     expect(note.textContent).toMatch(new Date((now + 120) * 1000).toLocaleString());
     expect(note.textContent).toMatch(/never extended/);
     expect(screen.getByText(/^Deadline in \d+m \d\ds$/)).toBeTruthy();
-    expect(screen.getByText('Approve & sign').closest('button').disabled).toBe(false);
+    expect(screen.getByText('Confirm in wallet').closest('button').disabled).toBe(false);
   });
 
   it('after the deadline the card offers no approval at all', async () => {
     renderWith(<ProposalCard proposal={proposal({ expiresAt: now - 1 })} />);
     expect(screen.getByText('Signed deadline passed')).toBeTruthy();
-    expect(screen.queryByText('Approve & sign')).toBeNull();
+    expect(screen.queryByText('Confirm in wallet')).toBeNull();
     expect(screen.queryByTestId('signed-deadline')).toBeNull();
   });
 

@@ -143,7 +143,7 @@ describe('agent chat', () => {
       ['/agent/conversations', () => ({ body: { success: true, data: [] } })],
     ]);
     renderWith(<Agent />);
-    fireEvent.change(await screen.findByPlaceholderText('Ask the agent…'), { target: { value: 'Send 0.005 ETH to 0xabc' } });
+    fireEvent.change(await screen.findByPlaceholderText('Ask your AI assistant…'), { target: { value: 'Send 0.005 ETH to 0xabc' } });
     fireEvent.click(screen.getByText('Send'));
     expect(await screen.findByText('Plan: pay')).toBeTruthy();
     expect(screen.getByText('REJECTED')).toBeTruthy();
