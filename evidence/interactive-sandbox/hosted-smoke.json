@@ -1,0 +1,94 @@
+{
+  "website": "https://agentwallet-judge.vercel.app",
+  "backend": "https://agentwallet-judge-api.onrender.com",
+  "chainId": 11155111,
+  "sandbox": "0x59a33154288009e030aa2072De46D32fC7d40d85",
+  "checkedAt": "2026-10-17T12:59:07.379Z",
+  "initialWebsiteStatus": 200,
+  "inviteSessionCreated": true,
+  "ai": {
+    "status": "COMPLETED",
+    "model": "gpt-4.1-mini",
+    "modelCalls": 4,
+    "usage": {
+      "input_tokens": 5561,
+      "output_tokens": 331
+    }
+  },
+  "pageErrors": [],
+  "confirmHttpStatus": 200,
+  "proposalId": "0d145253-c428-4da4-bfea-60aee9abc983",
+  "proposalStatus": "CONFIRMED",
+  "receipt": {
+    "status": 1,
+    "blockNumber": 11934309,
+    "gasUsed": "466554",
+    "from": "0x341E8F433A90d776DE1C13D8f9DdE48bB387A7d6",
+    "to": "0x59a33154288009e030aa2072De46D32fC7d40d85",
+    "txHash": "0x62ab63fafa92a9a1ae7f8037e90f1dfd59fe82ea925ee90911b68638e7ad7eaf",
+    "explorerUrl": "https://sepolia.etherscan.io/tx/0x62ab63fafa92a9a1ae7f8037e90f1dfd59fe82ea925ee90911b68638e7ad7eaf"
+  },
+  "mobileDashboardLoaded": true,
+  "replayStatus": 409,
+  "unauthenticatedAdminStatus": 401,
+  "legacyOperatorWriteStatus": 403,
+  "noInviteConfirmationStatus": 403,
+  "onChain": {
+    "receiptStatus": 1,
+    "block": 11934309,
+    "gasUsed": "466554",
+    "feeWei": "12596958",
+    "from": "0x341E8F433A90d776DE1C13D8f9DdE48bB387A7d6",
+    "to": "0x59a33154288009e030aa2072De46D32fC7d40d85",
+    "method": "executeApprovedTransfer",
+    "events": [
+      {
+        "event": "TransferExecuted",
+        "args": [
+          "0x71bd0b7ba1a6307629f3cf1229f68cd23608d184960d971fe035aed122151bdc",
+          "0x0000000000000000000000000000000000000000",
+          "0xd85cdB676877ccdc8873B63DEf51B456568604F5",
+          "100000000000000",
+          "20743",
+          "100000000000000"
+        ]
+      }
+    ],
+    "treasuryBalanceEth": "0.0004",
+    "historicalPaused": true,
+    "historicalAgentRevoked": true
+  },
+  "historicalEvidence": {
+    "transactions": 12,
+    "checks": 26,
+    "allTransactionsSucceeded": true
+  },
+  "cors": {
+    "approvedOrigin": "https://agentwallet-judge.vercel.app",
+    "unapprovedOriginStatus": 403
+  },
+  "mobileLiveBalanceVisible": true,
+  "mobileHorizontalOverflow": false,
+  "evidenceRouteHttpStatus": 200,
+  "postRestartPersistence": {
+    "proposalStatus": "CONFIRMED",
+    "receiptHashPreserved": true,
+    "dailyTxCount": 1,
+    "dailyAmountEth": "0.0001",
+    "database": "Neon PostgreSQL"
+  },
+  "smokeInviteRevoked": true,
+  "revokedInviteConfirmationStatus": 403,
+  "revokedInviteErrorCode": "INVITE_REQUIRED",
+  "renderPlan": "free",
+  "releaseCommit": "62d63df9fd43e2554a970d364893c2dd83dc7257",
+  "completedAt": "2026-10-17T13:05:05.709Z",
+  "verificationMethod": "Real hosted browser AI planning and explicit UI confirmation; same persisted proposal resumed after correcting a test-harness selector. One AI planning request, one successful on-chain payment.",
+  "hosting": {
+    "frontend": "Vercel Hobby",
+    "backend": "Render Free",
+    "database": "Existing Neon Free PostgreSQL",
+    "hostingMonthlyUsd": 0
+  },
+  "backendHealthUrl": "https://agentwallet-judge-api.onrender.com/health/ready"
+}
