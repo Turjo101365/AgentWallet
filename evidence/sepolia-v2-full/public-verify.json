@@ -1,0 +1,170 @@
+{
+  "verifiedAt": "2026-10-17T07:21:28.141Z",
+  "chainId": 11155111,
+  "contract": "0x3C9389E704331B8a12381F9ab5A68a7F3F59582F",
+  "checks": [
+    {
+      "label": "deployed runtime bytecode == compiled v2 artifact",
+      "pass": true,
+      "detail": "12631 bytes"
+    },
+    {
+      "label": "runtime bytecode differs from frozen v1",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "VERSION() == 2",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "owner() == recorded owner",
+      "pass": true,
+      "detail": "0x10A0d3247a1446fD30ba40D14e4272206278b5ba"
+    },
+    {
+      "label": "native ETH caps at deploy block",
+      "pass": true,
+      "detail": "perTx 0.0002 / daily 0.0005 ETH"
+    },
+    {
+      "label": "agent at deploy block == recorded agent",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "owner-approved transfer 0x564129e2…: EIP-712 signer in calldata == owner()",
+      "pass": true,
+      "detail": "0x10A0d3247a1446fD30ba40D14e4272206278b5ba"
+    },
+    {
+      "label": "  contract approvalDigest == locally computed digest",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "  event matches the signed intent, token, recipient, amount",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "  mined before the signed deadline",
+      "pass": true,
+      "detail": "1792221204 <= 1792221783"
+    },
+    {
+      "label": "  sent by the agent key",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "autonomous transfer 0xbcdd8685…: grant signer in calldata == owner()",
+      "pass": true,
+      "detail": "0x10A0d3247a1446fD30ba40D14e4272206278b5ba"
+    },
+    {
+      "label": "  GrantRunExecuted counts it against the signed grant",
+      "pass": true,
+      "detail": "run 1 of 1"
+    },
+    {
+      "label": "  within grant validity",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "  no per-transfer owner signature: executed under the grant only",
+      "pass": true,
+      "detail": "method executeGrantTransfer"
+    },
+    {
+      "label": "at least one owner-approved and one autonomous transfer",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "grant 0xfaf76f97… revoked on-chain",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "at least one on-chain grant revocation",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "emergencyStop executed",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "final state: paused, agent revoked",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "probe: agent, no owner signature (v1-style executeTransfer) → reverted",
+      "pass": true,
+      "detail": "reverted (no data)"
+    },
+    {
+      "label": "probe: replay of the executed owner approval → IntentAlreadyExecuted",
+      "pass": true,
+      "detail": "IntentAlreadyExecuted"
+    },
+    {
+      "label": "probe: owner signature reused with a different amount → InvalidOwnerSignature",
+      "pass": true,
+      "detail": "InvalidOwnerSignature"
+    },
+    {
+      "label": "probe: approval signed by a non-owner key → InvalidOwnerSignature",
+      "pass": true,
+      "detail": "InvalidOwnerSignature"
+    },
+    {
+      "label": "probe: signed grant used beyond its run limit → GrantExhausted",
+      "pass": true,
+      "detail": "GrantExhausted"
+    },
+    {
+      "label": "probe: stranger (not the agent) submitting the owner approval → NotAgent",
+      "pass": true,
+      "detail": "NotAgent"
+    }
+  ],
+  "transfers": [
+    {
+      "kind": "OWNER_APPROVED",
+      "tx": "0x564129e213f1142da1d9d52e9b3e15eeff42852198cb7d3bcd84242eb6c0702e",
+      "block": 11932667,
+      "msg": {
+        "proposalId": "c61042b3-649d-497b-8a44-3825239c6c31",
+        "intentId": "0x939869e11994a32370e60c0473ec84b95e40221ed66af36610959290cc810e40",
+        "token": "0x0000000000000000000000000000000000000000",
+        "recipient": "0x82446B165d0d55051af76e3aD7852B0F3141904e",
+        "amount": "100000000000000",
+        "deadline": "1792221783"
+      }
+    },
+    {
+      "kind": "AUTONOMOUS",
+      "tx": "0xbcdd8685f552b89ba37352a6768189d8d1e7b104c4d01c111a0e8fa5cf4a2d6e",
+      "block": 11932685,
+      "msg": {
+        "taskId": "8c0de5ff-ef3e-46e2-8793-930589a672ba",
+        "token": "0x0000000000000000000000000000000000000000",
+        "recipient": "0x82446B165d0d55051af76e3aD7852B0F3141904e",
+        "amountPerRun": "100000000000000",
+        "maxRuns": "1",
+        "maxTotal": "0",
+        "validUntil": "1792307655",
+        "scheduleHash": "0xda45e665a72d501e6f996074cb523469eb1bd0f9a8ce3ef6b3d9dfbd7f33b9ca",
+        "executionWindowSeconds": "0"
+      },
+      "intent": "0x75f6bc2bbcc0d1cfb7b4880b2e2504c6cfbd5f07e3370bc950560d7470c3bc76",
+      "digest": "0xeb52a6c7de2a2438d62db9f3e5fca23aa947cb7aa6ec737d0925e7be7e04ef74"
+    }
+  ]
+}

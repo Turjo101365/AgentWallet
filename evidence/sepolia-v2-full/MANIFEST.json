@@ -1,0 +1,132 @@
+{
+  "generatedAt": "2026-10-17T07:21:03.902Z",
+  "regeneratedAt": "2026-10-17T07:23:06.036Z",
+  "note": "Run outputs hashed by sepolia-demo.mjs at generatedAt; public-receipts.json, public-verify.json and RUN_NOTES.md added read-only after the run.",
+  "files": [
+    {
+      "file": "EVIDENCE.md",
+      "bytes": 5987,
+      "sha256": "dbd2e1ae4ba94b99bde527b274c69b9019a1fe861d5a22beaceca2180fda3264"
+    },
+    {
+      "file": "RUN_NOTES.md",
+      "bytes": 7428,
+      "sha256": "290d302062faf6ec0e36d4745d96595c7a6773e8c3f73b8bbf75d74ef0321cd7"
+    },
+    {
+      "file": "evidence.json",
+      "bytes": 19181,
+      "sha256": "428d658b3507701f14c33677121b745a2ac6cf75c6ab78cb002ef694484f7094"
+    },
+    {
+      "file": "public-receipts.json",
+      "bytes": 8624,
+      "sha256": "33400835546ad78fb20db9f32095757f374ee4578bf22b4fd3680ffe8a241643"
+    },
+    {
+      "file": "public-verify.json",
+      "bytes": 4926,
+      "sha256": "1f5dfbec9cc31804fbd4b581457513d59a48b63a7f4ac96af312ca2c1167abb9"
+    },
+    {
+      "file": "recordings/agentwallet-demo.mp4",
+      "bytes": 9027099,
+      "sha256": "7233b30d0332ec7cb7ed1bd05a8c038cdba720f88757d9ebef9f170a04fc19c8"
+    },
+    {
+      "file": "recordings/raw/agentwallet-sepolia-raw.webm",
+      "bytes": 82277677,
+      "sha256": "5a5e15d9c19b080c51a936359aeb6c3550f2201276eff8b04465beac04912c90"
+    },
+    {
+      "file": "run-log.txt",
+      "bytes": 2928,
+      "sha256": "10989779358c4e3b8e97db9d27c77e33a25964424497c1df67d2acb980a1c875"
+    },
+    {
+      "file": "screenshots/01-deploy.png",
+      "bytes": 52065,
+      "sha256": "69be1a19e388bf6cb63aad08dcc435391cf0d61b040338f77c736193755abbc0"
+    },
+    {
+      "file": "screenshots/02-explorer-deploy.png",
+      "bytes": 104992,
+      "sha256": "4cf2650279173572cd87f9b198d02df2208f8be4d270d7150b5bb0f1e223dbf3"
+    },
+    {
+      "file": "screenshots/03-connect.png",
+      "bytes": 185821,
+      "sha256": "e303290234901c6d6c6af3e54866d60d9c25a857af7b447d4c77579c48a26e16"
+    },
+    {
+      "file": "screenshots/04-allowlist.png",
+      "bytes": 89480,
+      "sha256": "6d25c759bd97e345d645bccd0440910cd14485e328c8b99cd4802c8c92fa50c5"
+    },
+    {
+      "file": "screenshots/05-deposit.png",
+      "bytes": 104272,
+      "sha256": "6baf65bf00bd73669650f0c4f46c54f830565a6b4c9eed357f6e2ecf65b8bf5a"
+    },
+    {
+      "file": "screenshots/06-ai-transfer.png",
+      "bytes": 109128,
+      "sha256": "fdb6a817dd6269090956555c161f9e5f87bccbe64abf582da9362c3c74d0a7d5"
+    },
+    {
+      "file": "screenshots/07-approve.png",
+      "bytes": 145433,
+      "sha256": "cdcb84d074ddbb9aeef7ad6ec54acb84ca9ee7974574cb53b26182580b4b97ff"
+    },
+    {
+      "file": "screenshots/08-ai-rejection.png",
+      "bytes": 107233,
+      "sha256": "edba95a990f91e2462b7ccbe0f13d9583c4a489432601fa94ee1e4016007c381"
+    },
+    {
+      "file": "screenshots/09-auto-limit.png",
+      "bytes": 90982,
+      "sha256": "79a33a5e7e5b12f948dc1ccfcd20e1349d037039c7a0dcb9f3120cb01494b980"
+    },
+    {
+      "file": "screenshots/10-ai-schedule.png",
+      "bytes": 125847,
+      "sha256": "69230fde73ea260a3f5c31f0acd53b8d0f5fad6619fabbaeb31f788a5b7fb5a7"
+    },
+    {
+      "file": "screenshots/11-grant.png",
+      "bytes": 118179,
+      "sha256": "2003d2156da5a846b8aa7040641188955a42c53c11973e3d9a10ddb6950a570d"
+    },
+    {
+      "file": "screenshots/12-revoke.png",
+      "bytes": 117857,
+      "sha256": "64cfc76f3c3afb353778d857ea30d637e9b26bb399051e92f07d6313b876b94e"
+    },
+    {
+      "file": "screenshots/13-controls.png",
+      "bytes": 138285,
+      "sha256": "6b53ded8dd00b9708044e6564728efa165320c7480afe41fc152eb993ef9fe0e"
+    },
+    {
+      "file": "screenshots/14-withdraw.png",
+      "bytes": 103803,
+      "sha256": "153904186f870b74adfd71256a351dd4cc15e3317a6894d302d673123018e8b6"
+    },
+    {
+      "file": "screenshots/15-history.png",
+      "bytes": 152409,
+      "sha256": "6e3b6396f747450c209ddfee3415864ce3dbe1b328c5a1a5a1009e93ce53fadf"
+    },
+    {
+      "file": "screenshots/16-explorer-txs.png",
+      "bytes": 221546,
+      "sha256": "81ef9acfcbbd2823c1ece984b2195c7b3837b5289eb15aa4a0586d958ced0305"
+    },
+    {
+      "file": "timeline.json",
+      "bytes": 8541,
+      "sha256": "18205c97f0555848e6ac3124d52e152b3e50d28b49f02ccef513d688025afc13"
+    }
+  ]
+}
