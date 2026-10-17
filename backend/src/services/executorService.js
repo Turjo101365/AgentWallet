@@ -21,6 +21,7 @@ import { verifyGrant, grantTypedData } from '../lib/schedule.js';
  *    contains the matching TransferExecuted event.
  */
 export function createExecutorService({ config, repos, chain, risk, signerProvider, logger }) {
+  let sandboxGuard = null;
   const sendMutex = new Mutex();
   const watching = new Set();
   const signer = signerProvider?.connect(chain.provider) || null;
@@ -156,6 +157,7 @@ export function createExecutorService({ config, repos, chain, risk, signerProvid
   }
 
   async function execute(proposalId) {
+    try {
     let watchArgs = null;
     await sendMutex.run(async () => {
       const proposal = await repos.proposals.findById(proposalId);
@@ -227,6 +229,10 @@ export function createExecutorService({ config, repos, chain, risk, signerProvid
       }
 
       // 4. Sign locally, persist the hash, then broadcast.
+      if (sandboxGuard) {
+        try { await sandboxGuard.reserve(proposal, { maxCost }); }
+        catch (e) { return fail(execution, proposal, e.code || 'SANDBOX_DENIED', e.message); }
+      }
       const nonce = await chain.provider.getTransactionCount(config.executor.address, 'pending');
       const populated = await wallet[method].populateTransaction(...args);
       const signed = await signer.signTransaction({
@@ -250,6 +256,7 @@ export function createExecutorService({ config, repos, chain, risk, signerProvid
       });
       await repos.proposals.transition(proposal.id, ['APPROVED'], 'SUBMITTED');
       await audit('EXECUTION_SUBMITTED', proposal.id, { txHash, nonce, gasLimit: gasLimit.toString(), intentId: proposal.intentId, method, contractVersion: chain.contractVersion() });
+      await sandboxGuard?.submitted(proposal.id, txHash);
 
       try {
         await chain.provider.broadcastTransaction(signed);
@@ -260,6 +267,7 @@ export function createExecutorService({ config, repos, chain, risk, signerProvid
       watchArgs = [submitted, proposal];
     });
     if (watchArgs) await watch(...watchArgs);
+    } finally { await sandboxGuard?.complete(proposalId).catch(() => {}); }
   }
 
   function matchTransferEvent(receipt, proposal) {
@@ -350,7 +358,9 @@ export function createExecutorService({ config, repos, chain, risk, signerProvid
       if (!proposal) continue;
       if (execution.status === 'SUBMITTED') {
         resumed++;
-        watch(execution, proposal).catch((err) => logger.error('Recovery watch failed', { error: err.message }));
+        const job=watch(execution, proposal).catch((err) => logger.error('Recovery watch failed', { error: err.message }))
+          .finally(async()=>{await sandboxGuard?.complete(proposal.id).catch(()=>{});inflight.delete(proposal.id);});
+        inflight.set(proposal.id,job);
       } else if (proposal.status === 'APPROVED') {
         resumed++;
         enqueue(proposal.id);
@@ -365,5 +375,5 @@ export function createExecutorService({ config, repos, chain, risk, signerProvid
     return { resumed };
   }
 
-  return { enqueue, recover, reconcileIntent, enabled: Boolean(signer), address: config.executor.address, whenIdle: () => Promise.all([...inflight.values()]) };
+  return { enqueue, recover, reconcileIntent, setSandboxGuard: (guard) => { sandboxGuard = guard; }, enabled: Boolean(signer), address: config.executor.address, whenIdle: () => Promise.all([...inflight.values()]) };
 }

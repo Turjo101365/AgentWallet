@@ -19,7 +19,7 @@ export const analysisSchema = z.object({ message: z.string().trim().min(1).max(1
 const jsonSchema = (properties) => ({ type: 'object', properties, required: Object.keys(properties), additionalProperties: false });
 
 /** Public-only data and tools. No owner identity, signer, proposal writer or scheduler is provided. */
-export function createJudgeService({ config, chain, risk, db, llm, logger }) {
+export function createJudgeService({ config, chain, risk, db, llm, logger,gate={active:false} }) {
   const receipts = JSON.parse(fs.readFileSync(path.join(ROOT, 'evidence/sepolia-v2-full/public-receipts.json'), 'utf8'));
   const verified = JSON.parse(fs.readFileSync(path.join(ROOT, 'evidence/sepolia-v2-full/public-verify.json'), 'utf8'));
   if (receipts.contract !== JUDGE_CONTRACT || receipts.chainId !== JUDGE_CHAIN_ID) throw new Error('Public evidence target mismatch');
@@ -90,8 +90,9 @@ export function createJudgeService({ config, chain, risk, db, llm, logger }) {
   async function analyze(input) {
     const { message } = analysisSchema.parse(input);
     if (!config.publicAi?.enabled || !llm.available) throw unavailable('PUBLIC_AI_UNAVAILABLE', 'Live AI is disabled or unconfigured. Use the deterministic risk assessment.');
-    if (analyzing) throw new AppError(429, 'AI_BUSY', 'An analysis is in progress. Try again shortly.');
+    if (analyzing || gate.active) throw new AppError(429, 'AI_BUSY', 'An analysis is in progress. Try again shortly.');
     analyzing = true;
+    gate.active=true;
     try {
       const budget = await db.query(`INSERT INTO judge_ai_usage(day, requests) VALUES ((CURRENT_TIMESTAMP AT TIME ZONE 'UTC')::date, 1)
         ON CONFLICT (day) DO UPDATE SET requests = judge_ai_usage.requests + 1
@@ -147,7 +148,7 @@ export function createJudgeService({ config, chain, risk, db, llm, logger }) {
       if (err instanceof AppError) throw err;
       logger.warn('Judge AI unavailable', { code: err.code || 'AI_ERROR', action: 'Check LLM provider, credentials, quota and timeout' });
       throw unavailable('PUBLIC_AI_FAILED', 'AI analysis is temporarily unavailable. Use the deterministic assessment.');
-    } finally { analyzing = false; }
+    } finally { analyzing = false;gate.active=false; }
   }
   return { overview, assess, analyze };
 }

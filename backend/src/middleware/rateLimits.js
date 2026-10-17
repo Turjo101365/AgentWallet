@@ -14,5 +14,6 @@ export function createRateLimits({ disabled = false } = {}) {
     publicRead: make(60_000, 30),
     publicAssess: make(60_000, 10),
     publicAi: make(3_600_000, 3),
+    demoAi: make(3_600_000, 12),
   };
 }

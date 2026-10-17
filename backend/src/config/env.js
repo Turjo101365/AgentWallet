@@ -54,6 +54,8 @@ const schema = z.object({
   DATABASE_URL: z.string().optional(),
   PGLITE_DIR: z.string().default(path.join(BACKEND_DIR, 'data', 'pglite')),
   MIGRATIONS_DIR: z.string().default(path.join(REPO_DIR, 'database', 'migrations')),
+  // Optional PostgreSQL schema for this container (a sandbox gets its own; PGlite gets its own instance instead).
+  DB_SCHEMA: z.string().regex(/^[a-z][a-z0-9_]{0,40}$/).optional(),
 
   RL_SERVICE_URL: z.string().url().default('http://127.0.0.1:8000'),
   RL_TIMEOUT_MS: z.coerce.number().int().min(100).max(60000).default(5000),
@@ -110,7 +112,38 @@ const schema = z.object({
   INDEXER_BLOCK_RANGE: z.coerce.number().int().min(1).max(100000).optional(),
   OWNER_CACHE_MS: z.coerce.number().int().min(0).default(10000),
   BACKGROUND_JOBS: boolString.default(true),
+
+  // Judge demo sandbox: a SEPARATE v2 contract whose demo owner and agent keys are held by the backend only.
+  DEMO_ENABLED: boolString.default(false),
+  DEMO_DEPLOYMENT_FILE: z.string().optional(),
+  DEMO_OWNER_PRIVATE_KEY: z.string().optional(),
+  DEMO_AGENT_PRIVATE_KEY: z.string().optional(),
+  // Comma-separated SHA-256 hex digests of invite codes (never the codes themselves).
+  DEMO_INVITE_CODES_SHA256: z.string().default(''),
+  DEMO_SESSION_TTL_SECONDS: z.coerce.number().int().min(300).max(86400).default(3600),
+  DEMO_MAX_TX_PER_SESSION: z.coerce.number().int().min(0).max(20).default(3),
+  DEMO_MAX_AI_PER_SESSION: z.coerce.number().int().min(0).max(50).default(6),
+  DEMO_MAX_AMOUNT_ETH: decimalString.default('0.0001'),
+  DEMO_DAILY_TX_LIMIT: z.coerce.number().int().min(0).max(500).default(20),
+  DEMO_DAILY_AMOUNT_ETH: decimalString.default('0.002'),
+  DEMO_MIN_TREASURY_ETH: decimalString.default('0.0002'),
+  DEMO_MIN_AGENT_GAS_ETH: decimalString.default('0.0005'),
+  DEMO_MAX_FEE_PER_GAS_GWEI: decimalString.default('20'),
+  DEMO_MAX_GAS_PER_TX_ETH: decimalString.default('0.0001'),
+  DEMO_SESSION_GAS_ETH: decimalString.default('0.0003'),
+  DEMO_DAILY_GAS_ETH: decimalString.default('0.001'),
+  DEMO_EXECUTION_WAIT_MS: z.coerce.number().int().min(1000).max(170000).default(120000),
+  // Comma-separated admin wallet addresses. Admin = SIWE signature by one of these; never a UI choice.
+  ADMIN_ADDRESSES: z.string().default(''),
 });
+
+// Contracts whose public evidence is frozen. No sandbox may ever point at them.
+export const FROZEN_EVIDENCE_CONTRACTS = new Set([
+  '0x8A44716Efabb6Ce401291B91D4427149CaF956a6',
+  '0x23bAE3f3C95f9BF7391c0764B1A7dFF700f34458',
+  '0x3C9389E704331B8a12381F9ab5A68a7F3F59582F',
+]);
+const PRIVATE_KEY = /^0x[0-9a-fA-F]{64}$/;
 
 function readDeployment(file) {
   if (!file || !fs.existsSync(file)) return null;
@@ -244,6 +277,56 @@ export function loadConfig(env = process.env) {
     testOnly: Boolean(t.testOnly),
   }));
 
+  const adminAddresses = e.ADMIN_ADDRESSES.split(',').map((a) => a.trim()).filter(Boolean).map((a) => {
+    if (!ethers.isAddress(a)) throw new Error('ADMIN_ADDRESSES contains an invalid address');
+    return ethers.getAddress(a);
+  });
+  let demo = { enabled: false };
+  if (e.DEMO_ENABLED) {
+    if(!adminAddresses.length)throw new Error('DEMO_ENABLED requires an explicit ADMIN_ADDRESSES allowlist');
+    if (e.APP_MODE !== 'judge') throw new Error('DEMO_ENABLED requires judge mode');
+    if (!e.DEMO_DEPLOYMENT_FILE) throw new Error('DEMO_ENABLED requires DEMO_DEPLOYMENT_FILE');
+    if (!PRIVATE_KEY.test(e.DEMO_OWNER_PRIVATE_KEY || '') || !PRIVATE_KEY.test(e.DEMO_AGENT_PRIVATE_KEY || '')) {
+      throw new Error('DEMO_ENABLED requires DEMO_OWNER_PRIVATE_KEY and DEMO_AGENT_PRIVATE_KEY (0x-prefixed 32-byte hex)');
+    }
+    const demoDeploymentFile = path.resolve(e.DEMO_DEPLOYMENT_FILE);
+    const demoDeployment = readDeployment(demoDeploymentFile);
+    if (!demoDeployment?.contractAddress) throw new Error(`Demo deployment file ${demoDeploymentFile} is missing or has no contractAddress`);
+    const demoContract = ethers.getAddress(demoDeployment.contractAddress);
+    if (FROZEN_EVIDENCE_CONTRACTS.has(demoContract)) throw new Error('The demo sandbox must never be a frozen evidence contract');
+    if (Number(demoDeployment.chainId) !== network.chainId) throw new Error('The demo sandbox must be on the judge chain');
+    const demoOwner = new ethers.Wallet(e.DEMO_OWNER_PRIVATE_KEY).address;
+    const demoAgent = new ethers.Wallet(e.DEMO_AGENT_PRIVATE_KEY).address;
+    if (demoOwner === demoAgent) throw new Error('The demo owner and demo agent keys must differ');
+    if (network.isPublic && (hardhatDevAddresses().has(demoOwner) || hardhatDevAddresses().has(demoAgent))) throw new Error('Refusing a publicly known Hardhat development key for the demo sandbox');
+    const inviteHashes = e.DEMO_INVITE_CODES_SHA256.split(',').map((h) => h.trim().toLowerCase()).filter(Boolean);
+    if (inviteHashes.some((h) => !/^[0-9a-f]{64}$/.test(h))) throw new Error('DEMO_INVITE_CODES_SHA256 must list SHA-256 hex digests');
+    demo = {
+      enabled: true,
+      deploymentFile: demoDeploymentFile,
+      contractAddress: demoContract,
+      ownerAddress: demoOwner,
+      agentAddress: demoAgent,
+      inviteHashes,
+      sessionTtlSeconds: e.DEMO_SESSION_TTL_SECONDS,
+      maxTxPerSession: e.DEMO_MAX_TX_PER_SESSION,
+      maxAiPerSession: e.DEMO_MAX_AI_PER_SESSION,
+      maxAmountWei: ethers.parseEther(e.DEMO_MAX_AMOUNT_ETH),
+      dailyTxLimit: e.DEMO_DAILY_TX_LIMIT,
+      dailyAmountWei: ethers.parseEther(e.DEMO_DAILY_AMOUNT_ETH),
+      minTreasuryEth: e.DEMO_MIN_TREASURY_ETH,
+      minAgentGasEth: e.DEMO_MIN_AGENT_GAS_ETH,
+      maxFeePerGasGwei: e.DEMO_MAX_FEE_PER_GAS_GWEI,
+      executionWaitMs: e.DEMO_EXECUTION_WAIT_MS,
+      maxGasPerTxWei: ethers.parseEther(e.DEMO_MAX_GAS_PER_TX_ETH),
+      sessionGasWei: ethers.parseEther(e.DEMO_SESSION_GAS_ETH),
+      dailyGasWei: ethers.parseEther(e.DEMO_DAILY_GAS_ETH),
+    };
+    // Secrets stay on non-enumerable properties; only sandbox/demoSandbox.js reads them.
+    Object.defineProperty(demo, 'ownerKey', { value: e.DEMO_OWNER_PRIVATE_KEY, enumerable: false });
+    Object.defineProperty(demo, 'agentKey', { value: e.DEMO_AGENT_PRIVATE_KEY, enumerable: false });
+  }
+
   const config = {
     nodeEnv: e.NODE_ENV,
     appMode: e.APP_MODE,
@@ -256,6 +339,7 @@ export function loadConfig(env = process.env) {
     logLevel: e.LOG_LEVEL,
     databaseUrl: e.DATABASE_URL || null,
     pgliteDir: e.PGLITE_DIR,
+    dbSchema: e.DB_SCHEMA || null,
     migrationsDir: e.MIGRATIONS_DIR,
     rlServiceUrl: e.RL_SERVICE_URL.replace(/\/$/, ''),
     rlTimeoutMs: e.RL_TIMEOUT_MS,
@@ -296,6 +380,8 @@ export function loadConfig(env = process.env) {
     indexerBlockRange: e.INDEXER_BLOCK_RANGE || network.defaultLogBlockRange,
     ownerCacheMs: e.OWNER_CACHE_MS,
     backgroundJobs: e.BACKGROUND_JOBS,
+    demo,
+    adminAddresses,
   };
 
   return Object.freeze(config);

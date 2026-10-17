@@ -16,17 +16,28 @@ export class ApiError extends Error {
 
 let tokenProvider = () => null;
 let onUnauthorized = () => {};
+let prefixProvider = () => '';
 
-export function configureApi({ getToken, unauthorized }) {
+// Always served from the API root, whichever wallet mode is active: public evidence, demo session start, admin.
+const ROOT_PATHS = ['/public/', '/demo/session', '/demo/status', '/admin/'];
+const isRoot = (path, root) => root || ROOT_PATHS.some((p) => path.startsWith(p));
+
+/**
+ * getToken({ root }): bearer token for the request. getPrefix: path prefix of the active mode ("/demo/sandbox" while a
+ * judge uses the demo wallet, so every dashboard page reads the demo sandbox instead of the evidence contract).
+ */
+export function configureApi({ getToken, unauthorized, getPrefix }) {
   tokenProvider = getToken || tokenProvider;
   onUnauthorized = unauthorized || onUnauthorized;
+  prefixProvider = getPrefix || prefixProvider;
 }
 
-export async function api(path, { method = 'GET', body, headers = {}, signal } = {}) {
-  const token = tokenProvider();
+export async function api(path, { method = 'GET', body, headers = {}, signal, root = false } = {}) {
+  const atRoot = isRoot(path, root);
+  const token = tokenProvider({ root: atRoot });
   let res;
   try {
-    res = await fetch(`${API_BASE}${path}`, {
+    res = await fetch(`${API_BASE}${atRoot ? '' : prefixProvider()}${path}`, {
       method,
       signal,
       headers: {

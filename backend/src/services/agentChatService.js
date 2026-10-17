@@ -55,7 +55,8 @@ export function createAgentChatService({ config, repos, auth, llm, deps, logger 
   }
 
   async function runTool(call, ctx) {
-    const def = toolByName.get(call.name);
+    // A scoped chat (the judge demo) may only reach its allowlisted tools; anything else is unknown to it.
+    const def = !ctx.allowedTools || ctx.allowedTools.has(call.name) ? toolByName.get(call.name) : null;
     const record = async (status, output, error) =>
       repos.memory.addToolInvocation({ turnId: ctx.turnId, conversationId: ctx.conversationId, toolName: call.name, input: call.input, output, status, error });
     if (!def) {
@@ -92,19 +93,27 @@ export function createAgentChatService({ config, repos, auth, llm, deps, logger 
     }
   }
 
-  async function chat({ conversationId = null, message }, session) {
+  /**
+   * scope (optional, judge demo): { tools: Set of allowed tool names, owner: conversation owner id distinct from the
+   * signing address, maxModelCalls, maxOutputTokens, systemNote }. Without it the full operator assistant runs.
+   */
+  async function chat({ conversationId = null, message }, session, scope = null) {
     await auth.assertOwner(session.address);
+    const ownerId = scope?.owner || session.address;
+    const tools = scope?.tools ? TOOL_DEFINITIONS.filter((t) => scope.tools.has(t.name)) : TOOL_DEFINITIONS;
+    const maxCalls = Math.min(config.llm.maxModelCalls, scope?.maxModelCalls || Infinity);
+    const prompt = scope?.systemNote ? `${system}\n\n${scope.systemNote}` : system;
     if (typeof message !== 'string' || !message.trim()) throw badRequest('EMPTY_MESSAGE', 'Message is empty');
     let conversation;
     if (conversationId) {
       conversation = await repos.memory.getConversation(conversationId);
       if (!conversation) throw notFound('Conversation not found');
-      if (!sameAddress(conversation.owner, session.address)) throw forbidden('Conversation belongs to another address');
+      if (!sameAddress(conversation.owner, ownerId)) throw forbidden('Conversation belongs to another address');
     } else {
-      conversation = await repos.memory.createConversation(session.address, message.trim().slice(0, 80));
+      conversation = await repos.memory.createConversation(ownerId, message.trim().slice(0, 80));
     }
     const turn = await repos.memory.createTurn(conversation.id, message, llm.name, llm.model);
-    const ctx = { session, conversationId: conversation.id, turnId: turn.id, plan: null, clarification: null, actions: [] };
+    const ctx = { session, conversationId: conversation.id, turnId: turn.id, plan: null, clarification: null, actions: [], allowedTools: scope?.tools || null };
 
     if (!llm.available) {
       await repos.memory.finishTurn(turn.id, { status: 'UNAVAILABLE', error: llm.reason });
@@ -122,9 +131,10 @@ export function createAgentChatService({ config, repos, auth, llm, deps, logger 
     let calls = 0;
     const usage = { input_tokens: 0, output_tokens: 0 };
     try {
-      while (calls < config.llm.maxModelCalls) {
+      while (calls < maxCalls) {
+        if (scope?.maxContextBytes && Buffer.byteLength(JSON.stringify({ system: prompt, messages, tools }), 'utf8') > scope.maxContextBytes) throw badRequest('AI_CONTEXT_LIMIT', 'Public AI context limit reached; start a new conversation');
         calls += 1;
-        const res = await llm.chat({ system, messages, tools: TOOL_DEFINITIONS });
+        const res = await llm.chat({ system: prompt, messages, tools, ...(scope?.maxOutputTokens ? { maxOutputTokens: scope.maxOutputTokens } : {}) });
         if (res.usage) {
           usage.input_tokens += res.usage.input_tokens || res.usage.prompt_tokens || 0;
           usage.output_tokens += res.usage.output_tokens || res.usage.completion_tokens || 0;
@@ -185,14 +195,14 @@ export function createAgentChatService({ config, repos, auth, llm, deps, logger 
     }
     await repos.memory.finishTurn(turn.id, { status, finalText, plan: ctx.plan, actions: ctx.actions, error, usage, modelCalls: calls });
     await repos.memory.touchConversation(conversation.id);
-    await repos.audit.append({ actor: session.address, action: 'AGENT_TURN', entityType: 'conversation', entityId: conversation.id, details: { turnId: turn.id, status, provider: llm.name, model: llm.model, actions: ctx.actions, modelCalls: calls } });
-    return { conversationId: conversation.id, turnId: turn.id, status, text: finalText, error, plan: ctx.plan, actions: ctx.actions, modelCalls: calls };
+    await repos.audit.append({ actor: scope?.owner || session.address, action: 'AGENT_TURN', entityType: 'conversation', entityId: conversation.id, details: { turnId: turn.id, status, provider: llm.name, model: llm.model, actions: ctx.actions, modelCalls: calls } });
+    return { conversationId: conversation.id, turnId: turn.id, status, text: finalText, error, plan: ctx.plan, actions: ctx.actions, modelCalls: calls, usage };
   }
 
-  async function conversation(id, session) {
+  async function conversation(id, session, ownerId = session.address) {
     const conv = await repos.memory.getConversation(id);
     if (!conv) throw notFound('Conversation not found');
-    if (!sameAddress(conv.owner, session.address)) throw forbidden('Conversation belongs to another address');
+    if (!sameAddress(conv.owner, ownerId)) throw forbidden('Conversation belongs to another address');
     const [turns, tools] = await Promise.all([repos.memory.turns(id), repos.memory.toolInvocations(id)]);
     return {
       id: conv.id,
@@ -216,8 +226,8 @@ export function createAgentChatService({ config, repos, auth, llm, deps, logger 
     };
   }
 
-  async function conversations(session) {
-    return (await repos.memory.listConversations(session.address)).map((c) => ({ id: c.id, title: c.title, updatedAt: c.updated_at }));
+  async function conversations(session, ownerId = session.address) {
+    return (await repos.memory.listConversations(ownerId)).map((c) => ({ id: c.id, title: c.title, updatedAt: c.updated_at }));
   }
 
   return { chat, conversation, conversations, status: () => ({ provider: llm.name, model: llm.model, available: llm.available, reason: llm.reason }) };

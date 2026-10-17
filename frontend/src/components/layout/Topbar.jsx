@@ -18,7 +18,7 @@ function Brand() {
 }
 
 export function Topbar() {
-  const { config, account, walletChainId, networkOk, session, isOwner, connect, switchNetwork, signOut } = useApp();
+  const { config, account, walletChainId, networkOk, session, isOwner, isDemo, connect, switchNetwork, signOut } = useApp();
   return (
     <header className="sticky top-0 z-40 bg-ink text-white">
       <div className="flex flex-wrap lg:flex-nowrap items-center justify-between gap-x-4 px-4 sm:px-6 lg:h-16">
@@ -38,11 +38,11 @@ export function Topbar() {
             </span>
           )}
           {session && (
-            <span className={`inline-flex items-center h-8 px-3 rounded-full text-[11px] font-mono font-bold ${isOwner ? 'bg-mint text-mint-deep' : 'bg-white/10 text-white/80'}`}>
-              {isOwner ? 'owner' : 'viewer'}
+            <span className={`inline-flex items-center h-8 px-3 rounded-full text-[11px] font-mono font-bold ${isOwner || isDemo ? 'bg-mint text-mint-deep' : 'bg-white/10 text-white/80'}`}>
+              {isDemo ? 'demo wallet' : isOwner ? 'owner' : 'viewer'}
             </span>
           )}
-          {account ? (
+          {isDemo ? null : account ? (
             <span className="hidden md:inline-flex items-center h-8 px-3 rounded-full bg-white/10 text-[11px] font-mono text-white/85" title={account}>
               {truncateAddress(account)}
             </span>
@@ -56,7 +56,7 @@ export function Topbar() {
               className="inline-flex items-center gap-1.5 h-8 px-2.5 sm:px-3 rounded-full text-[12px] font-semibold text-white/75 hover:text-white hover:bg-white/10 transition-colors"
             >
               <span aria-hidden="true" className="material-symbols-outlined text-[18px]">logout</span>
-              <span className="hidden sm:inline">Sign out</span>
+              <span className="hidden sm:inline">{isDemo ? 'Leave demo' : 'Sign out'}</span>
             </button>
           )}
         </div>

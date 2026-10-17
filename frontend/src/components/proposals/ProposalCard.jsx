@@ -19,13 +19,76 @@ function useCountdown(expiresAt) {
   return Math.max(0, (expiresAt || 0) - now);
 }
 
+function Tag({ kind }) {
+  const style = { LIVE: 'bg-mint text-mint-deep', SIMULATED: 'bg-butter text-butter-deep', HISTORICAL: 'bg-slate-200 text-slate-700' }[kind];
+  return <span className={`inline-block text-[10px] font-mono font-bold tracking-wider rounded-full px-2 py-0.5 ${style}`}>{kind}</span>;
+}
+
+/** Verified receipt as read back from the chain after a demo confirmation. */
+function Receipt({ receipt }) {
+  return (
+    <div className="rounded-2xl bg-mint-soft text-mint-deep p-3.5 text-xs font-mono space-y-0.5" data-testid="demo-receipt">
+      <div className="font-bold font-sans text-[13px] flex items-center gap-2"><Tag kind="LIVE" /> Verified Sepolia receipt</div>
+      <div>Status: {receipt.status === 1 ? 'SUCCESS (1)' : `REVERTED (${receipt.status})`} · block {receipt.blockNumber} · gas used {receipt.gasUsed}</div>
+      <div className="break-all">Tx: <a className="underline" href={receipt.explorerUrl} target="_blank" rel="noreferrer">{receipt.txHash}</a></div>
+      <div className="break-all">From {receipt.from} (demo agent key) → contract {receipt.to}</div>
+    </div>
+  );
+}
+
+/**
+ * Demo wallet: the judge confirms this exact payment; the server's sandbox demo owner key then signs the EIP-712
+ * approval. The wording never suggests the judge's own wallet signed.
+ */
+function DemoConfirm({ proposal, onDone }) {
+  const { demo } = useApp();
+  const [checked, setChecked] = useState(false);
+  const [working, setWorking] = useState(false);
+  const [error, setError] = useState(null);
+  const mine = proposal.demo?.mine;
+  const allowed = demo?.executionAllowed;
+
+  async function confirm() {
+    setWorking(true);
+    setError(null);
+    try {
+      onDone(await post(`/proposals/${proposal.id}/confirm`, { confirm: true, recipient: proposal.recipient, amountWei: proposal.amountWei }));
+    } catch (err) {
+      setError(err);
+      onDone(null);
+    } finally {
+      setWorking(false);
+    }
+  }
+
+  if (!mine) return <div className="text-xs text-slate-500">Drafted by another demo session; only that session can confirm it.</div>;
+  if (!allowed) return <Alert variant="warning" title="Explore mode">Live demo transactions need an invite code. Choose “Switch role or wallet” and enter the code to execute this payment on Sepolia.</Alert>;
+  return (
+    <div className="rounded-3xl bg-slate-50 p-4 space-y-3">
+      <label className="flex items-start gap-3 text-[13.5px] text-ink cursor-pointer">
+        <input type="checkbox" className="mt-1 w-4 h-4" checked={checked} onChange={(e) => setChecked(e.target.checked)} data-testid="demo-confirm-checkbox" />
+        <span>
+          I confirm sending <strong>{proposal.amountFormatted} {proposal.token.symbol}</strong> to <span className="font-mono">{truncateAddress(proposal.recipient, 10, 6)}</span> on Ethereum Sepolia.
+          I understand that the <strong>sandbox demo owner key held by the server</strong> will sign the EIP-712 approval after this confirmation. My own wallet does not sign.
+        </span>
+      </label>
+      {error && <Alert variant="error">{describeError(error)}</Alert>}
+      <div className="flex justify-end">
+        <Button onClick={confirm} disabled={!checked || working} icon="verified_user">{working ? 'Signing and executing on Sepolia…' : 'Confirm demo authorization'}</Button>
+      </div>
+    </div>
+  );
+}
+
 /**
  * One transfer proposal. Approval = an EIP-712 signature over exactly this proposal (id, intent,
  * token, recipient, amount, deadline) sent with a stable Idempotency-Key. Status shown is always
  * the backend's, which only becomes CONFIRMED after a verified receipt.
  */
-export function ProposalCard({ proposal, recipientLabel, onChanged, compact = false }) {
-  const { config, isOwner, getSigner } = useApp();
+export function ProposalCard({ proposal: initial, recipientLabel, onChanged, compact = false }) {
+  const { config, isOwner, getSigner, isDemo } = useApp();
+  const [demoResult, setDemoResult] = useState(null);
+  const proposal = demoResult && demoResult.id === initial.id && initial.status === 'AWAITING_APPROVAL' ? demoResult : initial;
   const [working, setWorking] = useState(null);
   const [error, setError] = useState(null);
   const remaining = useCountdown(proposal.expiresAt);
@@ -98,7 +161,7 @@ export function ProposalCard({ proposal, recipientLabel, onChanged, compact = fa
               <PolicyChecks result={proposal.policyResult} />
             </div>
             <div className="space-y-2 text-xs rounded-3xl bg-slate-50 p-4">
-              <div className="eyebrow text-slate-500">Pre-flight simulation</div>
+              <div className="eyebrow text-slate-500 flex items-center gap-2">Pre-flight simulation <Tag kind="SIMULATED" /></div>
               {sim?.success ? (
                 <div className="font-mono text-slate-700 space-y-0.5">
                   <div>{sim.gasBasis === 'pre-signature' ? 'Full dry run before signing (simulateTransfer): succeeded' : `Static call${sim.method ? ` (${sim.method})` : ''}: succeeded`}</div>
@@ -118,7 +181,7 @@ export function ProposalCard({ proposal, recipientLabel, onChanged, compact = fa
 
         {exec && (
           <div className={`text-xs rounded-2xl p-3.5 space-y-1 font-mono ${exec.status === 'CONFIRMED' ? 'bg-mint-soft text-mint-deep' : exec.status === 'FAILED' ? 'bg-blush-soft text-blush-deep' : 'bg-slate-50 text-slate-700'}`}>
-            <div>Execution: {exec.status}{exec.errorCode ? ` — ${exec.errorCode}: ${exec.errorMessage}` : ''}</div>
+            <div>{config?.isPublicNetwork && <><Tag kind="LIVE" />{' '}</>}Execution: {exec.status}{exec.errorCode ? ` — ${exec.errorCode}: ${exec.errorMessage}` : ''}</div>
             {exec.txHash && (
               <div className="break-all">
                 Tx: {txLink ? <a className="underline" href={txLink} target="_blank" rel="noreferrer">{exec.txHash}</a> : exec.txHash}
@@ -140,17 +203,22 @@ export function ProposalCard({ proposal, recipientLabel, onChanged, compact = fa
             {proposal.approvalKind === 'TASK_GRANT' ? `Approved by signed task grant (${proposal.approvedBy})` : `Approved by ${truncateAddress(proposal.approvedBy)}`} at {formatDateTime(proposal.approvedAt)}
           </div>
         )}
+        {isDemo && proposal.demo?.authorization && <div className="text-xs text-slate-600" data-testid="demo-authorization-label">{proposal.demo.authorization.label}</div>}
+        {demoResult?.receipt && demoResult.id === proposal.id && <Receipt receipt={demoResult.receipt} />}
+        {demoResult?.pending && demoResult.id === proposal.id && <Alert>Submitted; still waiting for the Sepolia receipt. This page refreshes the status.</Alert>}
 
         {error && <Alert variant="error">{describeError(error)}</Alert>}
 
         {awaiting && !expired && (
           <div className="text-xs text-slate-600" data-testid="signed-deadline">
-            Execution deadline (signed): <span className="font-mono">{formatDateTime(proposal.expiresAt)}</span>. Your signature authorizes this
+            Execution deadline (signed): <span className="font-mono">{formatDateTime(proposal.expiresAt)}</span>. {isDemo ? 'The demo approval' : 'Your signature'} authorizes this
             exact transfer only until then; if it has not executed by that time it fails and is never extended.
           </div>
         )}
 
-        {awaiting && !expired && (
+        {isDemo && awaiting && !expired && <DemoConfirm proposal={proposal} onDone={(r) => { if (r) setDemoResult(r); onChanged?.(); }} />}
+
+        {!isDemo && awaiting && !expired && (
           <div className="flex flex-wrap gap-2 justify-end items-center pt-1">
             {!isOwner && <span className="text-xs text-slate-500 self-center">Only the contract owner can approve.</span>}
             <Button variant="secondary" onClick={reject} disabled={!isOwner || Boolean(working)}>
