@@ -32,6 +32,8 @@ async function main() {
 }
 
 main().catch((err) => {
-  console.error(`Fatal startup error: ${err.message}`);
+  console.error(process.env.NODE_ENV === 'production'
+    ? 'Fatal startup error: check required environment variables, PostgreSQL connectivity/migrations and Sepolia RPC. Credentials and connection URLs are withheld.'
+    : `Fatal startup error: ${err.message}`);
   process.exit(1);
 });

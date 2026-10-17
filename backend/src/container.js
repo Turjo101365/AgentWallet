@@ -19,6 +19,7 @@ import { createSchedulerService } from './services/schedulerService.js';
 import { createPortfolioService } from './services/portfolioService.js';
 import { createAgentChatService } from './services/agentChatService.js';
 import { createLlmProvider } from './llm/providers.js';
+import { createJudgeService } from './services/judgeService.js';
 
 /** Composition root shared by the server and the tests. `overrides` lets tests inject an LLM provider. */
 export async function createContainer(config, { logger = createLogger(config.logLevel), provider, llmProvider, schedulerInstanceId } = {}) {
@@ -45,9 +46,11 @@ export async function createContainer(config, { logger = createLogger(config.log
   const portfolio = createPortfolioService({ config, repos, chain, prices });
   const llm = llmProvider || createLlmProvider(config);
   const agentChat = createAgentChatService({ config, repos, auth, llm, logger, deps: { chain, repos, proposals, scheduler, portfolio, policySettings, history } });
+  const judge = config.appMode === 'judge' ? createJudgeService({ config, chain, risk, db, llm, logger }) : null;
 
   const timers = [];
   function startBackgroundJobs() {
+    if (config.appMode === 'judge') return;
     indexer.start();
     scheduler.start();
     const every = (ms, fn, label) => {
@@ -76,6 +79,6 @@ export async function createContainer(config, { logger = createLogger(config.log
 
   return {
     config, logger, db, migrations, repos, chain, auth, agentControl, policySettings, prices, risk, proposals, executor,
-    indexer, rl, timing, history, scheduler, portfolio, llm, agentChat, signerProvider, startBackgroundJobs, close,
+    indexer, rl, timing, history, scheduler, portfolio, llm, agentChat, judge, signerProvider, startBackgroundJobs, close,
   };
 }

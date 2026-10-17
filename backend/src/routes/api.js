@@ -22,6 +22,7 @@ export function createApiRouter(deps) {
   router.get('/config', wrap(async (_req, res) => {
     ok(res, {
       chainId: config.chainId,
+      appMode: config.appMode || 'operator',
       networkName: config.network.name,
       isPublicNetwork: config.network.isPublic,
       explorerBaseUrl: config.network.explorerBaseUrl,
@@ -36,7 +37,7 @@ export function createApiRouter(deps) {
       tokens: config.tokens,
       proposalTtlSeconds: config.proposalTtlSeconds,
       chainReady: chain.status.ready,
-      chainError: chain.status.error,
+      chainError: config.nodeEnv === 'production' && chain.status.error ? 'Chain unavailable; check backend deployment logs' : chain.status.error,
       abi: AGENT_WALLET_ABI,
     });
   }));

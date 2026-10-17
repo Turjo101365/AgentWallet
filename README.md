@@ -102,6 +102,7 @@ npm test   # contracts, backend, frontend, RL, e2e
 Latest results and the local-chain transaction evidence: [docs/TEST_RESULTS.md](docs/TEST_RESULTS.md).
 
 ## Documentation
+- [Public judge hosting readiness](docs/HOSTING_READINESS.md), [Vercel/Render deployment plan](docs/HOSTING_DEPLOYMENT.md), and [judge quick start](docs/JUDGE_QUICK_START.md) — prepared for review; hosting is not yet deployed
 - [Architecture](docs/architecture.md)
 - [Contract v1 vs v2](docs/CONTRACT_V2.md)
 - [Security findings](docs/SECURITY_FINDINGS.md) — every audit finding with its fix and test

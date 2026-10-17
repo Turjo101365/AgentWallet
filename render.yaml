@@ -1,0 +1,60 @@
+# Prepared configuration only. Creating these paid resources requires owner approval.
+# Use the repository root as the build context; shared ABI, migrations and evidence are required.
+services:
+  - type: web
+    name: agentwallet-judge-api
+    runtime: node
+    branch: main
+    plan: 0.5c-512mb
+    region: singapore
+    autoDeployTrigger: "off"
+    buildCommand: npm ci --prefix backend --omit=dev
+    startCommand: node backend/src/server.js
+    healthCheckPath: /health/ready
+    numInstances: 1
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: NODE_ENV
+        value: production
+      - key: HOST
+        value: 0.0.0.0
+      - key: APP_MODE
+        value: judge
+      - key: CHAIN_ID
+        value: "11155111"
+      - key: DEPLOYMENT_FILE
+        value: contracts/deployments/sepolia-v2-full.json
+      - key: BACKGROUND_JOBS
+        value: "false"
+      - key: ALLOW_PUBLIC_TESTNET_EXECUTION
+        value: "false"
+      - key: TRUST_PROXY
+        value: "true"
+      - key: APP_ORIGIN
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
+      - key: RPC_URL
+        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: agentwallet-judge-db
+          property: connectionString
+      - key: PUBLIC_AI_ENABLED
+        value: "false"
+      - key: PUBLIC_AI_DAILY_LIMIT
+        value: "30"
+      - key: LLM_PROVIDER
+        value: none
+      - key: LLM_TIMEOUT_MS
+        value: "15000"
+      - key: LOG_LEVEL
+        value: info
+databases:
+  - name: agentwallet-judge-db
+    plan: 0.1c-256mb
+    diskSizeGB: 1
+    region: singapore
+    ipAllowList: []
+    postgresMajorVersion: "16"
