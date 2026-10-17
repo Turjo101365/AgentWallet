@@ -10,16 +10,17 @@
     background-color: #121411;
     color: #121411;
     font-family: 'Inter Tight', 'Inter', system-ui, sans-serif;
-    letter-spacing: -0.04em;
+    font-size: 16px;
+    letter-spacing: 0;
     line-height: 1.55;
     font-feature-settings: 'ss01';
   }
 
-  /* Inter Tight, with the requested -4% tracking. */
+  /* Keep Inter Tight with natural, unmodified spacing. */
   h1, h2, h3, .font-display {
     font-family: 'Inter Tight', 'Inter', system-ui, sans-serif;
     font-weight: 500;
-    letter-spacing: -0.04em;
+    letter-spacing: 0;
   }
 
   /* Force tabular numbers in financial numbers and addresses */
@@ -45,14 +46,14 @@
     font-family: 'Inter Tight', 'Inter', system-ui, sans-serif;
     font-weight: 500;
     font-variant-numeric: tabular-nums lining-nums;
-    letter-spacing: -0.04em;
+    letter-spacing: 0;
     line-height: 0.95;
   }
 
   .eyebrow {
     font-family: 'Inter Tight', 'Inter', system-ui, sans-serif;
-    font-size: 11px;
-    letter-spacing: 0.04em;
+    font-size: 16px;
+    letter-spacing: 0;
     font-weight: 600;
     text-transform: uppercase;
   }
@@ -74,6 +75,22 @@
   }
   .technical-details[open] > summary {
     @apply mb-4;
+  }
+}
+
+/* A readable floor for existing compact labels, controls and technical text.
+   Larger headings and Material Symbols retain their intended sizes. */
+@layer utilities {
+  .text-xs, .text-sm,
+  .text-\[10px\], .text-\[11px\], .text-\[11\.5px\],
+  .text-\[12px\], .text-\[12\.5px\], .text-\[13px\],
+  .text-\[13\.5px\], .text-\[14px\], .text-\[15px\] {
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  .tracking-tight, .tracking-wider {
+    letter-spacing: 0;
   }
 }
 

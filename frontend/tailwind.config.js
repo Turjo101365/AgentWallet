@@ -19,6 +19,10 @@ export default {
   darkMode: 'class',
   theme: {
     extend: {
+      fontSize: {
+        xs: ['1rem', { lineHeight: '1.5' }],
+        sm: ['1rem', { lineHeight: '1.5' }],
+      },
       colors: {
         slate: neutral,
         ink: { DEFAULT: '#121411', 2: '#1c1f1b', 3: '#2b2f2a' },
