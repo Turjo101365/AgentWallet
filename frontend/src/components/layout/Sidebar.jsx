@@ -1,5 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
+import { useApp } from '../../app/providers.jsx';
 
 export const NAV = [
   { to: '/', label: 'Overview', icon: 'grid_view' },
@@ -20,9 +21,12 @@ export const NAV = [
  * expands to show its label. Below `lg` every item shows its label and the rail scrolls sideways.
  */
 export function PrimaryNav({ className = '' }) {
+  const { judgeSite } = useApp();
+  // Public judge site: no RL service is deployed; historical evidence is its own section.
+  const items = judgeSite ? [...NAV.filter((i) => i.to !== '/rl'), { to: '/evidence', label: 'Evidence', icon: 'verified' }] : NAV;
   return (
     <nav aria-label="Primary" className={`flex items-center gap-1 overflow-x-auto no-scrollbar ${className}`}>
-      {NAV.map((item) => (
+      {items.map((item) => (
         <NavLink
           key={item.to}
           to={item.to}

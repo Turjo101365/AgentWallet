@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardHeader, CardContent, PageHeader } from '../components/ui/Card.jsx';
 import { Button } from '../components/ui/Button.jsx';
@@ -15,6 +15,30 @@ const input = 'field';
 const TASK_VARIANT = { ACTIVE: 'success', PENDING_AUTHORIZATION: 'warning', PAUSED: 'warning', CANCELLED: 'neutral', COMPLETED: 'neutral', EXPIRED: 'neutral', FAILED: 'error' };
 const RUN_VARIANT = { CONFIRMED: 'success', EXECUTING: 'warning', ESCALATED: 'warning', DEFERRED: 'warning', PENDING: 'warning', CLAIMED: 'warning', RETRY_WAIT: 'warning', FAILED: 'error', SKIPPED: 'neutral' };
 const toUnix = (local) => Math.floor(new Date(local).getTime() / 1000);
+
+function DemoAutomation() {
+  const {demo}=useApp(), tasks=usePolling(()=>get('/tasks'),5000), recipients=useRecipients();
+  const [amount,setAmount]=useState('0.0001'),[recipient,setRecipient]=useState(''),[error,setError]=useState(null);
+  const running=useRef(false);
+  const active=tasks.data?.some((t)=>t.status==='ACTIVE');
+  const run=async()=>{if(running.current)return;running.current=true;try{await post('/automation/run-due',{});tasks.refresh();}catch(e){setError(describeError(e));}finally{running.current=false;}};
+  useEffect(()=>{if(!active||!demo?.executionAllowed)return;const timer=setInterval(run,10000);return()=>clearInterval(timer);},[active,demo?.executionAllowed]);
+  const act=async(fn)=>{try{setError(null);await fn();tasks.refresh();}catch(e){setError(describeError(e));}};
+  return <div className="space-y-5"><PageHeader title="Bounded demo automation" eyebrow="Explicit grant confirmation">Each grant permits at most two payments, 30 seconds apart, for ten minutes. While this page is open, authenticated requests process eligible grants. No unrestricted background worker runs.</PageHeader>
+    <Card><CardContent className="space-y-3"><input aria-label="Grant amount ETH" className="field" value={amount} onChange={(e)=>setAmount(e.target.value)}/>
+      <select aria-label="Grant recipient" className="field" value={recipient} onChange={(e)=>setRecipient(e.target.value)}><option value="">Select allowlisted recipient</option>{(recipients.data||[]).map((r)=><option key={r.address} value={r.address}>{r.label||r.address}</option>)}</select>
+      <Button onClick={()=>act(()=>post('/tasks',{amount,recipient}))}>Draft two-payment grant</Button>
+    </CardContent></Card>
+    {error&&<Alert variant="error">{error}</Alert>}
+    {(tasks.data||[]).map((t)=><Card key={t.id}><CardContent className="space-y-3"><h2 className="text-xl">{t.amountFormatted} ETH × {t.maxRuns} → {truncateAddress(t.recipient)}</h2><p>{t.status} · expires {formatDateTime(t.validUntil)} · {t.runsCount} runs</p>
+      <p className="text-sm">Demo authorization: you confirm the exact grant; the server-held demo owner key signs EIP-712. Your personal wallet does not sign.</p>
+      {t.status==='PENDING_AUTHORIZATION'&&<Button disabled={!demo?.executionAllowed} onClick={()=>window.confirm(`Authorize up to TWO ${t.amountFormatted} ETH payments to ${t.recipient} until ${formatDateTime(t.validUntil)} using the server demo key?`)&&act(()=>post('/tasks/'+t.id+'/confirm-grant',{confirm:true,digest:t.grantDigest}))}>Confirm bounded demo grant</Button>}
+      {['ACTIVE','PAUSED'].includes(t.status)&&<Button variant="danger" onClick={()=>act(()=>post('/tasks/'+t.id+'/revoke-demo',{}))}>Revoke my demo grant</Button>}
+      {(t.runs||[]).map((r)=><div key={r.id} className="text-sm">{r.status} {r.proposalId&&<Link className="underline" to="/proposals">View payment and receipt</Link>}</div>)}
+    </CardContent></Card>)}
+    <Button disabled={!demo?.executionAllowed} onClick={run}>Process eligible signed grants now</Button>
+  </div>;
+}
 
 function NewTaskForm({ recipients, onCreated }) {
   const { config, isOwner } = useApp();
@@ -183,7 +207,7 @@ function TaskCard({ task, recipients, onChanged }) {
 }
 
 export function Automation() {
-  const { isOwner } = useApp();
+  const { isOwner,isDemo,personal } = useApp();
   const tasks = usePolling(() => get('/tasks'), 5000);
   const automation = usePolling(() => get('/automation'), 5000);
   const recipients = useRecipients();
@@ -200,6 +224,7 @@ export function Automation() {
     }
   }
 
+  if(isDemo)return <DemoAutomation/>;
   return (
     <div className="space-y-6">
       <PageHeader
@@ -216,6 +241,7 @@ export function Automation() {
       </PageHeader>
       {paused && automation.data?.reason && <Alert variant="warning">Paused: {automation.data.reason} ({automation.data.by})</Alert>}
       {error && <Alert variant="error">{error}</Alert>}
+      {personal&&<Button onClick={()=>post('/automation/run-due',{}).then(()=>tasks.refresh()).catch((e)=>setError(describeError(e)))}>Process eligible owner-signed grants</Button>}
       <NewTaskForm recipients={recipients.data || []} onCreated={() => tasks.refresh()} />
       <div className="space-y-4">
         {tasks.data?.map((t) => <TaskCard key={t.id} task={t} recipients={recipients.data} onChanged={tasks.refresh} />)}

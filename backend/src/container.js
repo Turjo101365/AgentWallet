@@ -23,7 +23,7 @@ import { createJudgeService } from './services/judgeService.js';
 
 /** Composition root shared by the server and the tests. `overrides` lets tests inject an LLM provider. */
 export async function createContainer(config, { logger = createLogger(config.logLevel), provider, llmProvider, schedulerInstanceId } = {}) {
-  const db = await openDatabase({ databaseUrl: config.databaseUrl, pgliteDir: config.pgliteDir });
+  const db = await openDatabase({ databaseUrl: config.databaseUrl, pgliteDir: config.pgliteDir, schema: config.dbSchema, maxConnections: config.dbSchema ? 3 : 5 });
   const migrations = await migrate(db, config.migrationsDir);
   const repos = createRepositories(db);
   const chain = createChainService(config, { provider });
@@ -46,7 +46,10 @@ export async function createContainer(config, { logger = createLogger(config.log
   const portfolio = createPortfolioService({ config, repos, chain, prices });
   const llm = llmProvider || createLlmProvider(config);
   const agentChat = createAgentChatService({ config, repos, auth, llm, logger, deps: { chain, repos, proposals, scheduler, portfolio, policySettings, history } });
-  const judge = config.appMode === 'judge' ? createJudgeService({ config, chain, risk, db, llm, logger }) : null;
+  const publicAiGate={active:false};
+  const judge = config.appMode === 'judge' ? createJudgeService({ config, chain, risk, db, llm, logger, gate:publicAiGate }) : null;
+  // Judge demo wallet: a separate sandbox container (own contract, keys and schema). Loaded only when enabled.
+  const demoRuntime = config.demo?.enabled ? await (await import('./sandbox/demoRuntime.js')).createDemoRuntime(config, { db, llm, logger,publicAiGate }) : null;
 
   const timers = [];
   function startBackgroundJobs() {
@@ -73,12 +76,13 @@ export async function createContainer(config, { logger = createLogger(config.log
     scheduler.stop();
     timers.forEach(clearInterval);
     await executor.whenIdle().catch(() => {});
+    await demoRuntime?.close().catch(() => {});
     chain.provider.destroy?.();
     await db.close();
   }
 
   return {
     config, logger, db, migrations, repos, chain, auth, agentControl, policySettings, prices, risk, proposals, executor,
-    indexer, rl, timing, history, scheduler, portfolio, llm, agentChat, judge, signerProvider, startBackgroundJobs, close,
+    indexer, rl, timing, history, scheduler, portfolio, llm, agentChat, judge, demoRuntime, publicAiGate, signerProvider, startBackgroundJobs, close,
   };
 }

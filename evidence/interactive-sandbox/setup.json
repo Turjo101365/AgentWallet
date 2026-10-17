@@ -1,0 +1,45 @@
+{
+  "chainId": 11155111,
+  "contract": "0x59a33154288009e030aa2072De46D32fC7d40d85",
+  "owner": "0x98cd6633Fa95cf4Ff9761CDFFa555D553FcDf680",
+  "agent": "0x341E8F433A90d776DE1C13D8f9DdE48bB387A7d6",
+  "recipient": "0xd85cdB676877ccdc8873B63DEf51B456568604F5",
+  "operation": "setRecipient(approvedRecipient,true)",
+  "hash": "0x14cb0e55ce9074ce1773b8e3fc84a431bae3558da8295b33c1c4ee00fca82d96",
+  "status": "CONFIRMED",
+  "gasEstimate": "131117",
+  "gasLimit": "157341",
+  "maximumFeeWei": "9440460",
+  "fundingReceipts": [
+    {
+      "step": "Deploy unchanged AgentWallet v2",
+      "hash": "0xae1bc3339bf0970590afa24304566356e35ef8123ab5a61b3d760d30a7bc55ad",
+      "blockNumber": 11934212,
+      "feeWei": "568854692",
+      "valueWei": "0"
+    },
+    {
+      "step": "Fund dedicated owner gas",
+      "hash": "0x8b2b4c8a5f4a447165c8a9d5b25c65241ecfaf80da3f56513cac48d6a7e8661a",
+      "blockNumber": 11934224,
+      "feeWei": "5933400",
+      "valueWei": "1500000000000000"
+    },
+    {
+      "step": "Fund dedicated agent gas",
+      "hash": "0xf603b80d45f02d3855c7b832e3c491a2ee3191c280cbdd27d58712e464b5eb7e",
+      "blockNumber": 11934236,
+      "feeWei": "5728800",
+      "valueWei": "1500000000000000"
+    },
+    {
+      "step": "Deposit sandbox treasury",
+      "hash": "0x6aa27b173be6a9d4fbdddd7512322976276b1b1950b1ee7c7c2dfa5a7d3a5ff5",
+      "blockNumber": 11934241,
+      "feeWei": "658503",
+      "valueWei": "500000000000000"
+    }
+  ],
+  "blockNumber": 11934261,
+  "feeWei": "3900540"
+}

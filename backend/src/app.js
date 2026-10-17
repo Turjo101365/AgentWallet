@@ -5,6 +5,9 @@ import { createApiRouter } from './routes/api.js';
 import { createRateLimits } from './middleware/rateLimits.js';
 import { requestId, createErrorHandler, notFoundHandler } from './middleware/errorHandler.js';
 import { createPublicRouter } from './routes/public.js';
+import { createPersonalRouter } from './routes/personal.js';
+import { createDemoRouter } from './routes/demo.js';
+import { createAdminRouter } from './routes/admin.js';
 
 export function createApp(container, { disableRateLimits = false } = {}) {
   const { config, logger, db, chain, rl, executor, indexer } = container;
@@ -71,6 +74,9 @@ export function createApp(container, { disableRateLimits = false } = {}) {
 
   if (config.appMode === 'judge') {
     app.use('/api/public', createPublicRouter({ ...container, limits }));
+    app.use('/api/demo', createDemoRouter({ demoRuntime: container.demoRuntime, limits }));
+    app.use('/api/admin', createAdminRouter({ ...container, limits }));
+    app.use('/api/personal', createPersonalRouter(container, limits));
     app.use('/api', (req, res, next) => {
       const allowed = (req.method === 'GET' && ['/config', '/auth/session'].includes(req.path)) ||
         (req.method === 'POST' && ['/auth/nonce', '/auth/verify', '/auth/logout'].includes(req.path));

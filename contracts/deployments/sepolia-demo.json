@@ -1,0 +1,27 @@
+{
+  "network": "sepolia-demo",
+  "chainId": 11155111,
+  "contractAddress": "0x59a33154288009e030aa2072De46D32fC7d40d85",
+  "contractVersion": 2,
+  "deployBlock": 11934212,
+  "deployTxHash": "0xae1bc3339bf0970590afa24304566356e35ef8123ab5a61b3d760d30a7bc55ad",
+  "owner": "0x98cd6633Fa95cf4Ff9761CDFFa555D553FcDf680",
+  "agent": "0x341E8F433A90d776DE1C13D8f9DdE48bB387A7d6",
+  "tokens": [
+    {
+      "symbol": "ETH",
+      "address": "0x0000000000000000000000000000000000000000",
+      "decimals": 18,
+      "native": true
+    }
+  ],
+  "demoRecipients": [
+    {
+      "label": "Approved sandbox payment recipient",
+      "category": "supplier",
+      "address": "0xd85cdB676877ccdc8873B63DEf51B456568604F5"
+    }
+  ],
+  "priceFeeds": [],
+  "deployedAt": "2026-10-17T12:40:54.369Z"
+}

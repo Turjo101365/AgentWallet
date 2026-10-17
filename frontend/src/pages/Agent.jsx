@@ -7,6 +7,7 @@ import { Badge } from '../components/ui/Badge.jsx';
 import { useApp } from '../app/providers.jsx';
 import { get, post, describeError } from '../lib/api.js';
 import { usePolling } from '../hooks/usePolling.js';
+import { ProposalCard } from '../components/proposals/ProposalCard.jsx';
 
 const EXAMPLES = [
   'Send 0.005 ETH to my approved supplier.',
@@ -15,6 +16,13 @@ const EXAMPLES = [
   'Keep at least 0.02 ETH available for gas.',
   'Stop all automated payments.',
   'Transfer 10 mUSDC to my contractor, but never exceed my daily limit.',
+];
+
+const DEMO_EXAMPLES = [
+  'Send 0.0001 ETH to the demo recipient.',
+  'What are the spending limits on this sandbox?',
+  'Show the treasury balance and recent spending.',
+  'Send 0.5 ETH to the demo recipient.',
 ];
 
 const STATUS_VARIANT = { COMPLETED: 'success', NEEDS_CLARIFICATION: 'warning', FAILED: 'error', REFUSED: 'error', UNAVAILABLE: 'error', RUNNING: 'warning' };
@@ -84,10 +92,12 @@ function Turn({ turn }) {
 }
 
 export function Agent() {
-  const { isOwner } = useApp();
+  const { isOwner, isDemo } = useApp();
+  const canChat = isOwner || isDemo;
   const location = useLocation();
   const status = usePolling(() => get('/agent/status'), 15000);
-  const list = usePolling(() => get('/agent/conversations'), 0, [], { enabled: isOwner });
+  const list = usePolling(() => get('/agent/conversations'), 0, [], { enabled: canChat });
+  const [drafted, setDrafted] = useState([]);
   const [conversationId, setConversationId] = useState(null);
   const [conversation, setConversation] = useState(null);
   const [message, setMessage] = useState(() => location.state?.draft || '');
@@ -103,9 +113,9 @@ export function Agent() {
 
   // Opened from the Overview command center with a conversation to resume.
   useEffect(() => {
-    if (location.state?.conversationId && isOwner) load(location.state.conversationId).catch(() => {});
+    if (location.state?.conversationId && canChat) load(location.state.conversationId).catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.state?.conversationId, isOwner]);
+  }, [location.state?.conversationId, canChat]);
 
   // Block body on purpose: current Chromium returns a Promise from scrollIntoView, and React
   // would call a returned value as the effect cleanup ("destroy is not a function").
@@ -121,6 +131,7 @@ export function Agent() {
     try {
       const turn = await post('/agent/chat', { message, conversationId });
       setMessage('');
+      if (turn.proposals?.length) setDrafted(turn.proposals);
       await load(turn.conversationId);
       list.refresh();
     } catch (err) {
@@ -133,14 +144,16 @@ export function Agent() {
   return (
     <div className="space-y-6">
       <PageHeader eyebrow={`AI command center · ${llm ? (llm.available ? `${llm.provider} · ${llm.model}` : 'model unavailable') : 'checking model…'}`} title="AI agent">
-        The language model plans and calls tools. It cannot sign or approve: transfers wait for your approval, schedules wait for your signed grant, and every action passes the policy engine and the contract limits.
+        {isDemo
+          ? 'GPT-4.1-mini plans and calls tools on the demo sandbox. It cannot sign or approve: a drafted payment runs the policy engine and a dry run, then waits for your explicit confirmation.'
+          : 'The language model plans and calls tools. It cannot sign or approve: transfers wait for your approval, schedules wait for your signed grant, and every action passes the policy engine and the contract limits.'}
       </PageHeader>
       {llm && !llm.available && (
         <Alert variant="warning" title="No language model configured">
           {llm.reason}. The rest of the console works without it. Set ANTHROPIC_API_KEY (or an OpenAI-compatible endpoint) in backend/.env and restart the backend.
         </Alert>
       )}
-      {!isOwner && <Alert variant="warning">Only the contract owner can use the agent.</Alert>}
+      {!canChat && <Alert variant="warning">Only the contract owner can use the agent.</Alert>}
       <div className="grid lg:grid-cols-4 gap-6">
         <Card className="lg:col-span-1">
           <CardHeader title="Conversations" action={<Button size="sm" variant="secondary" onClick={() => load(null)}>New</Button>} />
@@ -159,11 +172,12 @@ export function Agent() {
             {conversation?.turns.map((t) => <Turn key={t.id} turn={t} />)}
             {!conversation && (
               <div className="grid sm:grid-cols-2 gap-2">
-                {EXAMPLES.map((ex) => (
+                {(isDemo ? DEMO_EXAMPLES : EXAMPLES).map((ex) => (
                   <button key={ex} onClick={() => setMessage(ex)} className="group text-left text-[14px] bg-white shadow-card rounded-3xl p-4 hover:-translate-y-0.5 hover:shadow-floating transition-all flex items-start gap-3"><span aria-hidden="true" className="material-symbols-outlined text-[20px] text-tertiary">auto_awesome</span><span>{ex}</span></button>
                 ))}
               </div>
             )}
+            {isDemo && drafted.map((p) => <ProposalCard key={p.id} proposal={p} onChanged={async () => setDrafted(await Promise.all(drafted.map((d) => get(`/proposals/${d.id}`))))} />)}
             <div ref={bottom} />
           </div>
           {error && <Alert variant="error">{error}</Alert>}
@@ -172,13 +186,13 @@ export function Agent() {
               className="flex-1 py-2.5 bg-transparent text-[15px] resize-none focus:outline-none"
               rows={2}
               value={message}
-              maxLength={4000}
+              maxLength={isDemo ? 1200 : 4000}
               onChange={(e) => setMessage(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) send(e); }}
               placeholder="Ask the agent…"
-              disabled={!isOwner || busy}
+              disabled={!canChat || busy}
             />
-            <Button type="submit" disabled={!isOwner || busy || !message.trim()} icon="send">{busy ? 'Thinking…' : 'Send'}</Button>
+            <Button type="submit" disabled={!canChat || busy || !message.trim()} icon="send">{busy ? 'Thinking…' : 'Send'}</Button>
           </form>
         </div>
       </div>

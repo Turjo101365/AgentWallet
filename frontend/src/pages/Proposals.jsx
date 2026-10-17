@@ -3,6 +3,7 @@ import { PageHeader } from '../components/ui/Card.jsx';
 import { NewProposalForm } from '../components/proposals/NewProposalForm.jsx';
 import { ProposalCard } from '../components/proposals/ProposalCard.jsx';
 import { useProposals, useRecipients, labelFor } from '../hooks/useData.js';
+import { useApp } from '../app/providers.jsx';
 
 const FILTERS = [
   ['All', null],
@@ -14,6 +15,7 @@ const FILTERS = [
 ];
 
 export function Proposals() {
+  const { isDemo } = useApp();
   const [filter, setFilter] = useState(null);
   const proposals = useProposals(filter);
   const recipients = useRecipients();
@@ -23,7 +25,9 @@ export function Proposals() {
       <PageHeader eyebrow="Owner authorization" title="Proposals">
         Every transfer intent with its policy checks and pre-flight simulation. Approving signs exactly this transfer (EIP-712); nothing moves without that signature or a signed task grant.
       </PageHeader>
-      <NewProposalForm recipients={recipients.data || []} onCreated={() => proposals.refresh()} />
+      {isDemo
+        ? <p className="text-sm text-slate-600">In the demo wallet, payments are drafted by the AI agent; open AI agent to ask for one. Payments drafted in this session can be confirmed here.</p>
+        : <NewProposalForm recipients={recipients.data || []} onCreated={() => proposals.refresh()} />}
       <div className="flex flex-wrap gap-2" role="group" aria-label="Filter proposals">
         {FILTERS.map(([label, value]) => (
           <button

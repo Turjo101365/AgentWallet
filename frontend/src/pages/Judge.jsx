@@ -9,9 +9,11 @@ import { readAfterColdStart } from '../lib/coldStart.js';
 
 const field = 'w-full rounded-xl border border-slate-300 p-3 bg-white text-sm';
 const ext = { target: '_blank', rel: 'noopener noreferrer' };
-const nav = [['/', 'Overview'], ['/judge/evidence', 'On-chain evidence'], ['/judge/agent', 'AI & risk analysis'], ['/judge/guide', 'Judge guide']];
+const nav = [['/evidence', 'Overview'], ['/evidence/receipts', 'On-chain evidence'], ['/evidence/ai', 'AI & risk analysis'], ['/evidence/guide', 'Judge guide']];
+const SECTION = { '/evidence/receipts': 'evidence', '/judge/evidence': 'evidence', '/evidence/ai': 'agent', '/judge/agent': 'agent', '/evidence/guide': 'guide', '/judge/guide': 'guide' };
 
-export function Judge() {
+/** Historical public evidence (read-only). Standalone before a role is chosen; `embedded` inside the dashboard. */
+export function Judge({ embedded = false }) {
   const { config } = useApp();
   const { pathname } = useLocation();
   const [data, setData] = useState(null), [error, setError] = useState(null), [loading, setLoading] = useState(false);
@@ -41,20 +43,25 @@ export function Judge() {
     catch (err) { setActionError(describeError(err)); }
     finally { setWorking(false); }
   }
-  const section = pathname === '/judge/evidence' ? 'evidence' : pathname === '/judge/agent' ? 'agent' : pathname === '/judge/guide' ? 'guide' : 'overview';
+  const section = SECTION[pathname] || 'overview';
+  const subnav = (dark) => (
+    <nav aria-label="Evidence navigation" className="w-full flex flex-wrap gap-2">
+      {nav.map(([to, label]) => <Link key={to} to={to} className={`rounded-full px-4 py-2 text-sm ${(SECTION[pathname] || 'overview') === (SECTION[to] || 'overview') ? (dark ? 'bg-white text-ink' : 'bg-ink text-white') : (dark ? 'bg-white/10 hover:bg-white/20' : 'bg-white shadow-card hover:bg-slate-100')}`}>{label}</Link>)}
+    </nav>
+  );
+  const Frame = embedded ? React.Fragment : 'div';
   return (
-    <div className="min-h-screen bg-canvas text-ink">
-      <header className="bg-ink text-white">
+    <Frame {...(embedded ? {} : { className: 'min-h-screen bg-canvas text-ink' })}>
+      {!embedded && <header className="bg-ink text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-8 py-5 flex flex-wrap justify-between items-center gap-4">
           <Link className="text-2xl font-bold" to="/">AgentWallet <span className="text-mint">v2</span></Link>
-          <span className="text-sm">Ethereum Sepolia · chain 11155111 · read-only</span>
-          <nav aria-label="Judge navigation" className="w-full flex flex-wrap gap-2">
-            {nav.map(([to, label]) => <Link key={to} to={to} className={`rounded-full px-4 py-2 text-sm ${pathname === to ? 'bg-white text-ink' : 'bg-white/10 hover:bg-white/20'}`}>{label}</Link>)}
-          </nav>
+          <span className="text-sm">Ethereum Sepolia · chain 11155111 · historical evidence · read-only</span>
+          {subnav(true)}
         </div>
-      </header>
-      <main className="max-w-7xl mx-auto px-4 sm:px-8 py-8 space-y-6">
-        <Alert title="Public competition demonstration">No wallet or testnet funds required. This website cannot sign, approve, unpause, or spend. Historical transactions are labeled separately from current chain reads.</Alert>
+      </header>}
+      <main className={embedded ? 'space-y-6' : 'max-w-7xl mx-auto px-4 sm:px-8 py-8 space-y-6'}>
+        {embedded && <div className="space-y-3"><p className="eyebrow text-slate-500">Evidence · historical public v2 run (separate from your sandbox)</p>{subnav(false)}</div>}
+        <Alert title="Historical evidence">This section shows the frozen public v2 evidence contract. It is read-only: it cannot sign, approve, unpause or spend. Historical transactions are labeled separately from current chain reads, and live sandbox transactions appear only in the dashboard.</Alert>
         {error && <Alert variant="error" title="Backend unavailable">{error}. Please retry; the deployment may be waking up. <a href="https://sepolia.etherscan.io/address/0x3C9389E704331B8a12381F9ab5A68a7F3F59582F" {...ext}>View the public contract directly.</a></Alert>}
         {loading && <p role="status" aria-live="polite">{attempt === 1 ? 'Loading public evidence…' : `Waking the free backend — retry ${attempt} of 6…`} First visits after inactivity can take about a minute; please keep this page open. Only reads retry automatically.</p>}
         <div className="flex flex-wrap gap-3 items-center"><Button size="sm" variant="secondary" onClick={refresh} disabled={loading}>{loading ? 'Reading…' : error ? 'Retry connection' : 'Refresh chain state'}</Button><span className="text-xs text-slate-500">Reads are cached for up to 15 seconds.</span></div>
@@ -77,7 +84,7 @@ export function Judge() {
               ['Bounded autonomy', 'Historical transaction: a scheduler payment stayed within an owner-signed grant.'],
               ['Emergency controls', 'Historical evidence shows grant revocation, pause, emergency stop and final withdrawal.'],
             ].map(([title, text]) => <Card key={title}><CardHeader title={title}/><CardContent><p className="text-sm text-slate-600">{text}</p></CardContent></Card>)}</div>
-            <Link className="inline-block underline font-semibold" to="/judge/evidence">Inspect the 12 historical Sepolia transactions →</Link>
+            <Link className="inline-block underline font-semibold" to="/evidence/receipts">Inspect the 12 historical Sepolia transactions →</Link>
           </>}
           {section === 'evidence' && <>
             <h1 className="text-4xl">On-chain evidence</h1><p>{data.historical.source}. Collected {data.historical.collectedAt}.</p>
@@ -117,12 +124,12 @@ export function Judge() {
               <li>Open AI & risk analysis. Assess 0.0001 ETH to the evidence recipient, then try an amount above the cap. The policy engine reports the real blockers without moving funds.</li>
               <li>If live AI is enabled, ask how owner approval differs from a bounded task grant. AI text is advisory; the deterministic results remain authoritative.</li>
             </ol></CardContent></Card>
-            <Alert>Operator flows were exercised locally with MetaMask and in separate public testnet runs using a test-only wallet bridge. Signing, task activation and emergency controls are unavailable on this public website. A funded interactive sandbox requires separate team approval.</Alert>
+            <Alert>Operator flows were exercised locally with MetaMask and in separate public testnet runs using a test-only wallet bridge. This evidence contract is frozen: nothing on this website signs for it, activates tasks on it or changes its controls. Live transactions happen only in a separate sandbox contract, through the Demo Wallet or your own wallet.</Alert>
             <p className="text-sm">No mainnet integration, new transactions, fabricated prices, or simulated transactions presented as real. No USD valuation is shown because this Sepolia deployment has no configured price feeds.</p>
           </>}
         </>}
       </main>
-      <footer className="max-w-7xl mx-auto px-4 sm:px-8 py-8 text-sm text-slate-500">AgentWallet · Ethereum Sepolia only · Public v1/v2 evidence preserved · Testnet funds only</footer>
-    </div>
+      {!embedded && <footer className="max-w-7xl mx-auto px-4 sm:px-8 py-8 text-sm text-slate-500">AgentWallet · Ethereum Sepolia only · Public v1/v2 evidence preserved · Testnet funds only · <Link className="underline" to="/">Choose a role to try the live demo wallet</Link></footer>}
+    </Frame>
   );
 }

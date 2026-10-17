@@ -11,16 +11,25 @@ import pg from 'pg';
  * exec(sql)           -> runs a multi-statement script (migrations)
  * tx(fn)              -> runs fn({ query, exec }) inside BEGIN/COMMIT, rolling back on error
  */
-export async function openDatabase({ databaseUrl, pgliteDir }) {
-  if (databaseUrl) return openPostgres(databaseUrl);
-  return openPglite(pgliteDir);
+export async function openDatabase({ databaseUrl, pgliteDir, schema = null, maxConnections = 5 }) {
+  if (databaseUrl) return openPostgres(databaseUrl, { schema, maxConnections });
+  // PGlite is a single connection: a sandbox gets its own instance (separate directory, or memory).
+  return openPglite(schema && pgliteDir && pgliteDir !== 'memory://' ? `${pgliteDir}-${schema}` : pgliteDir);
 }
 
-function openPostgres(connectionString) {
-  const pool = new pg.Pool({ connectionString, max: 5, connectionTimeoutMillis: 10000, idleTimeoutMillis: 30000, query_timeout: 15000 });
+async function openPostgres(connectionString, { schema, maxConnections }) {
+  if (schema && !/^[a-z][a-z0-9_]{0,40}$/.test(schema)) throw new Error('Invalid database schema name');
+  if (schema) {
+    // Create the sandbox schema once, then bind every pooled connection to it.
+    const setup = new pg.Client({ connectionString, connectionTimeoutMillis: 10000 });
+    await setup.connect();
+    try { await setup.query(`CREATE SCHEMA IF NOT EXISTS ${schema}`); } finally { await setup.end(); }
+  }
+  const pool = new pg.Pool({ connectionString, max: maxConnections, connectionTimeoutMillis: 10000, idleTimeoutMillis: 30000, query_timeout: 15000, ...(schema ? { options: `-c search_path=${schema}` } : {}) });
   pool.on('error', () => {}); // idle client errors surface on the next query instead
   return {
     kind: 'postgres',
+    schema: schema || 'public',
     query: (text, params) => pool.query(text, params),
     exec: (sql) => pool.query(sql),
     async tx(fn) {
