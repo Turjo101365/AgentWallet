@@ -3,7 +3,7 @@
  * Recorded end-to-end demonstration (Deliverable 06 video + evidence).
  *
  *   node scripts/sepolia-demo.mjs --rehearse [--with-ai] [--headed]   # local Hardhat chain, throwaway keys: nothing public
- *   node scripts/sepolia-demo.mjs --execute --target sepolia-v2 --i-approve-sepolia-v2-transactions [--headed]
+ *   node scripts/sepolia-demo.mjs --execute --target sepolia-v2-full --i-approve-sepolia-v2-full-transactions [--headed]
  *                                                             # Ethereum Sepolia, contract v2; also needs CONFIRM_PUBLIC_DEPLOY=yes
  *
  * The v1 public run (target "sepolia", evidence/sepolia/) is frozen: that target refuses --execute, and a v2 run refuses
@@ -176,7 +176,7 @@ async function main() {
   const args = new Set(process.argv.slice(2));
   const rehearse = args.has('--rehearse');
   const argv = process.argv.slice(2);
-  const targetName = argv.includes('--target') ? argv[argv.indexOf('--target') + 1] : 'sepolia-v2';
+  const targetName = argv.includes('--target') ? argv[argv.indexOf('--target') + 1] : 'sepolia-v2-full';
   if (!rehearse && !args.has('--execute')) throw new Error(`Pass --rehearse or --execute --target ${targetName} --i-approve-${targetName}-transactions`);
   // Checked before any folder is created or anything is read from the chain: frozen v1 target, protected v1 paths,
   // a non-empty evidence folder and a compiled-contract version mismatch all stop here.

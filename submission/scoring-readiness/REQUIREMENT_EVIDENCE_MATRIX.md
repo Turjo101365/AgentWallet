@@ -44,10 +44,13 @@
 | On-chain allowlist, per-tx and daily caps | ✅ | `EVIDENCE.md` on-chain checks | 03 |
 | 14-check risk engine plus simulation | ✅ | proposal policy checks (block 11926666) | 03, 04 |
 | EIP-712 approvals and bounded grants | ✅ (test bridge) / 🟦 (MetaMask) | audit #6, #15 | 05, 06, 12 |
+| Owner signature and grant verified **on-chain** (contract v2) | ✅ public v2 run | `0x564129e2…` (`executeApprovedTransfer`), `0xbcdd8685…` (`executeGrantTransfer`); `evidence/sepolia-v2-full/public-verify.json` 26/26 | (raw v2 run) |
+| On-chain grant revocation (contract v2) | ✅ public v2 run | `0x4b8b8efd…` (`revokeGrant`); agent probe → `GrantIsRevoked` | (raw v2 run) |
+| Pause, unpause, emergency stop (contract v2) | ✅ public v2 run | `0x19576c61…`, `0xbfa8a88e…`, `0x80a42def…` | (raw v2 run) |
 | Pause, unpause, emergency stop | ✅ | `0x2a2eeb50…`, `0x00b0dc31…`, `0xfe627133…` | 09 |
 | Hash-chained audit, verified | ✅ (off-chain) | `term-audit.log` | 11 |
 | Prompt-injection and tool-use controls | 🟦 + live suite | `agent.chat.test.js`, `LIVE_LLM_VERIFICATION.md` | 10 (agent tests) |
-| Known-risk register | ✅ | R1–R20 | — |
+| Known-risk register | ✅ | R1–R27 | — |
 | Secret hygiene | ✅ | `secret-scan.json` | — |
 | Compliance (sanctions screening, KYC) | ⬜ | allowlist only | — |
 | External audit | ⬜ | none; not claimed | — |
@@ -69,6 +72,7 @@
 | 11 public transactions, all SUCCESS, re-verified independently | ✅ |
 | AI-drafted autonomous transaction on a public chain | ✅ |
 | Emergency controls exercised on-chain | ✅ |
+| Contract v2: 12 public transactions, all SUCCESS (owner signature and grant verified on-chain, revocation, emergency controls), 26/26 read-only checks | ✅ (`evidence/sepolia-v2-full/`) |
 | Public explorer recordings | ✅ (post-run verification) |
 
 ## C. Mini-clip coverage

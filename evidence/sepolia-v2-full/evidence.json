@@ -1,0 +1,519 @@
+{
+  "generatedAt": "2026-10-17T07:20:13.855Z",
+  "readOnly": true,
+  "network": {
+    "chainId": 11155111,
+    "rpcUrl": "https://ethereum-sepolia-rpc.publicnode.com",
+    "explorer": "https://sepolia.etherscan.io"
+  },
+  "contract": {
+    "address": "0x3C9389E704331B8a12381F9ab5A68a7F3F59582F",
+    "explorerUrl": "https://sepolia.etherscan.io/address/0x3C9389E704331B8a12381F9ab5A68a7F3F59582F",
+    "deployTxHash": "0x879566e6943dbcde1653a9f081b197487118cf1a6799ed03bbda6a41cb21f4a5",
+    "deployBlock": 11932656,
+    "owner": "0x10A0d3247a1446fD30ba40D14e4272206278b5ba",
+    "agent": "0x30D53BD30B6D60E7c49829D6Df79b5B7E4CBBD1D"
+  },
+  "summary": {
+    "transactions": 10,
+    "reverted": 0,
+    "agentTransfers": 2,
+    "autonomous": 1,
+    "ownerApproved": 1,
+    "allTransfersPassedOnChainChecks": true,
+    "aiAgentDraftedTransfers": 2,
+    "auditLog": {
+      "valid": true,
+      "entries": 25,
+      "head": "8946ecf7a021e1130f5fdcb58f333b08d9f6228a0063d15ba27452a26f7dd01f"
+    }
+  },
+  "transactions": [
+    {
+      "hash": "0x879566e6943dbcde1653a9f081b197487118cf1a6799ed03bbda6a41cb21f4a5",
+      "explorerUrl": "https://sepolia.etherscan.io/tx/0x879566e6943dbcde1653a9f081b197487118cf1a6799ed03bbda6a41cb21f4a5",
+      "blockNumber": 11932656,
+      "timestamp": "2026-10-17T07:11:00.000Z",
+      "from": "0x80D4101A23062ee7E5B2477D4C036AB0FD4e2a67",
+      "fromRole": "deployer",
+      "status": "SUCCESS",
+      "gasUsed": "20316239",
+      "effectiveGasPriceWei": "16",
+      "feeWei": "325059824",
+      "kind": "Deployment",
+      "events": [
+        {
+          "name": "OwnershipTransferred",
+          "logIndex": 296,
+          "args": {
+            "previousOwner": "0x0000000000000000000000000000000000000000",
+            "newOwner": "0x10A0d3247a1446fD30ba40D14e4272206278b5ba"
+          }
+        },
+        {
+          "name": "AgentUpdated",
+          "logIndex": 297,
+          "args": {
+            "previousAgent": "0x0000000000000000000000000000000000000000",
+            "newAgent": "0x30D53BD30B6D60E7c49829D6Df79b5B7E4CBBD1D"
+          }
+        },
+        {
+          "name": "TokenPolicyUpdated",
+          "logIndex": 298,
+          "args": {
+            "token": "0x0000000000000000000000000000000000000000",
+            "enabled": true,
+            "perTxLimit": "200000000000000",
+            "dailyLimit": "500000000000000"
+          }
+        }
+      ]
+    },
+    {
+      "hash": "0x912f3e0a0da0f02ee737a810c5f3bb7801859f0491a0703cc8ae8aec656459ff",
+      "explorerUrl": "https://sepolia.etherscan.io/tx/0x912f3e0a0da0f02ee737a810c5f3bb7801859f0491a0703cc8ae8aec656459ff",
+      "blockNumber": 11932663,
+      "timestamp": "2026-10-17T07:12:24.000Z",
+      "from": "0x10A0d3247a1446fD30ba40D14e4272206278b5ba",
+      "fromRole": "owner",
+      "status": "SUCCESS",
+      "gasUsed": "130018",
+      "effectiveGasPriceWei": "16",
+      "feeWei": "2080288",
+      "kind": "RecipientUpdated",
+      "events": [
+        {
+          "name": "RecipientUpdated",
+          "logIndex": 412,
+          "args": {
+            "recipient": "0x82446B165d0d55051af76e3aD7852B0F3141904e",
+            "allowed": true
+          }
+        }
+      ]
+    },
+    {
+      "hash": "0x17ac2f09e8767418eb1907fcc18231c19709ce82f36cdfceb4eab084746afa3e",
+      "explorerUrl": "https://sepolia.etherscan.io/tx/0x17ac2f09e8767418eb1907fcc18231c19709ce82f36cdfceb4eab084746afa3e",
+      "blockNumber": 11932664,
+      "timestamp": "2026-10-17T07:12:48.000Z",
+      "from": "0x10A0d3247a1446fD30ba40D14e4272206278b5ba",
+      "fromRole": "owner",
+      "status": "SUCCESS",
+      "gasUsed": "22707",
+      "effectiveGasPriceWei": "16",
+      "feeWei": "363312",
+      "kind": "Deposited",
+      "events": [
+        {
+          "name": "Deposited",
+          "logIndex": 339,
+          "args": {
+            "from": "0x10A0d3247a1446fD30ba40D14e4272206278b5ba",
+            "amount": "400000000000000"
+          }
+        }
+      ]
+    },
+    {
+      "hash": "0x564129e213f1142da1d9d52e9b3e15eeff42852198cb7d3bcd84242eb6c0702e",
+      "explorerUrl": "https://sepolia.etherscan.io/tx/0x564129e213f1142da1d9d52e9b3e15eeff42852198cb7d3bcd84242eb6c0702e",
+      "blockNumber": 11932667,
+      "timestamp": "2026-10-17T07:13:24.000Z",
+      "from": "0x30D53BD30B6D60E7c49829D6Df79b5B7E4CBBD1D",
+      "fromRole": "agent",
+      "status": "SUCCESS",
+      "gasUsed": "282966",
+      "effectiveGasPriceWei": "17",
+      "feeWei": "4810422",
+      "kind": "TransferExecuted",
+      "events": [
+        {
+          "name": "TransferExecuted",
+          "logIndex": 275,
+          "args": {
+            "intentId": "0x939869e11994a32370e60c0473ec84b95e40221ed66af36610959290cc810e40",
+            "token": "0x0000000000000000000000000000000000000000",
+            "recipient": "0x82446B165d0d55051af76e3aD7852B0F3141904e",
+            "amount": "100000000000000",
+            "day": "20743",
+            "spentToday": "100000000000000"
+          }
+        }
+      ]
+    },
+    {
+      "hash": "0xbcdd8685f552b89ba37352a6768189d8d1e7b104c4d01c111a0e8fa5cf4a2d6e",
+      "explorerUrl": "https://sepolia.etherscan.io/tx/0xbcdd8685f552b89ba37352a6768189d8d1e7b104c4d01c111a0e8fa5cf4a2d6e",
+      "blockNumber": 11932685,
+      "timestamp": "2026-10-17T07:17:00.000Z",
+      "from": "0x30D53BD30B6D60E7c49829D6Df79b5B7E4CBBD1D",
+      "fromRole": "agent",
+      "status": "SUCCESS",
+      "gasUsed": "412346",
+      "effectiveGasPriceWei": "17",
+      "feeWei": "7009882",
+      "kind": "TransferExecuted + GrantRunExecuted",
+      "events": [
+        {
+          "name": "TransferExecuted",
+          "logIndex": 165,
+          "args": {
+            "intentId": "0x75f6bc2bbcc0d1cfb7b4880b2e2504c6cfbd5f07e3370bc950560d7470c3bc76",
+            "token": "0x0000000000000000000000000000000000000000",
+            "recipient": "0x82446B165d0d55051af76e3aD7852B0F3141904e",
+            "amount": "100000000000000",
+            "day": "20743",
+            "spentToday": "200000000000000"
+          }
+        },
+        {
+          "name": "GrantRunExecuted",
+          "logIndex": 166,
+          "args": {
+            "grantDigest": "0xeb52a6c7de2a2438d62db9f3e5fca23aa947cb7aa6ec737d0925e7be7e04ef74",
+            "intentId": "0x75f6bc2bbcc0d1cfb7b4880b2e2504c6cfbd5f07e3370bc950560d7470c3bc76",
+            "runs": "1",
+            "spent": "100000000000000"
+          }
+        }
+      ]
+    },
+    {
+      "hash": "0x4b8b8efdf4d5a709f320b58a2a7bea7289e7f9f410d7e20efab1829d886c14e6",
+      "explorerUrl": "https://sepolia.etherscan.io/tx/0x4b8b8efdf4d5a709f320b58a2a7bea7289e7f9f410d7e20efab1829d886c14e6",
+      "blockNumber": 11932688,
+      "timestamp": "2026-10-17T07:17:36.000Z",
+      "from": "0x10A0d3247a1446fD30ba40D14e4272206278b5ba",
+      "fromRole": "owner",
+      "status": "SUCCESS",
+      "gasUsed": "129357",
+      "effectiveGasPriceWei": "16",
+      "feeWei": "2069712",
+      "kind": "GrantRevoked",
+      "events": [
+        {
+          "name": "GrantRevoked",
+          "logIndex": 149,
+          "args": {
+            "grantDigest": "0xfaf76f97337f30cb7b5b050b404aa0b195335d51b66f22866d01e7ec6dd44bce"
+          }
+        }
+      ]
+    },
+    {
+      "hash": "0x19576c61ccbdd0cea313be4894ccc59899569e7b7c7c7d4399145f1b50333ade",
+      "explorerUrl": "https://sepolia.etherscan.io/tx/0x19576c61ccbdd0cea313be4894ccc59899569e7b7c7c7d4399145f1b50333ade",
+      "blockNumber": 11932689,
+      "timestamp": "2026-10-17T07:17:48.000Z",
+      "from": "0x10A0d3247a1446fD30ba40D14e4272206278b5ba",
+      "fromRole": "owner",
+      "status": "SUCCESS",
+      "gasUsed": "128877",
+      "effectiveGasPriceWei": "16",
+      "feeWei": "2062032",
+      "kind": "Paused",
+      "events": [
+        {
+          "name": "Paused",
+          "logIndex": 283,
+          "args": {
+            "account": "0x10A0d3247a1446fD30ba40D14e4272206278b5ba"
+          }
+        }
+      ]
+    },
+    {
+      "hash": "0xbfa8a88eba16b05926c7a95cf3b0de0bc771ab942f08f70641c0f6cc762fcdd6",
+      "explorerUrl": "https://sepolia.etherscan.io/tx/0xbfa8a88eba16b05926c7a95cf3b0de0bc771ab942f08f70641c0f6cc762fcdd6",
+      "blockNumber": 11932691,
+      "timestamp": "2026-10-17T07:18:12.000Z",
+      "from": "0x10A0d3247a1446fD30ba40D14e4272206278b5ba",
+      "fromRole": "owner",
+      "status": "SUCCESS",
+      "gasUsed": "24796",
+      "effectiveGasPriceWei": "16",
+      "feeWei": "396736",
+      "kind": "Unpaused",
+      "events": [
+        {
+          "name": "Unpaused",
+          "logIndex": 251,
+          "args": {
+            "account": "0x10A0d3247a1446fD30ba40D14e4272206278b5ba"
+          }
+        }
+      ]
+    },
+    {
+      "hash": "0x80a42def2843143de5a8418cc798fb231f19aa042fdb04d2bf155736cf0b1713",
+      "explorerUrl": "https://sepolia.etherscan.io/tx/0x80a42def2843143de5a8418cc798fb231f19aa042fdb04d2bf155736cf0b1713",
+      "blockNumber": 11932692,
+      "timestamp": "2026-10-17T07:18:24.000Z",
+      "from": "0x10A0d3247a1446fD30ba40D14e4272206278b5ba",
+      "fromRole": "owner",
+      "status": "SUCCESS",
+      "gasUsed": "132453",
+      "effectiveGasPriceWei": "16",
+      "feeWei": "2119248",
+      "kind": "Paused + AgentUpdated + EmergencyStop",
+      "events": [
+        {
+          "name": "Paused",
+          "logIndex": 374,
+          "args": {
+            "account": "0x10A0d3247a1446fD30ba40D14e4272206278b5ba"
+          }
+        },
+        {
+          "name": "AgentUpdated",
+          "logIndex": 375,
+          "args": {
+            "previousAgent": "0x30D53BD30B6D60E7c49829D6Df79b5B7E4CBBD1D",
+            "newAgent": "0x0000000000000000000000000000000000000000"
+          }
+        },
+        {
+          "name": "EmergencyStop",
+          "logIndex": 376,
+          "args": {
+            "revokedAgent": "0x30D53BD30B6D60E7c49829D6Df79b5B7E4CBBD1D"
+          }
+        }
+      ]
+    },
+    {
+      "hash": "0xc3dff58a20a173604828f5b082283a21c2691cef94c34abc37b3a41088fa433e",
+      "explorerUrl": "https://sepolia.etherscan.io/tx/0xc3dff58a20a173604828f5b082283a21c2691cef94c34abc37b3a41088fa433e",
+      "blockNumber": 11932693,
+      "timestamp": "2026-10-17T07:18:36.000Z",
+      "from": "0x10A0d3247a1446fD30ba40D14e4272206278b5ba",
+      "fromRole": "owner",
+      "status": "SUCCESS",
+      "gasUsed": "33893",
+      "effectiveGasPriceWei": "16",
+      "feeWei": "542288",
+      "kind": "Withdrawn",
+      "events": [
+        {
+          "name": "Withdrawn",
+          "logIndex": 253,
+          "args": {
+            "token": "0x0000000000000000000000000000000000000000",
+            "to": "0x10A0d3247a1446fD30ba40D14e4272206278b5ba",
+            "amount": "200000000000000"
+          }
+        }
+      ]
+    }
+  ],
+  "transfers": [
+    {
+      "txHash": "0x564129e213f1142da1d9d52e9b3e15eeff42852198cb7d3bcd84242eb6c0702e",
+      "explorerUrl": "https://sepolia.etherscan.io/tx/0x564129e213f1142da1d9d52e9b3e15eeff42852198cb7d3bcd84242eb6c0702e",
+      "timestamp": "2026-10-17T07:13:24.000Z",
+      "intentId": "0x939869e11994a32370e60c0473ec84b95e40221ed66af36610959290cc810e40",
+      "token": "0x0000000000000000000000000000000000000000",
+      "recipient": "0x82446B165d0d55051af76e3aD7852B0F3141904e",
+      "amountWei": "100000000000000",
+      "authorization": "OWNER_APPROVED",
+      "checks": {
+        "sentByOnChainAgent": true,
+        "recipientAllowlisted": true,
+        "withinPerTxCap": true,
+        "withinDailyCap": true
+      },
+      "offchain": {
+        "proposalId": "c61042b3-649d-497b-8a44-3825239c6c31",
+        "source": "AGENT",
+        "approvalKind": "OWNER_SIGNATURE",
+        "approvedBy": "0x10A0d3247a1446fD30ba40D14e4272206278b5ba",
+        "ownerSignatureOnThisTransfer": true,
+        "authorizedByTaskGrantSignature": false,
+        "agentLog": {
+          "conversationId": "17afaecc-5566-4f8d-9a84-33929bf7d72f",
+          "turnId": "83385891-4170-4bcf-8605-301187f0c5a2",
+          "provider": "openai-compatible",
+          "model": "gpt-4.1-mini",
+          "status": "COMPLETED",
+          "userMessage": "Send 0.0001 ETH to my approved recipient \"Evidence recipient\".",
+          "plan": {
+            "goal": "Propose a transfer of 0.0001 ETH to the recipient 'Evidence recipient'",
+            "steps": [
+              {
+                "tool": "propose_transfer",
+                "description": "Propose the transfer of 0.0001 ETH to Evidence recipient"
+              }
+            ]
+          },
+          "finalText": "I have created a proposal to transfer 0.0001 ETH to the recipient \"Evidence recipient.\" The proposal has passed the policy checks but is currently awaiting your approval and signature in the console to proceed.",
+          "modelCalls": 4,
+          "usage": {
+            "input_tokens": 6064,
+            "output_tokens": 168
+          },
+          "startedAt": "2026-10-17T07:12:57.084Z",
+          "completedAt": "2026-10-17T07:13:06.281Z",
+          "tools": [
+            {
+              "tool": "list_recipients",
+              "status": "OK",
+              "input": {},
+              "error": null,
+              "at": "2026-10-17T07:12:59.624Z"
+            },
+            {
+              "tool": "record_plan",
+              "status": "OK",
+              "input": {
+                "goal": "Propose a transfer of 0.0001 ETH to the recipient 'Evidence recipient'",
+                "steps": [
+                  {
+                    "tool": "functions.propose_transfer",
+                    "description": "Propose the transfer of 0.0001 ETH to Evidence recipient"
+                  }
+                ]
+              },
+              "error": null,
+              "at": "2026-10-17T07:13:00.835Z"
+            },
+            {
+              "tool": "propose_transfer",
+              "status": "OK",
+              "input": {
+                "memo": null,
+                "token": "ETH",
+                "amount": "0.0001",
+                "recipient": "0x82446B165d0d55051af76e3aD7852B0F3141904e"
+              },
+              "error": null,
+              "at": "2026-10-17T07:13:05.376Z"
+            }
+          ]
+        },
+        "task": null
+      }
+    },
+    {
+      "txHash": "0xbcdd8685f552b89ba37352a6768189d8d1e7b104c4d01c111a0e8fa5cf4a2d6e",
+      "explorerUrl": "https://sepolia.etherscan.io/tx/0xbcdd8685f552b89ba37352a6768189d8d1e7b104c4d01c111a0e8fa5cf4a2d6e",
+      "timestamp": "2026-10-17T07:17:00.000Z",
+      "intentId": "0x75f6bc2bbcc0d1cfb7b4880b2e2504c6cfbd5f07e3370bc950560d7470c3bc76",
+      "token": "0x0000000000000000000000000000000000000000",
+      "recipient": "0x82446B165d0d55051af76e3aD7852B0F3141904e",
+      "amountWei": "100000000000000",
+      "authorization": "AUTONOMOUS",
+      "checks": {
+        "sentByOnChainAgent": true,
+        "recipientAllowlisted": true,
+        "withinPerTxCap": true,
+        "withinDailyCap": true
+      },
+      "offchain": {
+        "proposalId": "1a4b0439-18d0-43c8-a2d7-9a17e6459ab2",
+        "source": "TASK",
+        "approvalKind": "TASK_GRANT",
+        "approvedBy": "task:8c0de5ff-ef3e-46e2-8793-930589a672ba",
+        "ownerSignatureOnThisTransfer": false,
+        "authorizedByTaskGrantSignature": true,
+        "agentLog": {
+          "conversationId": "ce6dbf3f-3a4e-4e23-b572-887f4bba5042",
+          "turnId": "51efa201-1cde-439c-884b-f37efb410eba",
+          "provider": "openai-compatible",
+          "model": "gpt-4.1-mini",
+          "status": "COMPLETED",
+          "userMessage": "Schedule a one-time payment of 0.0001 ETH to my approved recipient \"Evidence recipient\" at 2026-10-17T07:16:39Z, valid for 1 day.",
+          "plan": {
+            "goal": "Schedule a one-time payment of 0.0001 ETH to 'Evidence recipient' at 2026-10-17T07:16:39Z, valid for 1 day",
+            "steps": [
+              {
+                "tool": "list_recipients",
+                "description": "List recipients to confirm the address for 'Evidence recipient'"
+              },
+              {
+                "tool": "schedule_payment",
+                "description": "Schedule the one-time payment task"
+              }
+            ]
+          },
+          "finalText": "I have scheduled a one-time payment of 0.0001 ETH to the recipient \"Evidence recipient\" at 2026-10-17T07:16:39Z. The task is currently pending your authorization. It will remain inactive until you sign the task grant on the Automation page. Each run is subject to policy checks and may require approval if it exceeds auto-approval limits.",
+          "modelCalls": 4,
+          "usage": {
+            "input_tokens": 6372,
+            "output_tokens": 324
+          },
+          "startedAt": "2026-10-17T07:14:09.420Z",
+          "completedAt": "2026-10-17T07:14:17.515Z",
+          "tools": [
+            {
+              "tool": "record_plan",
+              "status": "OK",
+              "input": {
+                "goal": "Schedule a one-time payment of 0.0001 ETH to 'Evidence recipient' at 2026-10-17T07:16:39Z, valid for 1 day",
+                "steps": [
+                  {
+                    "tool": "functions.list_recipients",
+                    "description": "List recipients to confirm the address for 'Evidence recipient'"
+                  },
+                  {
+                    "tool": "functions.schedule_payment",
+                    "description": "Schedule the one-time payment task"
+                  }
+                ]
+              },
+              "error": null,
+              "at": "2026-10-17T07:14:10.881Z"
+            },
+            {
+              "tool": "list_recipients",
+              "status": "OK",
+              "input": {},
+              "error": null,
+              "at": "2026-10-17T07:14:12.289Z"
+            },
+            {
+              "tool": "schedule_payment",
+              "status": "OK",
+              "input": {
+                "title": null,
+                "token": "ETH",
+                "amount": "0.0001",
+                "at_iso": "2026-10-17T07:16:39Z",
+                "weekday": null,
+                "hour_utc": null,
+                "max_runs": null,
+                "max_total": null,
+                "recipient": "0x82446B165d0d55051af76e3aD7852B0F3141904e",
+                "start_iso": null,
+                "minute_utc": null,
+                "valid_days": 1,
+                "every_seconds": null,
+                "schedule_type": "once",
+                "use_rl_timing": false,
+                "condition_gas_below_gwei": null,
+                "execution_window_minutes": 0
+              },
+              "error": null,
+              "at": "2026-10-17T07:14:16.350Z"
+            }
+          ]
+        },
+        "task": {
+          "id": "8c0de5ff-ef3e-46e2-8793-930589a672ba",
+          "title": "0.0001 ETH once at 2026-10-17T07:16:39.000Z",
+          "kind": "ONE_TIME",
+          "runKey": "8c0de5ff-ef3e-46e2-8793-930589a672ba:1792221399",
+          "runStatus": "CONFIRMED",
+          "maxRuns": 1,
+          "maxTotalWei": null,
+          "validUntil": "2026-10-18T07:14:15.000Z",
+          "grantSignedBy": "0x10A0d3247a1446fD30ba40D14e4272206278b5ba",
+          "grantSignedAt": "2026-10-17T07:14:28.000Z",
+          "hasGrantSignature": true,
+          "decisionOutcome": "AUTO_APPROVED"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "network": "sepolia-v2-full",
+  "chainId": 11155111,
+  "contractAddress": "0x3C9389E704331B8a12381F9ab5A68a7F3F59582F",
+  "contractVersion": 2,
+  "deployBlock": 11932656,
+  "deployTxHash": "0x879566e6943dbcde1653a9f081b197487118cf1a6799ed03bbda6a41cb21f4a5",
+  "owner": "0x10A0d3247a1446fD30ba40D14e4272206278b5ba",
+  "agent": "0x30D53BD30B6D60E7c49829D6Df79b5B7E4CBBD1D",
+  "tokens": [
+    {
+      "symbol": "ETH",
+      "address": "0x0000000000000000000000000000000000000000",
+      "decimals": 18,
+      "native": true
+    }
+  ],
+  "demoRecipients": [
+    {
+      "label": "Evidence recipient (team test wallet)",
+      "category": "supplier",
+      "address": "0x82446B165d0d55051af76e3aD7852B0F3141904e"
+    }
+  ],
+  "priceFeeds": [],
+  "deployedAt": "2026-10-17T07:11:17.936Z"
+}

@@ -1,0 +1,122 @@
+{
+  "verifiedAt": "2026-10-17T00:07:46.227Z",
+  "chainId": 11155111,
+  "contract": "0x23bAE3f3C95f9BF7391c0764B1A7dFF700f34458",
+  "checks": [
+    {
+      "label": "deployed runtime bytecode == compiled v2 artifact",
+      "pass": true,
+      "detail": "12631 bytes"
+    },
+    {
+      "label": "runtime bytecode differs from frozen v1",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "VERSION() == 2",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "owner() == recorded owner",
+      "pass": true,
+      "detail": "0x10A0d3247a1446fD30ba40D14e4272206278b5ba"
+    },
+    {
+      "label": "native ETH caps at deploy block",
+      "pass": true,
+      "detail": "perTx 0.0002 / daily 0.0005 ETH"
+    },
+    {
+      "label": "agent at deploy block == recorded agent",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "owner-approved transfer 0x30714eb9…: EIP-712 signer in calldata == owner()",
+      "pass": true,
+      "detail": "0x10A0d3247a1446fD30ba40D14e4272206278b5ba"
+    },
+    {
+      "label": "  contract approvalDigest == locally computed digest",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "  event matches the signed intent, token, recipient, amount",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "  mined before the signed deadline",
+      "pass": true,
+      "detail": "1792194984 <= 1792195561"
+    },
+    {
+      "label": "  sent by the agent key",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "at least one owner-approved transfer",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "emergencyStop executed",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "final state: paused, agent revoked",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "final contract balance is zero",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "probe: agent, no owner signature (v1-style executeTransfer) → reverted",
+      "pass": true,
+      "detail": "reverted (no data)"
+    },
+    {
+      "label": "probe: replay of the executed owner approval → IntentAlreadyExecuted",
+      "pass": true,
+      "detail": "IntentAlreadyExecuted"
+    },
+    {
+      "label": "probe: owner signature reused with a different amount → InvalidOwnerSignature",
+      "pass": true,
+      "detail": "InvalidOwnerSignature"
+    },
+    {
+      "label": "probe: approval signed by a non-owner key → InvalidOwnerSignature",
+      "pass": true,
+      "detail": "InvalidOwnerSignature"
+    },
+    {
+      "label": "probe: stranger (not the agent) submitting the owner approval → NotAgent",
+      "pass": true,
+      "detail": "NotAgent"
+    }
+  ],
+  "transfers": [
+    {
+      "kind": "OWNER_APPROVED",
+      "tx": "0x30714eb92194cd5ad45b172af45acb67ed6b43f1fcbde98b0fd02e5c4e51aab1",
+      "block": 11930590,
+      "msg": {
+        "proposalId": "53c72b8c-61d1-4228-8e4b-8f52697612ae",
+        "intentId": "0xe27cb2f13461320fcdd490e8415621a9b5b9d4bce37e168772de249f0f242f7e",
+        "token": "0x0000000000000000000000000000000000000000",
+        "recipient": "0x82446B165d0d55051af76e3aD7852B0F3141904e",
+        "amount": "100000000000000",
+        "deadline": "1792195561"
+      }
+    }
+  ]
+}

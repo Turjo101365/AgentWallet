@@ -3,7 +3,9 @@
 > **Two versions.** This page describes **v2**, the current source. **v1** is the version deployed on Ethereum Sepolia
 > (`0x8A44…956a6`). Its source is frozen in [contracts/legacy/AgentWalletV1.sol](../contracts/legacy/AgentWalletV1.sol),
 > and its ABI and bytecode in [shared/abi/AgentWallet.v1.json](../shared/abi/AgentWallet.v1.json). v1's only agent entry
-> point is `executeTransfer(intentId, token, recipient, amount)`, with no signature. v2 is **not deployed**.
+> point is `executeTransfer(intentId, token, recipient, amount)`, with no signature. v2's complete public run is on
+> Ethereum Sepolia at `0x3C9389E704331B8a12381F9ab5A68a7F3F59582F` (12/12 SUCCESS); an earlier partial run (`0x23bA…4458`) is
+> safe-stopped. See [V2_PUBLIC_RUNS.md](V2_PUBLIC_RUNS.md).
 > Comparison: [CONTRACT_V2.md](CONTRACT_V2.md).
 
 Source: [contracts/src/AgentWallet.sol](../contracts/src/AgentWallet.sol)

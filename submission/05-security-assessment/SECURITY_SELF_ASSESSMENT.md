@@ -2,7 +2,7 @@
 
 **Project:** AgentWallet, a policy-bounded autonomous on-chain treasury agent.
 **Assessed revision:** `90c1849` on `feature/phase-1-secure-foundation`, plus the uncommitted work described in §4.6 (public-testnet tooling) and §9 (UI redesign, submission tooling). The UI redesign changed presentation only: no backend, policy, transaction or contract code.
-**Date:** 2026-10-16. **Updated 2026-10-17:** audit findings F1–F3 fixed in the backend, and contract **v2** implemented and tested **locally**. See §11. v2 is **not deployed**: the public Sepolia contract is still v1, and every statement about the public run describes v1.
+**Date:** 2026-10-16. **Updated 2026-10-17:** audit findings F1–F3 fixed in the backend, and contract **v2** implemented and tested **locally**. See §11. Statements about "the public run" in §1–§10 describe the v1 run. v2 has its own complete public run on Ethereum Sepolia (`0x3C93…582F`, 12/12), described in §11.3, after a partial run described in §11.2.
 **Assessors:** the AgentWallet team. This is a **self-assessment**: there is no independent audit, formal verification or production security certification.
 
 This report lists only controls that are **implemented in code and verified** by an automated test or a recorded run. Each control names its evidence. Anything planned but not built is listed under residual risks, not as a control.
@@ -191,7 +191,7 @@ Severity is rated for the intended deployment: a testnet treasury with a low-bal
 | ID | Severity | Risk | Current mitigation | Recommended next step | Status |
 |---|---|---|---|---|---|
 | R1 | High | **The owner is a single externally owned account.** Whoever holds it has full custody: withdraw, change the allowlist, raise caps. | Ownable2Step; renounce disabled; the agent can never become owner | Make the owner a multisig (e.g. Safe) or a hardware wallet | Open |
-| R2 | Medium | **The agent key is a hot key** on the backend host. **On v1 (the deployed contract)**, if stolen it can spend up to the daily cap to allowlisted recipients until the owner reacts, with no owner signature. **v2 (local, not deployed)** removes this: transfers need an owner signature or grant verified on-chain (§11). | Contract allowlist, caps and intents; `emergencyStop`; encrypted keystore supported; public dev keys refused | Low-balance dedicated key; KMS/HSM signer; alert on unexpected `TransferExecuted` | Accepted |
+| R2 | Medium | **The agent key is a hot key** on the backend host. **On v1 (the deployed contract)**, if stolen it can spend up to the daily cap to allowlisted recipients until the owner reacts, with no owner signature. **v2** removes this: transfers need an owner signature or grant verified on-chain (§11). | Contract allowlist, caps and intents; `emergencyStop`; encrypted keystore supported; public dev keys refused | Low-balance dedicated key; KMS/HSM signer; alert on unexpected `TransferExecuted` | Accepted |
 | R3 | Medium | **Off-chain policy isn't enforced on-chain.** The reserve floor, auto-approval limit, USD daily limit, circuit breakers and off-chain pause live in the backend. A stolen agent key bypasses them, though not the contract caps. | The contract caps bound the loss; the owner sets caps | Keep on-chain caps tight; consider moving the reserve floor into the contract | Accepted |
 | R4 | Medium | **Calendar-day cap.** Caps reset at 00:00 UTC, so up to 2× the daily cap can move within minutes around midnight. | Documented; the per-tx cap still applies | Rolling-window accounting in the contract | Accepted |
 | R5 | Medium | **Single-instance assumptions.** Rate limits and approval/executor mutexes are in-process. Scheduler runs are multi-instance safe (DB leases, compare-and-set). | Supported topology is one backend instance; the contract enforces intents | Shared rate-limit store; `SELECT … FOR UPDATE` locks | Accepted |
@@ -244,7 +244,7 @@ Severity is rated for the intended deployment: a testnet treasury with a low-bal
 
 ## 10. Out of scope and not claimed
 
-- That the **public** Sepolia contract verifies owner signatures. It is v1 and does not. v2 is local only until it is deployed and its source is independently verified.
+- That the v1 Sepolia contract (`0x8A44…`) verifies owner signatures: it does not. The v2 contracts (`0x3C93…`, `0x23bA…`) do, as shown by public calldata and a bytecode match (§11.2–§11.3). Their source is not verified on Etherscan.
 - Mainnet use, real funds, or a production key-management service.
 - Protection against a compromised owner wallet or browser (R1).
 - Formal verification of the contract.
@@ -282,7 +282,8 @@ An internal hostile-judge audit on 2026-10-17 found three authorization gaps:
 
 | ID | Severity | Risk | Status |
 |---|---|---|---|
-| R21 | Medium | **v2 is not deployed.** Every public-chain claim still describes v1, where R2 applies in full. | Open |
+| R21 | Low | **Two public contracts with different trust models.** On v1 (`0x8A44…`), R2 applies in full. v2 (`0x3C93…`) enforces owner signatures and grants on-chain, as proven publicly in §11.3. Claims must name the contract. | Accepted |
+| R27 | Low | **Gas limit from a stale estimate.** If state changes between `eth_estimateGas` and inclusion, the margin can run out. This caused v2 run 1's tx 7: the UTC day changed and a fresh `spentPerDay` slot cost +99,086 gas. Fixed for the day boundary: a 120 s guard before 00:00 UTC, plus an explicit gas cap (`GAS_LIMIT_ABOVE_CAP`, nothing sent). Other state changes still fail closed: revert, nothing moves, no retry. | Mitigated |
 | R22 | Low | **On v2, a grant's schedule is enforced off-chain only.** A compromised agent could use a grant's remaining runs and total earlier than scheduled; never more, never after `validUntil` or revocation. | Accepted |
 | R23 | Low | **An off-chain task cancel does not revoke a v2 grant on-chain.** The console's "Revoke grant on-chain" sends the owner's `revokeGrant` transaction; `emergencyStop` revokes everything. | Accepted |
 | R24 | Info | **The deadline is fail-closed.** An approval signed shortly before its deadline can be refused or revert on-chain rather than execute late. | Accepted |
@@ -333,3 +334,44 @@ An internal hostile-judge audit on 2026-10-17 found three authorization gaps:
 | v2 first `executeGrantTransfer` run | 143,389 (two new counter slots) |
 
 v2 runtime size: 12,631 bytes (limit 24,576).
+
+### 11.2 Public v2 run 1 on Ethereum Sepolia (2026-10-17, partial)
+
+Contract `0x23bAE3f3C95f9BF7391c0764B1A7dFF700f34458`. Evidence: `evidence/sepolia-v2/`. Full account: [V2_PUBLIC_RUNS.md](V2_PUBLIC_RUNS.md).
+
+**Proven publicly:**
+- **Owner-signed transfer verified on-chain.** Tx 6 is an AI-drafted `executeApprovedTransfer`. The owner EIP-712 signature in its calldata recovers to `owner()`.
+- **Bytecode.** The deployed bytecode equals the v2 artifact.
+- **Attack probes.** Five were run as the agent with `eth_call` at block 11930590, all refused.
+- **Recovery.** `emergencyStop` + `withdraw` left the contract paused, with the agent revoked and a zero balance.
+- **Result:** 20/20 read-only checks (`public-verify.json`).
+
+**Not proven publicly on v2:**
+- **Grant run.** Tx 7 reverted out of gas, so nothing moved.
+- **Grant revocation and pause/unpause:** not reached.
+
+**Root cause of tx 7 (R27).** The UTC day changed between gas estimation (day 20742) and inclusion (block 11930608 at 00:00:00 UTC). The new day had an empty `spentPerDay` slot; creating it cost 99,086 extra gas, which exceeded the 20% margin (85,325). The explanation first written in the run notes (Sepolia gas repricing) was wrong and is superseded.
+
+**Fix.** A day-boundary guard (`DAY_BOUNDARY_GUARD_SECONDS` = 120) and an explicit gas cap (`EXECUTOR_GAS_LIMIT_CAP` = 1,500,000). The regression test `backend/test/gas.dayboundary.test.js` (3/3) reproduces the out-of-gas revert without the guard, and shows success with it.
+
+### 11.3 Public v2 full run on Ethereum Sepolia (2026-10-17, complete)
+
+Contract `0x3C9389E704331B8a12381F9ab5A68a7F3F59582F`. Evidence: `evidence/sepolia-v2-full/`. **12/12 transactions SUCCESS.**
+
+| Control | Proven by | Result |
+|---|---|---|
+| Owner EIP-712 approval verified **on-chain** | `0x564129e2…` (`executeApprovedTransfer`) | Signer recovered from calldata = `owner()`; digest equals the contract's `approvalDigest` |
+| Autonomous execution bounded by an owner-signed grant | `0xbcdd8685…` (`executeGrantTransfer`) | `GrantRunExecuted` run 1 of 1; no per-transfer signature; using the grant again → `GrantExhausted` |
+| On-chain grant revocation | `0x4b8b8efd…` (`revokeGrant`) | `grantRevoked = true`; the agent's probe → `GrantIsRevoked` (nothing sent) |
+| Policy refusal before signing | AI over-cap draft | `PER_TX_LIMIT`, `BALANCE_AND_RESERVE`; no transaction |
+| Pause, unpause, emergency stop, withdrawal | `0x19576c61…`, `0xbfa8a88e…`, `0x80a42def…`, `0xc3dff58a…` | Final state: paused, agent `0x0`, balance 0 |
+| Agent-key misuse refused | `eth_call` probes as the agent | No signature → revert; replay → `IntentAlreadyExecuted`; changed amount or non-owner signer → `InvalidOwnerSignature`; stranger → `NotAgent` |
+
+**Verification:** 26/26 read-only checks from public chain data (`public-verify.json`). The deployed bytecode equals the compiled v2 artifact.
+
+**Day-boundary fix (R27):** the grant run ran at 07:17 UTC and used 412,346 of 511,950 gas.
+
+**Not claimed:**
+- source verification on Etherscan;
+- an external audit;
+- MetaMask for the public signing (the test-only EIP-1193 bridge was used, as in v1).

@@ -71,12 +71,19 @@ export const TARGETS = Object.freeze({
   // The completed v1 public run (2026-10-16). FROZEN: its deployment record, database and evidence are the v1 evidence
   // and must never be written again, so this target can still --plan but refuses --execute.
   sepolia: Object.freeze({ chainId: 11155111, name: 'Ethereum Sepolia (v1, frozen)', rpc: 'https://ethereum-sepolia-rpc.publicnode.com', profile: 'backend/.env.sepolia', deployment: 'contracts/deployments/sepolia.json', db: 'backend/data/sepolia', evidence: 'evidence/sepolia', apiPort: 4200, record: 'sepolia', l1Fee: false, frozen: true }),
-  // Contract v2 on Ethereum Sepolia: same chain and keys, its own deployment record, database and evidence.
-  'sepolia-v2': Object.freeze({ chainId: 11155111, name: 'Ethereum Sepolia (contract v2)', rpc: 'https://ethereum-sepolia-rpc.publicnode.com', profile: 'backend/.env.sepolia', deployment: 'contracts/deployments/sepolia-v2.json', db: 'backend/data/sepolia-v2', evidence: 'evidence/sepolia-v2', apiPort: 4201, record: 'sepolia-v2', l1Fee: false, contractVersion: 2 }),
+  // First public v2 run (2026-10-17). FROZEN: stopped at its autonomous transfer (out of gas across 00:00 UTC), then
+  // safe-stopped. Its record, database and evidence are kept as they are.
+  'sepolia-v2': Object.freeze({ chainId: 11155111, name: 'Ethereum Sepolia (contract v2, first run, frozen)', rpc: 'https://ethereum-sepolia-rpc.publicnode.com', profile: 'backend/.env.sepolia', deployment: 'contracts/deployments/sepolia-v2.json', db: 'backend/data/sepolia-v2', evidence: 'evidence/sepolia-v2', apiPort: 4201, record: 'sepolia-v2', l1Fee: false, contractVersion: 2, frozen: true }),
+  // Complete public v2 run on a FRESH deployment: same chain and keys; its own record, database, evidence and port.
+  'sepolia-v2-full': Object.freeze({ chainId: 11155111, name: 'Ethereum Sepolia (contract v2, full run)', rpc: 'https://ethereum-sepolia-rpc.publicnode.com', profile: 'backend/.env.sepolia', deployment: 'contracts/deployments/sepolia-v2-full.json', db: 'backend/data/sepolia-v2-full', evidence: 'evidence/sepolia-v2-full', apiPort: 4202, record: 'sepolia-v2-full', l1Fee: false, contractVersion: 2 }),
 });
 
 /** Paths of the v1 public run. No run may write to them again (checked before anything is sent). */
-export const PROTECTED_V1_PATHS = Object.freeze(['contracts/deployments/sepolia.json', 'backend/data/sepolia', 'evidence/sepolia', 'evidence/sepolia-attempt-1']);
+export const PROTECTED_V1_PATHS = Object.freeze([
+  'contracts/deployments/sepolia.json', 'backend/data/sepolia', 'evidence/sepolia', 'evidence/sepolia-attempt-1',
+  // first public v2 run (partial), kept as evidence
+  'contracts/deployments/sepolia-v2.json', 'backend/data/sepolia-v2', 'evidence/sepolia-v2',
+]);
 
 /**
  * Refuses an --execute that could touch the v1 evidence or mix contract versions. Pure apart from reading the evidence

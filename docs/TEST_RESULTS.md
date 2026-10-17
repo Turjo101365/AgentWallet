@@ -1,6 +1,18 @@
 # Test Results
 
-> **Update 2026-10-17 (contract v2 and audit fixes F1–F3, local only).** A clean sequential run on a frozen tree gave:
+> **Update 2026-10-17, later (day-boundary gas fix, before the full public v2 run).** A clean sequential run, with the tree
+> hash `96140093…` identical at start and end, gave:
+> - contracts 53/53;
+> - backend 148/148 (+3 `gas.dayboundary.test.js`);
+> - frontend 32/32;
+> - browser 4/4;
+> - end-to-end 8/8;
+> - RL 25/25;
+> - local full-sequence verifier 26/26.
+>
+> The public v2 run that followed is in [V2_PUBLIC_RUNS.md](V2_PUBLIC_RUNS.md).
+>
+> **Update 2026-10-17 (contract v2 and audit fixes F1–F3, local).** A clean sequential run on a frozen tree gave:
 >
 > | Suite | Result |
 > |---|---|

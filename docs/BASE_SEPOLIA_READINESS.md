@@ -1,7 +1,8 @@
 > **Status 2026-10-17.** The Ethereum Sepolia run in this runbook was **completed on 2026-10-16** with contract **v1** (`0x8A44…956a6`,
 > `evidence/sepolia/`). That target is now **frozen**: `--network sepolia --execute` and the v1 demo refuse to run, so the v1 evidence
-> cannot be overwritten. The commands below are the historical record of how it was run. Contract v2 is local only; its separate,
-> guarded target (`sepolia-v2`, `scripts/sepolia-v2.mjs`) is paused. Base Sepolia was never executed.
+> cannot be overwritten. The commands below are the historical record of how it was run. Contract v2's first public run (`sepolia-v2`) is
+> partial and now frozen too; the full v2 run (separate, guarded `sepolia-v2-full` target, `scripts/sepolia-v2.mjs`) completed
+> on 2026-10-17: 12/12 SUCCESS, contract `0x3C93…582F`, `evidence/sepolia-v2-full/`. See [V2_PUBLIC_RUNS.md](V2_PUBLIC_RUNS.md). Base Sepolia was never executed.
 
 # Deliverable 06: Public-Testnet Execution-Evidence Runbook
 

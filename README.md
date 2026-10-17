@@ -28,11 +28,19 @@ signed, and only marks it confirmed after the receipt is verified.
 >
 > Public signing used a test-only wallet bridge; MetaMask was verified on a local chain. Docker and Base Sepolia execution are not verified. Submission package: [submission/SUBMISSION_CHECKLIST.md](submission/SUBMISSION_CHECKLIST.md).
 
-> **Contract v2 (2026-10-17, local only, not deployed).** The public run above used contract **v1**: there, the owner's
+> **Contract v2 (2026-10-17).** The public run above used contract **v1**: there, the owner's
 > EIP-712 approval and task grants are verified by the backend, and the contract trusts the agent key within its caps
 > and allowlist. **v2** verifies the owner's signature, the signed execution deadline and the grant bounds
-> **on-chain**, and adds on-chain grant and intent revocation. It is implemented and tested on a local chain and has
-> **not** been deployed, so no public contract enforces it yet. The backend works with both versions. Details:
+> **on-chain**, and adds on-chain grant and intent revocation. It has a **complete public run on Ethereum Sepolia**: contract
+> [`0x3C9389E704331B8a12381F9ab5A68a7F3F59582F`](https://sepolia.etherscan.io/address/0x3C9389E704331B8a12381F9ab5A68a7F3F59582F), 12/12 transactions SUCCESS. It covers:
+> - an AI-drafted transfer executed only with the owner's signature verified on-chain;
+> - an autonomous transfer under a bounded owner-signed grant;
+> - on-chain revocation of a second grant;
+> - pause/unpause, emergency stop and withdrawal, ending paused with the agent revoked and a zero balance.
+>
+> 26/26 read-only checks from public chain data. An earlier partial v2 run (`0x23bA…4458`) stopped when its grant run ran out of
+> gas at 00:00 UTC; that was fixed and is documented. Details: [docs/V2_PUBLIC_RUNS.md](docs/V2_PUBLIC_RUNS.md), evidence:
+> `evidence/sepolia-v2-full/`. The backend works with both versions. Details:
 > [docs/CONTRACT_V2.md](docs/CONTRACT_V2.md).
 
 ## How authority is split
@@ -83,7 +91,7 @@ node submission/tools/verify-receipts.mjs        # 11/11 receipts, plus deployed
 node submission/tools/verify-owner-approval.mjs  # owner EIP-712 signature -> executed transfer (needs the team's run database)
 ```
 
-Contract **v2** has been tested on a local Hardhat chain only; it is not deployed (see [docs/CONTRACT_V2.md](docs/CONTRACT_V2.md)). A guarded v2 Sepolia target (`scripts/sepolia-v2.mjs`) is prepared but **paused**. It needs `CONFIRM_PUBLIC_DEPLOY=yes` plus `--i-approve-sepolia-v2-transactions`, and the team's explicit approval.
+Contract **v2**: the full Sepolia run is complete (`evidence/sepolia-v2-full/`, 12/12), and the earlier partial run is frozen (`evidence/sepolia-v2/`). See [docs/V2_PUBLIC_RUNS.md](docs/V2_PUBLIC_RUNS.md). Both targets now refuse to run again.
 
 ## Tests
 

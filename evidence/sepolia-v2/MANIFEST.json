@@ -1,0 +1,91 @@
+{
+  "label": "PUBLIC Ethereum Sepolia, AgentWallet contract v2, partial run 2026-10-17 (tx 7 reverted out of gas; safe-stop applied)",
+  "generatedAt": "2026-10-17T00:09:15.877Z",
+  "files": [
+    {
+      "file": "evidence.json",
+      "bytes": 10517,
+      "sha256": "76cea3e8cbeb1a1b714c60be763945e42aaa0922333598462c02d50179c1eeaf"
+    },
+    {
+      "file": "EVIDENCE.md",
+      "bytes": 3687,
+      "sha256": "7d6f15ba4a4077cf6270195dc9848ecaeeaf800b32dc908492bca0bc88a8eee4"
+    },
+    {
+      "file": "public-receipts.json",
+      "bytes": 6632,
+      "sha256": "6c321397b55eb75be8d7e39913eff9fc69f03b352ec0f5c29f5348ad0c3570e2"
+    },
+    {
+      "file": "public-verify.json",
+      "bytes": 3279,
+      "sha256": "86f37b31f6a323653797bd4ed19cc4ef563ccb8ae0d06cf5ad8dcab1bdc9afaf"
+    },
+    {
+      "file": "recordings/raw/page@67793dccbd5f9a76087c8b37b04d93b9.webm",
+      "bytes": 36700160,
+      "sha256": "abf4aaeb25314698a8eeba8e245155464c1b99f64e27acef0234d285bab83d81"
+    },
+    {
+      "file": "RUN_NOTES.md",
+      "bytes": 6626,
+      "sha256": "6eb8e504d8e2e5aabf3bb997785f519b2f5d7394392a984f941251c3ad2123f0"
+    },
+    {
+      "file": "screenshots/01-deploy.png",
+      "bytes": 52192,
+      "sha256": "fb49d46b27c920261ad785c56be6201b75fce2fe7a3f98aa15241ee10474498b"
+    },
+    {
+      "file": "screenshots/02-explorer-deploy.png",
+      "bytes": 212878,
+      "sha256": "ee39dd1fa24f5e78a3a7ba7bc4864c9d39550dc8ffd64e672a19c11a384fa829"
+    },
+    {
+      "file": "screenshots/03-connect.png",
+      "bytes": 183901,
+      "sha256": "1f740258413abe243e094f8fbf824f119f339d683905752e56f9d3f35643d9ec"
+    },
+    {
+      "file": "screenshots/04-allowlist.png",
+      "bytes": 89480,
+      "sha256": "6d25c759bd97e345d645bccd0440910cd14485e328c8b99cd4802c8c92fa50c5"
+    },
+    {
+      "file": "screenshots/05-deposit.png",
+      "bytes": 103700,
+      "sha256": "d95be28fd5be51ee1e12a0dd7f07ee90e41792e521c713655c4ac4c538279205"
+    },
+    {
+      "file": "screenshots/06-ai-transfer.png",
+      "bytes": 109893,
+      "sha256": "932933e2b5fbbf8dfed6785ca6c440c4a84ae2b36ae0252671bd4991d4e02233"
+    },
+    {
+      "file": "screenshots/07-approve.png",
+      "bytes": 145898,
+      "sha256": "e64c75c363b95fa06bc47cb0fd304e89e4afe6bf1afaf6e0c22f746cf61b7646"
+    },
+    {
+      "file": "screenshots/08-ai-rejection.png",
+      "bytes": 107314,
+      "sha256": "b38b4bc011748add8ae2f933cdfed6e8ed3a2a5fe30d2ff9d36fe3f110b155c4"
+    },
+    {
+      "file": "screenshots/09-auto-limit.png",
+      "bytes": 90979,
+      "sha256": "7151ec71084ed2332a9ba9611ab00ee353d30a1d2d387707e4ba87acd2507ea4"
+    },
+    {
+      "file": "screenshots/10-ai-schedule.png",
+      "bytes": 126111,
+      "sha256": "9b08f8edc44d016f22e6a2ee0281fb98dda1cefab5f6d88405fbe8d7748d1393"
+    },
+    {
+      "file": "screenshots/11-grant.png",
+      "bytes": 122187,
+      "sha256": "93a4235676c8d7f7255149b2b61eed93b28776668418ba597e87d397fdba4992"
+    }
+  ]
+}

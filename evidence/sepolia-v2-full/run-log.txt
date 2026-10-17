@@ -1,0 +1,33 @@
+07:09:53  ▶ Owner tops up deployer and agent; deployer deploys AgentWallet
+07:09:54  Chain 11155111 · owner balance 0.055749876953374456 ETH · budget 0.0160418715 ETH
+07:10:13  Top up deployer: 0xf3bf0e077cd36f9eb1d5528237000c68d5ebb02a3e7ecbbd1437916605af1bdf (block 11932651)
+07:10:50  Top up agent: 0xcf80f95f8d5e93b061777b2e8dbd92d2489275d1f27f8fd76d98cd202ea0319b (block 11932654)
+07:11:17  Deployed AgentWallet 0x3C9389E704331B8a12381F9ab5A68a7F3F59582F: 0x879566e6943dbcde1653a9f081b197487118cf1a6799ed03bbda6a41cb21f4a5
+07:11:17  AgentWallet contract: 0x3C9389E704331B8a12381F9ab5A68a7F3F59582F (caps 0.0002 ETH/tx, 0.0005 ETH/day)
+07:11:21  ▶ Deployment on the public block explorer
+07:11:58  ▶ Wallet connection, network check and SIWE sign-in
+07:12:06  ▶ Owner allowlists the recipient on-chain
+07:12:09  Owner wallet sent setRecipient: 0x912f3e0a0da0f02ee737a810c5f3bb7801859f0491a0703cc8ae8aec656459ff
+07:12:29  ▶ Owner deposits 0.0004 ETH into the wallet
+07:12:31  Owner wallet sent deposit: 0x17ac2f09e8767418eb1907fcc18231c19709ce82f36cdfceb4eab084746afa3e
+07:12:56  ▶ AI agent receives an instruction, plans and drafts a transfer
+07:13:16  ▶ Risk checks pass; owner reviews and signs the exact transfer (EIP-712); agent key executes
+07:13:40  Owner-approved transfer executed: 0x564129e213f1142da1d9d52e9b3e15eeff42852198cb7d3bcd84242eb6c0702e
+07:13:43  ▶ AI agent drafts an over-cap transfer; the policy engine rejects it (nothing sent)
+07:14:01  Policy rejected the over-cap draft: PER_TX_LIMIT, BALANCE_AND_RESERVE
+07:14:05  ▶ Owner sets the auto-approval limit to 0.0001 ETH
+07:14:09  ▶ AI agent drafts a scheduled payment
+07:14:27  ▶ Owner signs the bounded task grant; the scheduler executes autonomously
+07:17:17  Autonomous transfer executed under the grant: 0xbcdd8685f552b89ba37352a6768189d8d1e7b104c4d01c111a0e8fa5cf4a2d6e
+07:17:21  ▶ Owner signs a second, recurring grant, then revokes it ON-CHAIN; the agent key can no longer use it
+07:17:25  Owner wallet sent revokeGrant: 0x4b8b8efdf4d5a709f320b58a2a7bea7289e7f9f410d7e20efab1829d886c14e6
+07:17:39  Grant 0xfaf76f97… revoked on-chain; agent eth_call probe → GrantIsRevoked (nothing sent)
+07:17:42  ▶ Security controls: pause, unpause, emergency stop
+07:17:45  Owner wallet sent pause: 0x19576c61ccbdd0cea313be4894ccc59899569e7b7c7c7d4399145f1b50333ade
+07:17:54  Owner wallet sent unpause: 0xbfa8a88eba16b05926c7a95cf3b0de0bc771ab942f08f70641c0f6cc762fcdd6
+07:18:21  Owner wallet sent emergencyStop: 0x80a42def2843143de5a8418cc798fb231f19aa042fdb04d2bf155736cf0b1713
+07:18:29  ▶ Owner withdraws the remaining balance
+07:18:31  Owner wallet sent withdraw: 0xc3dff58a20a173604828f5b082283a21c2691cef94c34abc37b3a41088fa433e
+07:18:43  ▶ Transaction history and hash-chained audit log
+07:18:51  ▶ Agent transfers and emergency stop on the public explorer
+07:19:59  Deployment gate reset: CONFIRM_PUBLIC_DEPLOY=no

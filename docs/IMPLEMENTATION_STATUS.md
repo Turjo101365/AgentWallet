@@ -2,7 +2,15 @@
 
 > **Current status (2026-10-17).**
 > - **Public, contract v1:** the Ethereum Sepolia run of 2026-10-16. Contract `0x8A44…956a6`, 11 transactions, AI-drafted owner-approved and autonomous transfers. Evidence: `evidence/sepolia/`, Deliverable 06.
-> - **Local only, contract v2:** on-chain verification of the owner's EIP-712 approvals and task grants, the signed execution deadline, grant run and total counters, and on-chain grant and intent revocation. Tested on local Hardhat chains, including real MetaMask and live gpt-4.1-mini; not deployed. See [CONTRACT_V2.md](CONTRACT_V2.md).
+> - **Local only, contract v2:** on-chain verification of the owner's EIP-712 approvals and task grants, the signed execution deadline, grant run and total counters, and on-chain grant and intent revocation. Tested on local Hardhat chains, including real MetaMask and live gpt-4.1-mini. See [CONTRACT_V2.md](CONTRACT_V2.md).
+> - **Public, contract v2 (complete):** Ethereum Sepolia `0x3C9389E704331B8a12381F9ab5A68a7F3F59582F`, 2026-10-17, 12/12 SUCCESS (`evidence/sepolia-v2-full/`):
+>   - an AI-drafted transfer executed only with the owner's EIP-712 signature verified on-chain;
+>   - an AI-drafted payment executed autonomously under a bounded owner-signed grant;
+>   - a second grant revoked on-chain;
+>   - pause/unpause, emergency stop and withdrawal.
+>
+>   It ended paused, with the agent revoked and a zero balance; 26/26 read-only checks passed.
+> - **Public, contract v2 run 1 (partial, frozen):** `0x23bA…4458`. Its grant run reverted out of gas because the UTC day changed between gas estimation and inclusion; this is fixed and regression-tested. See [V2_PUBLIC_RUNS.md](V2_PUBLIC_RUNS.md).
 > - **Backend fixes for audit findings F1 and F3:** expiry and signature re-verification at execution, for both contract versions.
 > - **Swaps:** a contract primitive only (owner-only, unwired). There is no rebalancing.
 > - **Docker:** not verified.

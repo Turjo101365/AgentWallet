@@ -1,8 +1,8 @@
 # AgentWallet contract v1 vs v2
 
-**Status (2026-10-17):** v2 is implemented and tested **locally only**. It has **not** been deployed to any public network.
+**Status (2026-10-17):** v2 is implemented and tested locally. It has a **complete public run** on Ethereum Sepolia, `0x3C9389E704331B8a12381F9ab5A68a7F3F59582F`: 12/12 transactions SUCCESS and 26/26 read-only checks (`evidence/sepolia-v2-full/`). An earlier partial run (`0x23bA…4458`) stopped at its grant run, a day-boundary gas issue that is now fixed, and was safe-stopped. See [V2_PUBLIC_RUNS.md](V2_PUBLIC_RUNS.md).
 
-The only public deployment is **v1** on Ethereum Sepolia, at [`0x8A44716Efabb6Ce401291B91D4427149CaF956a6`](https://sepolia.etherscan.io/address/0x8A44716Efabb6Ce401291B91D4427149CaF956a6). All 11 public transactions in `evidence/sepolia/` were made against v1. Nothing in this document changes them.
+The first complete public run was **v1** on Ethereum Sepolia, at [`0x8A44716Efabb6Ce401291B91D4427149CaF956a6`](https://sepolia.etherscan.io/address/0x8A44716Efabb6Ce401291B91D4427149CaF956a6). All 11 public transactions in `evidence/sepolia/` were made against v1. Nothing in this document changes them.
 
 **Tested 2026-10-17 (local Hardhat only):**
 - contracts 53/53;
@@ -91,12 +91,12 @@ The frozen v1 interface and bytecode are kept for this:
 - `shared/abi/AgentWallet.v1.json`: ABI, creation and runtime bytecode. The runtime bytecode equals `eth_getCode` of the Sepolia contract; `submission/tools/verify-receipts.mjs` re-checks this on every run.
 - `submission/tools/verify-receipts.mjs` and `verify-owner-approval.mjs` read the v1 ABI, so they keep verifying the 11 v1 transactions after `contracts/` is rebuilt as v2.
 
-## Deploying v2 (not done)
+## Deploying v2
 
-A public v2 deployment needs, in this order:
+Both public v2 runs are done, and their targets (`sepolia-v2`, `sepolia-v2-full`) refuse to run again once their evidence folders hold a run. Any new public v2 run needs a new target and, in this order:
 1. The team's explicit approval.
 2. `CONFIRM_PUBLIC_DEPLOY=yes` (currently `no`).
 3. The run script's approval flag.
 4. Testnet ETH.
 
-`contracts/scripts/deploy.js` records `contractVersion: 2`. Until that happens and the deployed source is independently verified, **no claim may say that the public Sepolia contract verifies owner signatures**: it is v1, and it does not.
+`contracts/scripts/deploy.js` records `contractVersion: 2`. **Claims must name the contract.** The v1 contract (`0x8A44…`) does **not** verify owner signatures. The v2 contracts (`0x3C93…`, `0x23bA…`) do, as shown by signatures recovered from public calldata. Their source is not verified on Etherscan, but their bytecode equals the compiled v2 artifact (`public-verify.json` in each evidence folder).

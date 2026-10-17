@@ -12,14 +12,16 @@
 | 02 | Presentation deck (≤ 10 min) | **Made by you.** `02-presentation/` holds only reference material you may ignore: a rough draft deck, speaker notes, and genuine screenshots in `assets/` | Yours | Build the deck (≤ 10 min) |
 | 03 | Demo video (optional, ≤ 5 min) | 15 mini-clips in `../evidence/submission/mini-clips/` + `CLIP_INDEX.md`; `03-demo-video/STORYBOARD.md` (4:50 plan) | Assets ready; **final video not made** | Assemble, voice over, export ≤ 5:00 |
 | 04 | Source code | `../README.md` (updated), `04-source-code/SOURCE_CODE_AUDIT.md`, `secret-scan.json` | Ready in the working tree; **not committed** | Confirm the repo is public; commit, push, merge to `main`; submit the link |
-| 05 | Security self-assessment | `05-security-assessment/SECURITY_SELF_ASSESSMENT.md` (tiers T0–T5, matrix, risks R1–R26, LLM risks, §11 audit fixes F1–F3 and contract v2) | Ready | Review |
+| 05 | Security self-assessment | `05-security-assessment/SECURITY_SELF_ASSESSMENT.md` (tiers T0–T5, matrix, risks R1–R27, LLM risks, §11 audit fixes F1–F3, contract v2 and its public runs) | Ready | Review |
 | 06 | Execution evidence | `06-execution-evidence/EXECUTION_EVIDENCE.md` (all 11 transactions), `receipts-verified.json`; originals in `../evidence/sepolia/` | Ready | Upload the git-ignored raw videos and link them |
 | — | Scoring readiness | `scoring-readiness/SCORING_READINESS.md`, `REQUIREMENT_EVIDENCE_MATRIX.md` | Ready | — |
 
 ## Contract versions (2026-10-17)
 
 - **Public evidence = contract v1** (below). Unchanged and re-verified on 2026-10-17: 11/11 SUCCESS, deployed runtime identical to the frozen `shared/abi/AgentWallet.v1.json`, 39/39 evidence hashes match.
-- **Contract v2 = local only.** It adds on-chain owner-signature and grant verification, the signed deadline and revocation. Tested on local Hardhat (contract, backend, browser, real MetaMask, live gpt-4.1-mini, recorded showcase in `evidence/local-v2/`). **Not deployed**; never present it as public. See `docs/CONTRACT_V2.md`.
+- **Contract v2 = fully tested locally and run publicly.** It adds on-chain owner-signature and grant verification, the signed deadline and revocation. Tested on local Hardhat (contract, backend, browser, real MetaMask, live gpt-4.1-mini, recorded showcase in `evidence/local-v2/`).
+- **Public v2 full run** (`evidence/sepolia-v2-full/`, `0x3C9389E704331B8a12381F9ab5A68a7F3F59582F`): 12/12 SUCCESS. It covers the owner-signed transfer verified on-chain, an autonomous grant run, on-chain grant revocation, pause/unpause, emergency stop and withdrawal, and ends paused, with the agent revoked and a zero balance. 26/26 read-only checks. Summary: `06-execution-evidence/V2_EXECUTION_EVIDENCE.md`.
+- **Public v2 run 1** (`evidence/sepolia-v2/`, `0x23bA…4458`) is partial: its grant run reverted out of gas (tx 7, day-boundary gas issue, now fixed) and it was safe-stopped. Present it as such, never as the full proof. See `docs/V2_PUBLIC_RUNS.md`.
 
 ## Public evidence at a glance
 
