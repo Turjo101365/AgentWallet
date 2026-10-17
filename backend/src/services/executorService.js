@@ -119,6 +119,32 @@ export function createExecutorService({ config, repos, chain, risk, signerProvid
     return { method: 'executeApprovedTransfer', args: [approvalTypedData(proposal).message, proposal.approvalSignature] };
   }
 
+  /**
+   * The contract charges each transfer to spentPerDay[token][block.timestamp / 1 day]. A transfer estimated in one UTC
+   * day and mined in the next writes a FRESH slot for the new day, which costs more gas than the estimate (made against
+   * the old day's already-written slot) covered. Public v2 run, tx 7: estimated 426,625 at 23:59:48 UTC (limit 511,950),
+   * mined at 00:00:00 UTC where it needed 525,711, so it ran out of gas. Within the guard window before a boundary,
+   * wait (bounded) until the chain is in the new UTC day, so the estimate and the inclusion see the same day slot.
+   * Chain time is max(latest block timestamp, wall clock): public chains track the wall clock; a local chain may be ahead.
+   */
+  async function waitOutDayBoundary(proposal) {
+    const guard = config.dayBoundaryGuardSeconds;
+    if (!guard) return { waited: false };
+    const chainTime = async () => Math.max(Number((await chain.provider.getBlock('latest')).timestamp), nowSeconds());
+    const start = await chainTime();
+    const toBoundary = 86400 - (start % 86400);
+    if (toBoundary > guard) return { waited: false };
+    const day = Math.floor(start / 86400);
+    await audit('EXECUTION_DAY_BOUNDARY_WAIT', proposal.id, { chainTime: start, secondsToBoundary: toBoundary, guardSeconds: guard });
+    logger.info('Waiting for the UTC day boundary before estimating gas', { proposalId: proposal.id, secondsToBoundary: toBoundary });
+    const giveUp = Date.now() + (toBoundary + 120) * 1000;
+    while (Math.floor((await chainTime()) / 86400) === day) {
+      if (Date.now() > giveUp) return { waited: true, failed: true, message: `Chain did not reach the next UTC day within ${toBoundary + 120}s` };
+      await new Promise((r) => setTimeout(r, config.dayBoundaryPollMs));
+    }
+    return { waited: true };
+  }
+
   function enqueue(proposalId) {
     if (!inflight.has(proposalId)) {
       const job = execute(proposalId)
@@ -147,8 +173,16 @@ export function createExecutorService({ config, repos, chain, risk, signerProvid
       }
 
       // 0. Authority for this exact row: signature, signer is the current owner, deadline not passed.
-      const authz = await checkAuthorization(proposal);
+      let authz = await checkAuthorization(proposal);
       if (authz.denied) return fail(execution, proposal, authz.denied.code, authz.denied.message);
+
+      // 0b. Never estimate gas just before 00:00 UTC (see waitOutDayBoundary); re-check authority after any wait.
+      const boundary = await waitOutDayBoundary(proposal);
+      if (boundary.failed) return fail(execution, proposal, 'DAY_BOUNDARY_WAIT_TIMEOUT', boundary.message);
+      if (boundary.waited) {
+        authz = await checkAuthorization(proposal);
+        if (authz.denied) return fail(execution, proposal, authz.denied.code, authz.denied.message);
+      }
 
       // 1. Fresh risk assessment (same engine as creation and approval), excluding this proposal from reservations.
       const { policy } = await risk.assessTransfer({
@@ -182,7 +216,10 @@ export function createExecutorService({ config, repos, chain, risk, signerProvid
       if (maxFeePerGas > config.maxFeePerGasWei) {
         return fail(execution, proposal, 'GAS_PRICE_TOO_HIGH', `maxFeePerGas ${ethers.formatUnits(maxFeePerGas, 'gwei')} gwei exceeds cap`);
       }
-      const gasLimit = (gasEstimate * 120n) / 100n;
+      const gasLimit = (gasEstimate * BigInt(100 + config.executorGasMarginPct)) / 100n;
+      if (gasLimit > config.executorGasLimitCap) {
+        return fail(execution, proposal, 'GAS_LIMIT_ABOVE_CAP', `Gas limit ${gasLimit} (estimate ${gasEstimate} + ${config.executorGasMarginPct}%) exceeds the cap ${config.executorGasLimitCap}`);
+      }
       const maxCost = gasLimit * maxFeePerGas;
       const executorBalance = await chain.provider.getBalance(config.executor.address);
       if (executorBalance < maxCost) {

@@ -88,6 +88,14 @@ const schema = z.object({
   SESSION_TTL_SECONDS: z.coerce.number().int().min(300).max(86400).default(28800),
   NONCE_TTL_SECONDS: z.coerce.number().int().min(60).max(1800).default(300),
   MAX_FEE_PER_GAS_GWEI: decimalString.default('50'),
+  // Executor gas limit = estimate × (100 + margin)% , refused above the cap (never sent).
+  EXECUTOR_GAS_MARGIN_PCT: z.coerce.number().int().min(5).max(100).default(20),
+  EXECUTOR_GAS_LIMIT_CAP: z.coerce.number().int().min(100000).max(30000000).default(1500000),
+  // The contract charges spend to spentPerDay[token][UTC day]; a transaction estimated just before 00:00 UTC and mined
+  // after it writes a fresh day slot that the estimate did not cover (public v2 run, tx 7). Within this many seconds of
+  // the boundary the executor waits for the new UTC day before estimating and signing. 0 disables the guard.
+  DAY_BOUNDARY_GUARD_SECONDS: z.coerce.number().int().min(0).max(900).default(120),
+  DAY_BOUNDARY_POLL_MS: z.coerce.number().int().min(50).max(60000).default(3000),
   NATIVE_RESERVE_FLOOR_ETH: decimalString.default('0.01'),
   MIN_EXECUTOR_GAS_BALANCE_ETH: decimalString.default('0.0005'),
   RECEIPT_TIMEOUT_MS: z.coerce.number().int().min(1000).default(120000),
@@ -230,6 +238,10 @@ export function loadConfig(env = process.env) {
     sessionTtlSeconds: e.SESSION_TTL_SECONDS,
     nonceTtlSeconds: e.NONCE_TTL_SECONDS,
     maxFeePerGasWei: ethers.parseUnits(e.MAX_FEE_PER_GAS_GWEI, 'gwei'),
+    executorGasMarginPct: e.EXECUTOR_GAS_MARGIN_PCT,
+    executorGasLimitCap: BigInt(e.EXECUTOR_GAS_LIMIT_CAP),
+    dayBoundaryGuardSeconds: e.DAY_BOUNDARY_GUARD_SECONDS,
+    dayBoundaryPollMs: e.DAY_BOUNDARY_POLL_MS,
     nativeReserveFloorWei: ethers.parseEther(e.NATIVE_RESERVE_FLOOR_ETH),
     minExecutorGasBalanceWei: ethers.parseEther(e.MIN_EXECUTOR_GAS_BALANCE_ETH),
     receiptTimeoutMs: e.RECEIPT_TIMEOUT_MS,

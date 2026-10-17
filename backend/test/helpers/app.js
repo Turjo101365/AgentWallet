@@ -29,6 +29,9 @@ export function testConfig({ rpcUrl, deployment, env = {} }) {
     LOG_LEVEL: 'silent',
     RECEIPT_TIMEOUT_MS: '20000',
     OWNER_CACHE_MS: '0',
+    // Tests run on a local chain at wall-clock time; a suite running across 00:00 UTC would otherwise pause for the
+    // day-boundary guard. The guard itself is exercised explicitly in gas.dayboundary.test.js.
+    DAY_BOUNDARY_GUARD_SECONDS: '0',
     ...env,
   });
 }
