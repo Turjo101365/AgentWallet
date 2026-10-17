@@ -6,11 +6,12 @@
  *
  *   node scripts/sepolia-v2.mjs --plan                 # read-only: guards, compiled version, live gas, deploy estimate, balances
  *   node scripts/sepolia-v2.mjs --rehearse [--headed]  # the full recorded sequence on a throwaway LOCAL chain (real AI)
- *   node scripts/sepolia-v2.mjs --execute --i-approve-sepolia-v2-transactions [--headed]
+ *   node scripts/sepolia-v2.mjs --execute --i-approve-sepolia-v2-full-transactions [--headed]
  *                                                       # PUBLIC: also needs CONFIRM_PUBLIC_DEPLOY=yes in contracts/.env
  *
- * STATUS (2026-10-17): prepared but PAUSED by the team. Not rehearsed with the v2 revocation step; no public v2 run
- * is planned before the submission. See work/V2_SEPOLIA_DEPLOYMENT_PLAN.md.
+ * The first public v2 run (target sepolia-v2, evidence/sepolia-v2/) stopped at its autonomous transfer and is frozen.
+ * This entry point now targets a FRESH deployment: sepolia-v2-full (contracts/deployments/sepolia-v2-full.json,
+ * backend/data/sepolia-v2-full, evidence/sepolia-v2-full/).
  *
  * Every mode prints what it will do first. --execute refuses unless the guards pass, the flag is given and the gate is
  * "yes"; the gate is reset to "no" when the run ends, however it ends.
@@ -20,7 +21,7 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const TARGET = 'sepolia-v2';
+const TARGET = 'sepolia-v2-full'; // the first v2 run (target sepolia-v2) is frozen
 const args = process.argv.slice(2);
 const has = (f) => args.includes(f);
 const passthrough = args.filter((a) => ['--headed', '--rpc'].includes(a) || (args[args.indexOf(a) - 1] === '--rpc'));

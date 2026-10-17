@@ -24,8 +24,10 @@ describe('Base Sepolia run script', () => {
 
   test('the v2 Sepolia target never shares a deployment record, database, evidence folder or port with the v1 run', () => {
     const v1 = TARGETS.sepolia;
-    const v2 = TARGETS['sepolia-v2'];
+    const v2 = TARGETS['sepolia-v2-full'];
     assert.equal(v1.frozen, true);
+    assert.equal(TARGETS['sepolia-v2'].frozen, true, 'the first (partial) public v2 run is frozen too');
+    for (const field of ['deployment', 'db', 'evidence', 'apiPort', 'record']) assert.notEqual(v2[field], TARGETS['sepolia-v2'][field], `v2-full vs first v2 run: ${field}`);
     assert.equal(v2.chainId, 11155111);
     assert.equal(v2.contractVersion, 2);
     for (const field of ['deployment', 'db', 'evidence', 'apiPort', 'record']) assert.notEqual(v2[field], v1[field], field);
@@ -37,13 +39,14 @@ describe('Base Sepolia run script', () => {
   test('guards: the frozen v1 target, a used evidence folder and a wrong contract version are refused before anything is sent', () => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'aw-guard-'));
     assert.throws(() => assertTargetSafe('sepolia', { root }), /frozen/);
+    assert.throws(() => assertTargetSafe('sepolia-v2', { root }), /frozen/);
     assert.throws(() => assertTargetSafe('nope', { root }), /Unknown target/);
-    assert.doesNotThrow(() => assertTargetSafe('sepolia-v2', { root, artifactVersion: 2 }));
-    assert.throws(() => assertTargetSafe('sepolia-v2', { root, artifactVersion: 1 }), /expects v2/);
-    fs.mkdirSync(path.join(root, 'evidence', 'sepolia-v2'), { recursive: true });
-    assert.doesNotThrow(() => assertTargetSafe('sepolia-v2', { root, artifactVersion: 2 }), 'an empty folder is fine');
-    fs.writeFileSync(path.join(root, 'evidence', 'sepolia-v2', 'EVIDENCE.md'), 'done');
-    assert.throws(() => assertTargetSafe('sepolia-v2', { root, artifactVersion: 2 }), /already holds a run/);
+    assert.doesNotThrow(() => assertTargetSafe('sepolia-v2-full', { root, artifactVersion: 2 }));
+    assert.throws(() => assertTargetSafe('sepolia-v2-full', { root, artifactVersion: 1 }), /expects v2/);
+    fs.mkdirSync(path.join(root, 'evidence', 'sepolia-v2-full'), { recursive: true });
+    assert.doesNotThrow(() => assertTargetSafe('sepolia-v2-full', { root, artifactVersion: 2 }), 'an empty folder is fine');
+    fs.writeFileSync(path.join(root, 'evidence', 'sepolia-v2-full', 'EVIDENCE.md'), 'done');
+    assert.throws(() => assertTargetSafe('sepolia-v2-full', { root, artifactVersion: 2 }), /already holds a run/);
     assert.equal(artifactVersion(), 2, 'the compiled contract is v2');
   });
 
@@ -60,7 +63,7 @@ describe('Base Sepolia run script', () => {
   });
 
   test('each public target is fully separate: chain, profile, database, deployment, evidence and port', () => {
-    assert.deepEqual(Object.keys(TARGETS).sort(), ['base-sepolia', 'sepolia', 'sepolia-v2']);
+    assert.deepEqual(Object.keys(TARGETS).sort(), ['base-sepolia', 'sepolia', 'sepolia-v2', 'sepolia-v2-full']);
     assert.equal(TARGETS['base-sepolia'].chainId, 84532);
     assert.equal(TARGETS.sepolia.chainId, 11155111);
     for (const field of ['chainId', 'profile', 'deployment', 'db', 'evidence', 'apiPort', 'record']) {
@@ -135,7 +138,7 @@ describe('Base Sepolia run script', () => {
   test('rehearsal: the full sequence succeeds on the computed budget and produces passing evidence', async () => {
     const { steps, evidence } = await rehearse();
     const names = steps.map((s) => s.step);
-    for (const s of ['top-up deployer', 'top-up agent', 'deploy', 'allowlist recipient', 'deposit', 'owner-approved transfer', 'policy rejection (no tx)', 'autonomous transfer', 'pause', 'unpause', 'emergencyStop', 'withdraw remainder']) {
+    for (const s of ['top-up deployer', 'top-up agent', 'deploy', 'allowlist recipient', 'deposit', 'owner-approved transfer', 'policy rejection (no tx)', 'autonomous transfer', 'revoke grant', 'pause', 'unpause', 'emergencyStop', 'withdraw remainder']) {
       assert.ok(names.includes(s), `missing step ${s}`);
     }
     assert.ok(steps.find((s) => s.step === 'policy rejection (no tx)').violations.includes('PER_TX_LIMIT'));
