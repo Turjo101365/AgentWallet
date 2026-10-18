@@ -58,6 +58,13 @@ describe('consumer payment review',()=>{
     await screen.findByTestId('demo-receipt');expect(JSON.parse(fetch.mock.calls[0][1].body)).toEqual({confirm:true,recipient,amountWei:'100000000000000'});
     expect(screen.getByRole('link',{name:/View verified Sepolia receipt/}).getAttribute('href')).toBe('https://sepolia.etherscan.io/tx/'+hash);
   });
+  it('a receipt from a local simulation chain is labelled SIMULATED, never as Sepolia evidence',async()=>{
+    const p=proposal(),hash='0x'+'cd'.repeat(32),fetch=vi.fn(async()=>({ok:true,status:200,json:async()=>({success:true,data:{...p,status:'CONFIRMED',receipt:{status:1,blockNumber:12,gasUsed:'12345',txHash:hash,explorerUrl:null}}})}));vi.stubGlobal('fetch',fetch);
+    mount(<ProposalCard proposal={p}/>,{config:{...config,isPublicNetwork:false,networkName:'Hardhat Local',chainId:31337,explorerBaseUrl:null}});
+    fireEvent.click(screen.getByTestId('demo-confirm-checkbox'));fireEvent.click(screen.getByRole('button',{name:'Confirm demo payment'}));
+    const receipt=await screen.findByTestId('demo-receipt');
+    expect(receipt.textContent).toMatch(/SIMULATED/);expect(receipt.textContent).toMatch(/not public evidence/);expect(receipt.textContent).not.toMatch(/Sepolia/);
+  });
 });
 
 describe('homepage and navigation',()=>{

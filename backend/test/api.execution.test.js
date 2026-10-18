@@ -189,7 +189,9 @@ describe('approval state machine and execution on a real local chain', () => {
     // Now settle each authorized payment and check actual on-chain spend.
     for (let i=0;i<created.length;i++) if (outcomes[i]==='APPROVED') {
       await ctx.container.executor.enqueue(created[i].id);
-      assert.equal((await getProposal(created[i].id)).status,'CONFIRMED');
+      const settled = await getProposal(created[i].id);
+      // Diagnostic only: report why a settlement failed (seen once in a full-suite run, not reproducible alone).
+      assert.equal(settled.status,'CONFIRMED', JSON.stringify({ reason: settled.resolutionReason, execution: settled.execution && { status: settled.execution.status, errorCode: settled.execution.errorCode, errorMessage: settled.execution.errorMessage } }));
     }
     const after = (await request(ctx.app).get('/api/wallet/state').set(bearer(ownerToken)).expect(200)).body.data;
     const spent = BigInt(after.tokens.find((t) => t.native).spentToday);
