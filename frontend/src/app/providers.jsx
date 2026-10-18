@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { BrowserProvider } from 'ethers';
+import { BrowserProvider, id as fingerprint } from 'ethers';
 import { configureApi, get, post } from '../lib/api.js';
 import { WALLET_CHAIN_PARAMS } from '../lib/networks.js';
 
@@ -56,6 +56,7 @@ export function AppProvider({ children, ethereum = typeof window !== 'undefined'
   });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
+  const demoEntryInFlight = useRef(null);
 
   const demoActive = Boolean(mode?.role === 'judge' && mode?.wallet === 'demo' && demo?.token);
   const sessionRef = useRef(siweSession);
@@ -229,11 +230,28 @@ export function AppProvider({ children, ethereum = typeof window !== 'undefined'
   }, [signOutLocal, setDemo, setMode]);
 
   /** Judge → Demo wallet. Without an invite code the session can explore and draft, never execute. */
-  const startDemo = useCallback(async (inviteCode) => {
-    const d = await post('/demo/session', inviteCode ? { inviteCode } : {});
-    setDemo({ token: d.token, sessionId: d.sessionId, executionAllowed: d.executionAllowed, expiresAt: d.expiresAt, limits: d.limits });
-    setMode({ role: 'judge', wallet: 'demo' });
-    return d;
+  const startDemo = useCallback((inviteCode) => {
+    // A state-only disabled button cannot serialize callers in the same event turn.
+    if (demoEntryInFlight.current) return demoEntryInFlight.current;
+    const entryFingerprint = fingerprint(inviteCode?.trim() || '');
+    const job = (async () => {
+      const saved = readJson(DEMO_KEY);
+      let d;
+      if (saved?.token && saved.expiresAt > nowSeconds() && saved.entryFingerprint === entryFingerprint) {
+        // Reuse only an existing bearer session verified by the backend. Never
+        // consume the one-use invite again after a UI/config-loading failure.
+        const s = await get('/demo/sandbox/auth/session', { root: true, headers: { Authorization: `Bearer ${saved.token}` } });
+        d = { ...saved, sessionId: s.id, executionAllowed: s.executionAllowed, expiresAt: s.expiresAt };
+      } else {
+        d = await post('/demo/session', inviteCode ? { inviteCode: inviteCode.trim() } : {});
+      }
+      setDemo({ token: d.token, sessionId: d.sessionId, executionAllowed: d.executionAllowed, expiresAt: d.expiresAt, limits: d.limits, entryFingerprint });
+      setMode({ role: 'judge', wallet: 'demo' });
+      return d;
+    })();
+    demoEntryInFlight.current = job;
+    job.finally(() => { if (demoEntryInFlight.current === job) demoEntryInFlight.current = null; }).catch(() => {});
+    return job;
   }, [setDemo, setMode]);
 
   /** Back to role selection: forgets the demo session and the chosen mode (the wallet session stays signed in). */

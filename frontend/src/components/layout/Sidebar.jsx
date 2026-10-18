@@ -17,9 +17,12 @@ export const NAV = [
  * expands to show its label. Below `lg` every item shows its label and the rail scrolls sideways.
  */
 export function PrimaryNav({ className = '' }) {
-  const { judgeSite } = useApp();
+  const { judgeSite, mode } = useApp();
   // Public judge site: no RL service is deployed; historical evidence is its own section.
-  const items = judgeSite ? [...NAV, { to: '/evidence', label: 'Evidence', icon: 'verified' }] : NAV;
+  const evidence = { to: '/evidence', label: 'Evidence', icon: 'verified' };
+  const items = judgeSite && mode?.role === 'admin'
+    ? [{ to: '/', label: 'Administration', icon: 'admin_panel_settings' }, evidence]
+    : judgeSite ? [...NAV, evidence] : NAV;
   return (
     <nav aria-label="Primary" className={`flex min-w-0 items-center gap-1 overflow-x-auto ${className}`}>
       {items.map((item) => (

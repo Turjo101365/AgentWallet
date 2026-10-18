@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useApp } from '../app/providers.jsx';
 import { Card, CardContent } from '../components/ui/Card.jsx';
@@ -38,19 +38,25 @@ export function Welcome() {
   const [wallet, setWallet] = useState('demo');
   const [invite, setInvite] = useState('');
   const [busy, setBusy] = useState(false);
+  const entering = useRef(false);
   const [error, setError] = useState(null);
 
   async function enter(e) {
     e?.preventDefault();
+    if (entering.current) return;
     setError(null);
     if (role === 'admin') return setMode({ role: 'admin' });
     if (wallet === 'personal') return setMode({ role: 'judge', wallet: 'personal' });
+    entering.current = true;
     setBusy(true);
     try {
       await startDemo(invite.trim() || undefined);
     } catch (err) {
-      setError(describeError(err));
+      setError(['NETWORK_ERROR','BAD_RESPONSE'].includes(err.code)
+        ? 'The session response could not be read. The one-use invite may already have been consumed. Do not submit it again; ask the administrator to check the session audit. No payment has been authorized.'
+        : describeError(err));
     } finally {
+      entering.current = false;
       setBusy(false);
     }
   }

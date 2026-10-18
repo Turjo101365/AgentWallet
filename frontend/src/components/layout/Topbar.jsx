@@ -18,7 +18,7 @@ function Brand() {
 }
 
 export function Topbar() {
-  const { config, account, walletChainId, networkOk, session, isOwner, isDemo, connect, switchNetwork, signOut } = useApp();
+  const { config, account, walletChainId, networkOk, session, isOwner, isDemo, mode, connect, switchNetwork, signOut } = useApp();
   return (
     <header className="sticky top-0 z-40 bg-ink text-white">
       <div className="flex flex-wrap lg:flex-nowrap items-center justify-between gap-x-4 px-4 sm:px-6 lg:h-16">
@@ -39,7 +39,7 @@ export function Topbar() {
           )}
           {session && (
             <span className={`inline-flex items-center h-8 px-3 rounded-full text-[11px] font-mono font-bold ${isOwner || isDemo ? 'bg-mint text-mint-deep' : 'bg-white/10 text-white/80'}`}>
-              {isDemo ? 'demo wallet' : isOwner ? 'owner' : 'viewer'}
+              {isDemo ? 'demo wallet' : mode?.role === 'admin' ? 'admin console' : isOwner ? 'owner' : 'viewer'}
             </span>
           )}
           {isDemo ? null : account ? (

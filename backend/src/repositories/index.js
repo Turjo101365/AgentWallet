@@ -339,9 +339,8 @@ export function createRepositories(db) {
 
   const audit = {
     /** Appends a hash-chained record. Serialized so prev_hash always refers to the latest row. */
-    append({ actor, action, entityType, entityId = null, details = {} }) {
-      return auditMutex.run(() =>
-        db.tx(async (t) => {
+    append({ actor, action, entityType, entityId = null, details = {} }, transaction = null) {
+      const append = async (t) => {
           // The in-process mutex cannot protect a hash chain shared by multiple
           // backend instances. Serialize append transactions in this schema too.
           if (db.kind === 'postgres') await t.query('SELECT pg_advisory_xact_lock(hashtext(current_schema()), 707)');
@@ -362,8 +361,10 @@ export function createRepositories(db) {
             [entry.occurredAt, actor, action, entityType, entry.entityId, JSON.stringify(entry.details), prevHash, hash],
           );
           return mapAudit(rows[0]);
-        }),
-      );
+        };
+      // Admission can commit its invite, session and audit record atomically.
+      // PostgreSQL still takes the same audit-chain advisory lock above.
+      return transaction ? append(transaction) : auditMutex.run(() => db.tx(append));
     },
 
     async list({ limit = 100, entityId = null } = {}) {
