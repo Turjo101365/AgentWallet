@@ -5,7 +5,7 @@ import { createContainer } from '../container.js';
 import { createApiRouter } from './api.js';
 import { FROZEN_EVIDENCE_CONTRACTS } from '../config/env.js';
 import { forbidden } from '../lib/errors.js';
-import { DEMO_TOOLS } from '../services/demoService.js';
+import { DEMO_TOOLS, DEMO_MAX_MODEL_CALLS, TREASURY_SEQUENCE_NOTE } from '../services/demoService.js';
 
 /** Only admin-registered contracts; SIWE owner is rechecked on EVERY request. No arbitrary RPC/keys supplied by clients. */
 export function createPersonalRouter(root, limits) {
@@ -69,7 +69,7 @@ export function createPersonalRouter(root, limits) {
       const budget = await root.db.query(`INSERT INTO judge_ai_usage(day,requests) VALUES((CURRENT_TIMESTAMP AT TIME ZONE 'UTC')::date,1)
         ON CONFLICT(day) DO UPDATE SET requests=judge_ai_usage.requests+1 WHERE judge_ai_usage.requests<$1 RETURNING requests`,[root.config.publicAi.dailyLimit]);
       if (!budget.rows.length) throw forbidden('Public AI daily limit reached');
-      const data = await box.agentChat.chat(req.body,req.personalSession,{ tools:DEMO_TOOLS,maxModelCalls:4,maxOutputTokens:1024,maxContextBytes:24000 });
+      const data = await box.agentChat.chat(req.body,req.personalSession,{ tools:DEMO_TOOLS,maxModelCalls:DEMO_MAX_MODEL_CALLS,maxOutputTokens:1024,maxContextBytes:24000,systemNote:TREASURY_SEQUENCE_NOTE });
       return res.json({success:true,data});
       }finally{root.publicAiGate.active=false;}
     }

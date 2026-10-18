@@ -1,6 +1,12 @@
 # Final autonomous QA and Treasury verification — 18 October 2026
 
-**Branch:** `qa/final-treasury-verification`, based on release `a6b3576` (PR #13). All changes are local and uncommitted. Nothing was committed, pushed, deployed, funded, signed or broadcast. No production setting, invite or session was created or changed.
+**Branch:** `qa/final-treasury-verification`, based on release `a6b3576` (PR #13). No production setting, invite or session was created or changed; nothing was funded, signed or broadcast.
+
+> **Status (18 Oct 2026, 14:21 UTC; see §10):** The fixes are in `1fad0bf`, merged to `main` as `50211f0` (PR #14) and deployed:
+> - Vercel production `agentwallet-judge-hxe70r1bb`, bundle verified byte-for-byte;
+> - Render, deployed manually from `main`.
+>
+> §9 records the state just before deployment.
 
 ## 1. Assessment: CONDITIONAL GO
 
@@ -172,3 +178,32 @@ Starting point: treasury 0.0004 ETH, reserve 0.0003, A = 0.0001 (HIGH), B = 0.00
   - an added case in `frontend/tests/consumerUx.test.jsx`.
 - `backend/test/api.execution.test.js`: assertion diagnostic only.
 - Pre-existing untracked files were left untouched: `frontend/public/_headers`, `_redirects`, `scripts/judge-live-smoke.mjs`.
+
+## 9. Deployment reconciliation and fresh preflight (18 Oct 2026, block 11941532, 14:01 UTC)
+
+| Item | Finding |
+|---|---|
+| Fix commit | `1fad0bf` on `origin/qa/final-treasury-verification` only; `origin/main` is still `a6b3576` |
+| Vercel frontend | **Not updated.** Served bundle `assets/index-C8HbX10G.js` contains the old receipt text and lacks the new local-simulation wording (a local build of `1fad0bf` contains it). |
+| Render backend | **Presumed not updated.** `render.yaml` deploys `main` with auto-deploy off. The three fixes are not observable without creating a session, and the service exposes no version. |
+| Sandbox `0x59a3…0d85` | balance 400000000000000 wei; v2; not paused; owner `0x98cd…f680` and agent `0x341E…A7d6` equal to the app's demo keys; ETH policy per transaction 1e14, daily 3e14; spent today 0 (day 20744); recipient `0xd85c…04F5` allowlisted (EOA) |
+| Pending transactions | owner nonce 1/1, agent nonce 1/1 (latest/pending): none pending |
+| Gas | base 15 wei, maxFee 32 wei; agent gas wallet 1499999987403042 wei (≥ 0.0005 minimum) |
+| Execution controls (public) | execution **disabled**, not busy, 0 payments today. Six ceilings all **0**: `maxTxPerSession`, `dailyTxLimit`, `dailyAmountEth`, `maxGasPerTxEth`, `sessionGasEth`, `dailyGasEth`. Unchanged: `maxAmountEth` 0.0001, `minTreasuryEth` 0.0002, `minAgentGasEth` 0.0005 |
+| Effective policy reserve | **Not publicly readable.** Last reported 0.0003 ETH; must be read back by the admin (SIWE) before enabling. |
+| Evidence contract | paused, agent 0x0, balance 0. Untouched. |
+| Revoked invite | Not publicly readable. Per the owner's report it remains revoked; to confirm in the admin console. |
+
+
+## 10. Deployed release and final preflight (18 Oct 2026, block 11941634, 14:21 UTC)
+
+- **Frontend:** Vercel production `agentwallet-judge-hxe70r1bb` (CLI prebuilt deploy of `50211f0`; Vercel is not Git-connected). The domain serves `assets/index-DOqGmMaC.js`, byte-identical to the verified release build: judge mode, Render API, fixed receipt wording. Security headers are intact. The rollback target is the previous production deployment `pr55k6plj`.
+- **Backend:** manually deployed from `main` (`50211f0`) by the owner. The release identity is confirmed from the Render dashboard (the service exposes no version). `/health` and `/health/ready` both return 200.
+- **Hosted read-only browser checks** (zero mutating requests): 3/3 passed.
+- **Chain and controls:** unchanged from §9:
+  - balance 4e14 wei; not paused; owner and agent equal to the demo keys;
+  - per transaction 1e14, daily 3e14, spent today 0; recipient allowlisted;
+  - no pending nonces (owner 1/1, agent 1/1); maxFee 32 wei;
+  - execution disabled, all six ceilings 0;
+  - evidence contract paused, agent 0x0, balance 0.
+- **Decision:** GO for the controlled A/B demonstration (§7). The admin must first read back the effective reserve (0.0003) and the revoked invite.

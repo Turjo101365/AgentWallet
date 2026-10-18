@@ -20,6 +20,18 @@ export const DEMO_AUTHORIZATION = {
   label: 'Demo authorization: after you confirmed this exact payment in the browser, the sandbox demo owner key held by the server signed the EIP-712 approval. Your own wallet did not sign it.',
 };
 
+/**
+ * Public demo/personal AI turns. Six calls leave room to recover when the model first tries an action tool before
+ * record_plan (live run 2026-10-18: overview, plan, prepare rejected, record_plan, then the 4-call cap was reached).
+ * The plan-first rule itself is enforced by trusted code and is never relaxed.
+ */
+export const DEMO_MAX_MODEL_CALLS = 6;
+export const TREASURY_SEQUENCE_NOTE = [
+  'Treasury payments must follow this order: (1) get_treasury_overview and/or generate_treasury_plan; (2) record_plan, naming prepare_treasury_payment as a step;',
+  '(3) prepare_treasury_payment only for obligations whose recommendation is PAY; (4) a short answer. record_plan may be sent in the same response as the read tools.',
+  'Never call prepare_treasury_payment before record_plan in this turn. Preparing is not paying: a human must still confirm, and deterministic policy decides eligibility.',
+].join(' ');
+
 export const startSchema = z.object({ inviteCode: z.string().trim().min(6).max(128).optional() }).strict();
 export const chatSchema = z.object({ message: z.string().trim().min(1).max(1200), conversationId: z.string().uuid().nullable().optional() }).strict();
 export const confirmSchema = z.object({ confirm: z.literal(true), recipient: z.string(), amountWei: z.string().regex(/^\d{1,40}$/) }).strict();
@@ -157,13 +169,14 @@ export function createDemoService({ demo, sandbox, budgetDb, aiDailyLimit, logge
       tools: DEMO_TOOLS,
       owner: `demo:${session.id}`,
       treasuryPrincipal:{address:owner,demoSessionId:session.id,executionAllowed:session.executionAllowed},
-      maxModelCalls: 4,
+      maxModelCalls: DEMO_MAX_MODEL_CALLS,
       maxOutputTokens: 1024,
       maxContextBytes: 24000,
       systemNote: [
         'PUBLIC JUDGE DEMO: you are talking to a hackathon judge, not the owner. This is a separate Ethereum Sepolia demo sandbox with testnet ETH only.',
         `A transfer you propose only executes if the judge explicitly confirms it in the browser; the server's demo owner key then signs. Demo transfers above ${ethers.formatEther(demo.maxAmountWei)} ETH are refused.`,
         'You cannot schedule payments, change policy or pause anything here. Never ask for private keys or seed phrases.',
+        TREASURY_SEQUENCE_NOTE,
       ].join('\n'),
     });
     const proposalIds = turn.actions.filter((a) => a.type === 'proposal' && a.id).map((a) => a.id);
@@ -229,12 +242,16 @@ export function createDemoService({ demo, sandbox, budgetDb, aiDailyLimit, logge
         const s = await db.query('UPDATE demo_sessions SET tx_count = tx_count + 1 WHERE id = $1 AND tx_count < $2 AND revoked_at IS NULL AND expires_at>now() RETURNING tx_count', [session.id, caps.maxTxPerSession]);
         if (!s.rows.length) throw new AppError(429, 'DEMO_SESSION_TX_LIMIT', `This demo session may send at most ${caps.maxTxPerSession} payments`);
         charged = { session: true, global: false, amount };
+        // The daily amount cap is the lower of the persisted admin limit and the deployment ceiling, enforced inside
+        // the one atomic charge: a refusal charges nothing, and a charged row is always tracked for refund.
+        const persistedDaily = ethers.parseEther(caps.dailyAmountEth);
+        const dailyCap = persistedDaily < demo.dailyAmountWei ? persistedDaily : demo.dailyAmountWei;
         const g = await db.query(`INSERT INTO demo_daily_usage (day, tx_count, amount_wei)
           SELECT (CURRENT_TIMESTAMP AT TIME ZONE 'UTC')::date, 1, $1 WHERE $2>=1 AND $1::numeric<=$3
           ON CONFLICT (day) DO UPDATE SET tx_count = demo_daily_usage.tx_count + 1, amount_wei = demo_daily_usage.amount_wei + $1
           WHERE demo_daily_usage.tx_count < $2 AND demo_daily_usage.amount_wei + $1 <= $3 RETURNING tx_count, day::text AS day`,
-        [amount.toString(), caps.dailyTxLimit, ethers.parseEther(caps.dailyAmountEth).toString()]);
-        if (!g.rows.length || amount > demo.dailyAmountWei) throw new AppError(429, 'DEMO_DAILY_LIMIT', 'The shared daily demo limit has been reached');
+        [amount.toString(), caps.dailyTxLimit, dailyCap.toString()]);
+        if (!g.rows.length) throw new AppError(429, 'DEMO_DAILY_LIMIT', 'The shared daily demo limit has been reached');
         charged.global = true;
         charged.day = g.rows[0].day;
 

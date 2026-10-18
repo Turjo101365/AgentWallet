@@ -16,6 +16,7 @@ import { requestId, createErrorHandler, notFoundHandler } from '../src/middlewar
 import { createDemoRuntime } from '../src/sandbox/demoRuntime.js';
 import { createDemoRouter } from '../src/routes/demo.js';
 import { LlmError } from '../src/llm/providers.js';
+import { DEMO_MAX_MODEL_CALLS } from '../src/services/demoService.js';
 
 /**
  * Final QA: the reference two-obligation Treasury scenario on an isolated LOCAL Hardhat chain (not Sepolia evidence),
@@ -340,9 +341,9 @@ describe('Treasury AI reliability with mocked model failures (local chain)', () 
   });
 
   test('a turn that never finishes stops at the model-call cap', async () => {
-    for (let i = 0; i < 4; i++) script.push({ toolCalls: [call('get_treasury_overview', { days: 7 })] });
+    for (let i = 0; i < DEMO_MAX_MODEL_CALLS; i++) script.push({ toolCalls: [call('get_treasury_overview', { days: 7 })] });
     const t = (await chat('loop').expect(200)).body.data;
     assert.equal(t.status, 'FAILED');
-    assert.equal(t.modelCalls, 4);
+    assert.equal(t.modelCalls, DEMO_MAX_MODEL_CALLS);
   });
 });

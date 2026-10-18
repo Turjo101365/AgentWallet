@@ -31,7 +31,7 @@ export async function createDemoSandbox(demo, base, { logger, llm, provider } = 
     DB_SCHEMA: 'sandbox_demo',
     MIGRATIONS_DIR: base.migrationsDir,
     LLM_PROVIDER: 'none', // the shared provider instance is injected below
-    LLM_MAX_MODEL_CALLS: '4',
+    LLM_MAX_MODEL_CALLS: '6', // matches DEMO_MAX_MODEL_CALLS
     PROPOSAL_TTL_SECONDS: '600',
     NATIVE_RESERVE_FLOOR_ETH: demo.minTreasuryEth,
     MIN_EXECUTOR_GAS_BALANCE_ETH: demo.minAgentGasEth,
