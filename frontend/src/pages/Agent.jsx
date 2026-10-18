@@ -19,6 +19,7 @@ const EXAMPLES = [
 ];
 
 const DEMO_EXAMPLES = [
+  'Analyze my treasury and prioritize my upcoming payments while protecting the reserve.',
   'Send 0.0001 ETH to the demo recipient.',
   'What are the spending limits on this sandbox?',
   'Show the treasury balance and recent spending.',

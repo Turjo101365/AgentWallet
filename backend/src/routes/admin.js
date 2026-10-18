@@ -6,6 +6,7 @@ import { forbidden } from '../lib/errors.js';
 import { sameAddress } from '../lib/address.js';
 import { ethers } from 'ethers';
 import { FROZEN_EVIDENCE_CONTRACTS } from '../config/env.js';
+import { reserveSchema } from '../services/treasuryService.js';
 
 const wrap = (fn) => (req, res, next) => Promise.resolve(fn(req)).then((data) => res.json({ success: true, data })).catch(next);
 const inviteSchema = z.object({ label: z.string().trim().min(1).max(80), maxSessions: z.number().int().min(1).max(100), expiresInHours: z.number().int().min(1).max(24 * 14).nullable().optional() }).strict();
@@ -50,6 +51,11 @@ export function createAdminRouter({ config, auth, demoRuntime, limits, db }) {
     return {owner,address,enabled:req.valid.body.enabled};
   }));
   router.get('/demo', admin, wrap(async () => ({ status: await demo().status(), invites: await demo().listInvites() })));
+  router.put('/demo/treasury/reserve',limits.mutation,admin,validate(reserveSchema),wrap(async req=>{
+    demo();
+    const box=demoRuntime.sandbox.container;
+    return box.policySettings.update({reserveFloors:{[ethers.ZeroAddress]:ethers.parseEther(req.valid.body.amount).toString()}},req.session.address,{allowLoosening:req.valid.body.confirmLoosening===true,via:'allowlisted-admin-treasury'});
+  }));
   router.post('/demo/invites', limits.mutation, admin, validate(inviteSchema), wrap((req) => demo().createInvite(req.valid.body, req.session.address)));
   router.post('/demo/invites/:id/revoke', limits.mutation, admin, validate(idParam, 'params'), wrap((req) => demo().revokeInvite(req.valid.params.id, req.session.address)));
   router.post('/demo/execution', limits.mutation, admin, validate(executionSchema), wrap((req) => demo().setExecutionEnabled(req.valid.body.enabled, req.session.address)));

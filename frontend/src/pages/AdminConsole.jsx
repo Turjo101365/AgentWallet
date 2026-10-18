@@ -11,6 +11,7 @@ export function AdminConsole() {
   const [allowed,setAllowed]=useState(false),[data,setData]=useState(null),[error,setError]=useState(null),[invite,setInvite]=useState(null);
   const [owner,setOwner]=useState(''),[address,setAddress]=useState('');
   const [deployBlock,setDeployBlock]=useState(''),[daily,setDaily]=useState('3');
+  const [reserve,setReserve]=useState('');
   const refresh=async()=>{ setAllowed(false);try { await get('/admin/me',{root:true});setAllowed(true);setData(await get('/admin/demo',{root:true}));setError(null); }catch(e){setError(describeError(e));} };
   useEffect(()=>{if(session?.token)refresh();else setAllowed(false);},[session?.token]);
   const act=async(path,body)=>{try{const r=await post('/admin/'+path,body,{root:true});await refresh();return r;}catch(e){setError(describeError(e));}};
@@ -18,6 +19,9 @@ export function AdminConsole() {
     {error&&<Alert variant="error">{error}</Alert>}
     {allowed&&<Card><CardContent className="space-y-4">
       <p>Execution: {data?.status.executionEnabled?'enabled':'disabled'}. Funding ceilings are shown below; changing deployment funding requires separate approval.</p>
+      <label>Protected treasury balance (ETH)<input aria-label="Protected treasury balance" className="field" inputMode="decimal" value={reserve} onChange={e=>setReserve(e.target.value)}/></label>
+      <Button onClick={async()=>{try{try{await put('/admin/demo/treasury/reserve',{amount:reserve},{root:true});}catch(e){if(e.code!=='LOOSENING_REQUIRES_OWNER_CONSOLE'||!window.confirm(`Lower the shared protected reserve to ${reserve} ETH? The server floor still applies.`))throw e;await put('/admin/demo/treasury/reserve',{amount:reserve,confirmLoosening:true},{root:true});}await refresh();}catch(e){setError(describeError(e));}}}>Save shared treasury reserve</Button>
+      <p>This changes application payment policy only. It cannot lower the server's minimum reserve or alter the contract.</p>
       <pre className="text-xs overflow-auto">{JSON.stringify(data?.status.limits,null,2)}</pre>
       <label>Daily demo payment limit<input aria-label="Daily demo payment limit" type="number" min="0" className="field" value={daily} onChange={(e)=>setDaily(e.target.value)}/></label>
       <Button onClick={async()=>{try{await put('/admin/demo/limits',{dailyTxLimit:Number(daily)},{root:true});await refresh();}catch(e){setError(describeError(e));}}}>Set within approved ceiling</Button>

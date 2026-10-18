@@ -20,12 +20,46 @@ import { verifyGrant, grantTypedData } from '../lib/schedule.js';
  *  - Success is only recorded after the receipt is mined, has status 1, targets the wallet and
  *    contains the matching TransferExecuted event.
  */
-export function createExecutorService({ config, repos, chain, risk, signerProvider, logger }) {
+export function createExecutorService({ config, repos, chain, risk, signerProvider, logger, db }) {
+  if (!db?.withTreasuryLock) throw new Error('Treasury persistence and locking are required for execution');
   let sandboxGuard = null;
   const sendMutex = new Mutex();
   const watching = new Set();
   const signer = signerProvider?.connect(chain.provider) || null;
   const inflight = new Map();
+
+  async function receiptIsSettled(receipt) {
+    return Boolean(receipt) && (config.confirmations <= 1 || await receipt.confirmations() >= config.confirmations);
+  }
+
+  // A durable gate holds an unknown transaction across process restarts. The DB
+  // transaction advisory lock serializes preflight/signing across backend instances.
+  async function releaseTreasuryGate(id) {
+    await db.withTreasuryLock(async () => {
+      const e = await repos.executions.findByProposal(id);
+      if (e?.txHash && !await receiptIsSettled(await chain.provider.getTransactionReceipt(e.txHash))) return;
+      await db.query('UPDATE treasury_execution_gate SET proposal_id=NULL WHERE id=1 AND proposal_id=$1', [id]);
+    });
+  }
+
+  async function claimTreasuryGate(id) {
+    const gate = (await db.query('SELECT proposal_id FROM treasury_execution_gate WHERE id=1')).rows;
+    if (gate.length !== 1) throw Object.assign(new Error('Treasury execution state is unavailable; execution refused'),{code:'TREASURY_STATE_UNAVAILABLE'});
+    const held = gate[0].proposal_id;
+    if (held) {
+      const old = await repos.executions.findByProposal(held);
+      // No hash means an interrupted pre-broadcast attempt. Another worker cannot
+      // commit its signed hash without the same database advisory transaction lock.
+      if (old?.txHash) {
+        const receipt = await chain.provider.getTransactionReceipt(old.txHash);
+        if (!await receiptIsSettled(receipt)) return false;
+        const p = await repos.proposals.findById(held);
+        if (p) await finalize(old, p, receipt);
+      }
+    }
+    await db.query('UPDATE treasury_execution_gate SET proposal_id=$1 WHERE id=1', [id]);
+    return true;
+  }
 
   async function audit(action, proposalId, details) {
     await repos.audit.append({ actor: config.executor.address || 'executor', action, entityType: 'proposal', entityId: proposalId, details });
@@ -149,7 +183,13 @@ export function createExecutorService({ config, repos, chain, risk, signerProvid
   function enqueue(proposalId) {
     if (!inflight.has(proposalId)) {
       const job = execute(proposalId)
-        .catch((err) => logger.error('Executor crashed on proposal', { proposalId, error: err.message }))
+        .catch(async (err) => {
+          const treasuryError=err.code?.startsWith('TREASURY_');
+          await audit(treasuryError?'EXECUTION_DEFERRED':'EXECUTION_INTERRUPTED', proposalId, {
+            code:err.code||'EXECUTION_ERROR',message:treasuryError?err.message:'Execution interrupted; retained transaction state must be reconciled before retrying',
+          }).catch(()=>{});
+          logger.error('Executor crashed on proposal', { proposalId, error: err.message });
+        })
         .finally(() => inflight.delete(proposalId));
       inflight.set(proposalId, job);
     }
@@ -158,8 +198,8 @@ export function createExecutorService({ config, repos, chain, risk, signerProvid
 
   async function execute(proposalId) {
     try {
-    let watchArgs = null;
-    await sendMutex.run(async () => {
+    let watchArgs = null, broadcast = null;
+    await sendMutex.run(() => db.withTreasuryLock(async (lockedDb) => {
       const proposal = await repos.proposals.findById(proposalId);
       if (!proposal || proposal.status !== 'APPROVED') return;
 
@@ -168,6 +208,8 @@ export function createExecutorService({ config, repos, chain, risk, signerProvid
       if (execution.status !== 'PREPARING' || execution.txHash) return;
 
       if (!signer) return fail(execution, proposal, 'EXECUTOR_DISABLED', 'No executor key configured');
+
+      if (!await claimTreasuryGate(proposal.id)) return fail(execution, proposal, 'TREASURY_BUSY', 'Another payment has an unresolved receipt; funds remain reserved');
 
       if (await chain.isIntentExecuted(proposal.intentId)) {
         await reconcileIntent(proposal.intentId);
@@ -253,21 +295,26 @@ export function createExecutorService({ config, repos, chain, risk, signerProvid
         gasLimit: gasLimit.toString(),
         maxFeePerGas: maxFeePerGas.toString(),
         submittedAt: nowSeconds(),
-      });
-      await repos.proposals.transition(proposal.id, ['APPROVED'], 'SUBMITTED');
-      await audit('EXECUTION_SUBMITTED', proposal.id, { txHash, nonce, gasLimit: gasLimit.toString(), intentId: proposal.intentId, method, contractVersion: chain.contractVersion() });
-      await sandboxGuard?.submitted(proposal.id, txHash);
-
-      try {
-        await chain.provider.broadcastTransaction(signed);
-      } catch (err) {
-        // The node may have accepted it anyway (timeouts); the watcher decides from chain state.
-        logger.warn('Broadcast reported an error; will reconcile from chain', { proposalId, txHash, error: err.shortMessage || err.message });
-      }
+      }, lockedDb);
+      await repos.proposals.transition(proposal.id, ['APPROVED'], 'SUBMITTED', {}, {}, lockedDb);
+      broadcast = { signed, txHash, nonce, gasLimit:gasLimit.toString(), intentId:proposal.intentId, method };
       watchArgs = [submitted, proposal];
-    });
+    }));
+    // PostgreSQL commits the hash on the SAME connection that holds its advisory
+    // transaction lock. If that connection/transaction fails, this point is never
+    // reached and nothing is broadcast, even if another worker resumes preparation.
+    if (broadcast) {
+      const {signed,...details}=broadcast;
+      await audit('EXECUTION_SUBMITTED',proposalId,{...details,contractVersion:chain.contractVersion()});
+      await sandboxGuard?.submitted(proposalId,broadcast.txHash);
+      try { await chain.provider.broadcastTransaction(signed); }
+      catch (err) { logger.warn('Broadcast reported an error; will reconcile from chain',{proposalId,txHash:broadcast.txHash,error:err.shortMessage||err.message}); }
+    }
     if (watchArgs) await watch(...watchArgs);
-    } finally { await sandboxGuard?.complete(proposalId).catch(() => {}); }
+    } finally {
+      await releaseTreasuryGate(proposalId).catch(() => {});
+      await sandboxGuard?.complete(proposalId).catch(() => {});
+    }
   }
 
   function matchTransferEvent(receipt, proposal) {
@@ -315,12 +362,17 @@ export function createExecutorService({ config, repos, chain, risk, signerProvid
   }
 
   async function finalize(execution, proposal, receipt) {
+    if (!await receiptIsSettled(receipt)) return;
     const common = {
       gasUsed: receipt.gasUsed.toString(),
       effectiveGasPrice: (receipt.gasPrice ?? 0n).toString(),
       blockNumber: receipt.blockNumber,
       blockHash: receipt.blockHash,
     };
+    // Publish a settled proposal only after its durable gate is clear. Callers
+    // observing CONFIRMED may immediately change policy or prepare the next bill.
+    // A mined receipt settles treasury outflow even when it reverted or mismatched.
+    await db.query('UPDATE treasury_execution_gate SET proposal_id=NULL WHERE id=1 AND proposal_id=$1',[proposal.id]);
     if (receipt.status !== 1) {
       await repos.executions.update(execution.id, common);
       return fail(execution, proposal, 'TX_REVERTED', `Transaction ${receipt.hash} reverted in block ${receipt.blockNumber}`);
@@ -353,13 +405,13 @@ export function createExecutorService({ config, repos, chain, risk, signerProvid
   async function recover() {
     if (!signer) return { resumed: 0 };
     let resumed = 0;
-    for (const execution of await repos.executions.listByStatus(['PREPARING', 'SUBMITTED'])) {
+    for (const execution of await repos.executions.listByStatus(['PREPARING', 'SUBMITTED', 'FAILED'])) {
       const proposal = await repos.proposals.findById(execution.proposalId);
       if (!proposal) continue;
-      if (execution.status === 'SUBMITTED') {
+      if (execution.status === 'SUBMITTED' || (execution.status === 'FAILED' && execution.txHash)) {
         resumed++;
         const job=watch(execution, proposal).catch((err) => logger.error('Recovery watch failed', { error: err.message }))
-          .finally(async()=>{await sandboxGuard?.complete(proposal.id).catch(()=>{});inflight.delete(proposal.id);});
+          .finally(async()=>{await releaseTreasuryGate(proposal.id).catch(()=>{});await sandboxGuard?.complete(proposal.id).catch(()=>{});inflight.delete(proposal.id);});
         inflight.set(proposal.id,job);
       } else if (proposal.status === 'APPROVED') {
         resumed++;

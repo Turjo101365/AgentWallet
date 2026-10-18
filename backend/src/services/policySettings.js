@@ -44,7 +44,7 @@ function normalizeTokenKeys(map, config) {
  * (including the LLM agent on the owner's behalf). Changes that LOOSEN policy require an explicit
  * owner action in the console (`allowLoosening`), never an agent tool call.
  */
-export function createPolicySettings({ config, repos }) {
+export function createPolicySettings({ config, repos, db }) {
   async function get() {
     const stored = await repos.settings.get(KEY, null);
     return stored ? policySettingsSchema.parse(stored) : DEFAULTS;
@@ -67,6 +67,12 @@ export function createPolicySettings({ config, repos }) {
   }
 
   async function update(patch, actor, { allowLoosening = false, via = 'console' } = {}) {
+    const apply = async () => {
+    const gate = db ? (await db.query('SELECT proposal_id FROM treasury_execution_gate WHERE id=1')).rows[0] : null;
+    if (db && !gate) throw conflict('TREASURY_STATE_UNAVAILABLE','Treasury execution state is unavailable; policy was not changed');
+    if (gate?.proposal_id) {
+      throw conflict('TREASURY_BUSY', 'A payment has an unresolved outcome. Wait for its receipt before changing policy.');
+    }
     const current = await get();
     const merged = policySettingsSchema.parse({
       ...current,
@@ -88,6 +94,8 @@ export function createPolicySettings({ config, repos }) {
     await repos.settings.set(KEY, merged, actor);
     await repos.audit.append({ actor, action: 'POLICY_SETTINGS_UPDATED', entityType: 'settings', entityId: KEY, details: { via, loosening, settings: merged } });
     return merged;
+    };
+    return db ? db.withTreasuryLock(apply) : apply();
   }
 
   async function automationState() {

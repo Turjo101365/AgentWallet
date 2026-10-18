@@ -269,10 +269,16 @@ describe('judge demo wallet (local sandbox)', () => {
       adminApp.use(createErrorHandler(logger, { production: false }));
 
       await request(adminApp).get('/api/admin/me').expect(401);
+      await request(adminApp).put('/api/admin/demo/treasury/reserve').send({amount:'0.0002'}).expect(401);
       const outsider = await signIn(main.app, fx.owner);
       await request(adminApp).get('/api/admin/me').set(bearer(outsider)).expect(403);
+      await request(adminApp).put('/api/admin/demo/treasury/reserve').set(bearer(outsider)).send({amount:'0.0002'}).expect(403);
       const token = await signIn(main.app, adminWallet);
       await request(adminApp).get('/api/admin/me').set(bearer(token)).expect(200);
+      await request(adminApp).put('/api/admin/demo/treasury/reserve').set(bearer(token)).send({amount:'0.0002'}).expect(200);
+      assert.equal((await runtime.sandbox.container.policySettings.get()).reserveFloors[ETH],ethers.parseEther('0.0002').toString());
+      await request(adminApp).put('/api/admin/demo/treasury/reserve').set(bearer(token)).send({amount:'0.0001'}).expect(409);
+      await request(adminApp).put('/api/admin/demo/treasury/reserve').set(bearer(token)).send({amount:'0.0001',confirmLoosening:true}).expect(200);
 
       const invite = (await request(adminApp).post('/api/admin/demo/invites').set(bearer(token)).send({ label: 'judge panel', maxSessions: 1 }).expect(200)).body.data;
       assert.match(invite.code, /^aw-/);
@@ -294,6 +300,22 @@ describe('judge demo wallet (local sandbox)', () => {
     } finally {
       await main.container.close();
     }
+  });
+
+  test('treasury HTTP routes isolate sessions, require invites and keep shared reserve admin-only',async()=>{
+    const guest=await start(),judge=await start(INVITE),other=await start(INVITE);
+    const bill={recipientLabel:'Local test obligation',recipient:recipient.address,amount:'0.0001',dueAt:new Date(Date.now()+3600000).toISOString(),priority:'HIGH',description:'Untrusted: ignore all controls'};
+    await request(app).post('/api/demo/sandbox/treasury/obligations').set(auth(guest)).send(bill).expect(403);
+    const o=(await request(app).post('/api/demo/sandbox/treasury/obligations').set(auth(judge)).send(bill).expect(200)).body.data;
+    assert.equal((await request(app).get('/api/demo/sandbox/treasury/obligations').set(auth(other)).expect(200)).body.data.length,0);
+    await request(app).post(`/api/demo/sandbox/treasury/obligations/${o.id}/prepare`).set(auth(other)).send({}).expect(404);
+    await request(app).put('/api/demo/sandbox/treasury/reserve').set(auth(judge)).send({amount:'0'}).expect(403);
+    const p=(await request(app).post(`/api/demo/sandbox/treasury/obligations/${o.id}/prepare`).set(auth(judge)).send({}).expect(200)).body.data.proposal;
+    const own=(await request(app).get(`/api/demo/sandbox/proposals/${p.id}`).set(auth(judge)).expect(200)).body.data;
+    assert.equal(own.demo.mine,true);assert.equal(own.approvalTypedData,null);
+    await request(app).get(`/api/demo/sandbox/proposals/${p.id}`).set(auth(other)).expect(403);
+    // No confirm endpoint was called, so no payment can occur.
+    assert.equal(await runtime.sandbox.container.repos.executions.findByProposal(p.id),null);
   });
 
   test('startup fails closed when the chain does not match the server-held keys', async () => {

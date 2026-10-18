@@ -8,6 +8,7 @@ import { AppError, badRequest, conflict, unprocessable } from '../lib/errors.js'
 import { normalizeAddress } from '../lib/address.js';
 import { formatAmount } from '../lib/units.js';
 import { AGENT_WALLET_ABI, serializeSnapshot } from '../services/chainService.js';
+import { createTreasuryRouter } from './treasury.js';
 
 const wrap = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
 const ok = (res, data, status = 200) => res.status(status).json({ success: true, data });
@@ -17,6 +18,7 @@ export function createApiRouter(deps) {
   const router = Router();
   const session = requireSession(auth);
   const owner = requireOwner(auth);
+  router.use('/treasury', createTreasuryRouter({ treasury:deps.treasury, session, limits, principal:req=>req.session }));
 
   // ---------------------------------------------------------------- public
   router.get('/config', wrap(async (_req, res) => {

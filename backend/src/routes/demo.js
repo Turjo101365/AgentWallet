@@ -6,6 +6,7 @@ import { AppError, forbidden } from '../lib/errors.js';
 import { createApiRouter } from './api.js';
 import { startSchema, chatSchema, confirmSchema } from '../services/demoService.js';
 import { listQuery } from './schemas.js';
+import { createTreasuryRouter } from './treasury.js';
 
 const wrap = (fn) => (req, res, next) => Promise.resolve(fn(req, res)).then((data) => (res.headersSent ? null : res.json({ success: true, data }))).catch(next);
 const idParam = z.object({ id: z.string().uuid() }).strict();
@@ -30,6 +31,9 @@ export function createDemoRouter({ demoRuntime, limits }) {
   router.post('/session', limits.auth, validate(startSchema), wrap((req) => service.startSession(req.valid.body)));
 
   const box = Router();
+  box.use('/treasury',createTreasuryRouter({treasury:sandbox.container.treasury,session,limits,allowReserve:false,
+    principal:req=>({address:sandbox.ownerSigner.address,demoSessionId:req.demo.id,executionAllowed:req.demo.executionAllowed}),
+    decorateProposal:(req,id)=>service.getProposal(req.demo,id)}));
   box.get('/auth/session', session, wrap((req) => ({ id: req.demo.id, address: null, role: 'demo', executionAllowed: req.demo.executionAllowed, expiresAt: req.demo.expiresAt })));
   box.post('/agent/chat', limits.demoAi, session, validate(chatSchema), wrap((req) => service.chat(req.demo, req.valid.body)));
   box.get('/agent/conversations', session, wrap((req) => service.conversations(req.demo)));

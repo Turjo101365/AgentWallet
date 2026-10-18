@@ -171,20 +171,29 @@ describe('approval state machine and execution on a real local chain', () => {
     const created = [];
     for (let i = 0; i < count + 1; i++) created.push((await createEth('0.01').expect(201)).body.data);
     // All pass at creation (reservations only count approved/in-flight), but approval must stop at the cap.
-    const outcomes = [];
-    for (const p of created) {
-      if (p.status !== 'AWAITING_APPROVAL') {
-        outcomes.push(p.status);
-        continue;
-      }
-      const r = await approve(p, await signApproval(fx.owner, p));
-      outcomes.push(r.status === 200 ? 'APPROVED' : r.body.error.code);
-    }
-    assert.equal(outcomes.filter((o) => o === 'APPROVED').length, count, `remaining=${remaining} outcomes=${outcomes} first=${JSON.stringify(created.map((c) => c.policyResult.violations))}`);
-    assert.ok(outcomes.includes('POLICY_FAILED_AT_APPROVAL') || outcomes.includes('POLICY_REJECTED'));
+    // Keep approved reservations pending while testing approval contention.
+    // Otherwise background attempts can safely fail TREASURY_BUSY and release
+    // capacity before the last approval, invalidating the assumed fixed capacity.
     await ctx.container.executor.whenIdle();
+    ctx.container.proposals.setExecutor(null);
+    let outcomes;
+    try {
+      outcomes = await Promise.all(created.map(async p => {
+        if (p.status !== 'AWAITING_APPROVAL') return p.status;
+        const r = await approve(p, await signApproval(fx.owner, p));
+        return r.status === 200 ? 'APPROVED' : r.body.error.code;
+      }));
+      assert.equal(outcomes.filter(o => o === 'APPROVED').length, count, `remaining=${remaining} outcomes=${outcomes}`);
+      assert.ok(outcomes.includes('POLICY_FAILED_AT_APPROVAL') || outcomes.includes('POLICY_REJECTED'));
+    } finally { ctx.container.proposals.setExecutor(ctx.container.executor); }
+    // Now settle each authorized payment and check actual on-chain spend.
+    for (let i=0;i<created.length;i++) if (outcomes[i]==='APPROVED') {
+      await ctx.container.executor.enqueue(created[i].id);
+      assert.equal((await getProposal(created[i].id)).status,'CONFIRMED');
+    }
     const after = (await request(ctx.app).get('/api/wallet/state').set(bearer(ownerToken)).expect(200)).body.data;
     const spent = BigInt(after.tokens.find((t) => t.native).spentToday);
+    assert.equal(spent, BigInt(eth.spentToday) + BigInt(count) * chunk);
     assert.ok(spent <= ethers.parseEther('0.05'));
   });
 
