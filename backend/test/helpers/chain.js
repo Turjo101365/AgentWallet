@@ -47,7 +47,9 @@ export async function startTestChain() {
     if (Date.now() > deadline) throw new Error(`hardhat node did not start: ${output}`);
     await new Promise((r) => setTimeout(r, 250));
   }
-  const provider = new ethers.JsonRpcProvider(rpcUrl, 31337, { staticNetwork: true });
+  // Fixtures mine immediately and reuse funded dev accounts across deployments.
+  // A cached pending nonce can therefore belong to the preceding deployment.
+  const provider = new ethers.JsonRpcProvider(rpcUrl, 31337, { staticNetwork: true, cacheTimeout: -1 });
   return {
     rpcUrl,
     provider,

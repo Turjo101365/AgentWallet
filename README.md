@@ -43,6 +43,16 @@ signed, and only marks it confirmed after the receipt is verified.
 > `evidence/sepolia-v2-full/`. The backend works with both versions. Details:
 > [docs/CONTRACT_V2.md](docs/CONTRACT_V2.md).
 
+## AI Treasury Manager (local implementation)
+
+Current verification, release gates and rollback: [Treasury release-readiness report](docs/TREASURY_RELEASE_READINESS.md).
+
+The Treasury workspace adds protected ETH reserves, scoped upcoming obligations,
+deterministic payment planning and forecasts, and preparation through the existing
+authorization/receipt pipeline. It is not yet deployed. See
+[AI Treasury Manager](docs/AI_TREASURY_MANAGER.md) for calculations, security boundaries,
+verification status and the judge demonstration.
+
 ## How authority is split
 
 | Role | Key | Power |

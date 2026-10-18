@@ -133,13 +133,20 @@ export function createProposalService({ config, repos, chain, auth, risk, logger
     return { policy, simulation };
   }
 
-  async function create({ tokenAddress, recipient, amount, memo, source = 'MANUAL', decisionId = null, taskRunId = null, amountWeiOverride = null }, actor) {
+  async function create({ tokenAddress, recipient, amount, memo, source = 'MANUAL', decisionId = null, taskRunId = null, amountWeiOverride = null, idOverride = null }, actor) {
     const token = resolveToken(tokenAddress);
     const to = normalizeAddress(recipient, 'recipient');
     const amountWei = amountWeiOverride !== null ? BigInt(amountWeiOverride) : parseAmount(amount, token.decimals);
     if (amountWei <= 0n) throw badRequest('INVALID_AMOUNT', 'Amount must be greater than zero');
 
-    const id = crypto.randomUUID();
+    const id = idOverride || crypto.randomUUID();
+    if (idOverride) {
+      const existing = await repos.proposals.findById(id);
+      if (existing) {
+        if (!sameAddress(existing.recipient,to) || existing.amountWei!==amountWei.toString() || !sameAddress(existing.token.address,token.address) || existing.createdBy!==actor) throw conflict('TREASURY_PROPOSAL_MISMATCH','Existing treasury proposal differs from this obligation');
+        return existing;
+      }
+    }
     const draft = {
       id,
       intentId: intentIdFor({ chainId: config.chainId, contractAddress: config.contractAddress, proposalId: id }),

@@ -4,6 +4,7 @@ import { AppLayout } from '../components/layout/AppLayout.jsx';
 import { Overview } from '../pages/Overview.jsx';
 import { Proposals } from '../pages/Proposals.jsx';
 import { Treasury } from '../pages/Treasury.jsx';
+import { TreasuryManager } from '../pages/TreasuryManager.jsx';
 import { Controls } from '../pages/Controls.jsx';
 import { Transactions } from '../pages/Transactions.jsx';
 import { Audit } from '../pages/Audit.jsx';
@@ -30,7 +31,8 @@ export const routes = [
       { path: 'proposals', element: <Proposals /> },
       { path: 'automation', element: <Automation /> },
       { path: 'portfolio', element: <Portfolio /> },
-      { path: 'treasury', element: <Treasury /> },
+      { path: 'treasury', element: <TreasuryManager /> },
+      { path: 'funding', element: <Treasury /> },
       { path: 'controls', element: <Controls /> },
       { path: 'transactions', element: <Transactions /> },
       { path: 'audit', element: <Audit /> },

@@ -24,7 +24,7 @@ export function Topbar() {
       <div className="flex flex-wrap lg:flex-nowrap items-center justify-between gap-x-4 px-4 sm:px-6 lg:h-16">
         <div className="h-16 flex items-center"><Brand /></div>
         <PrimaryNav className="order-last lg:order-none w-full lg:w-auto lg:mx-auto pb-3 lg:pb-0 lg:px-1" />
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex flex-wrap max-w-full items-center justify-end gap-2 shrink-0">
           {account && !networkOk && config && (
             <Button variant="danger" size="sm" onClick={() => switchNetwork().catch(() => {})} icon="warning">
               Wrong network ({walletChainId}) · switch to {config.chainId}

@@ -32,7 +32,7 @@ export function Security() {
         Your access, wallet details and service status. Find payment history and advanced tools here.
       </PageHeader>
       <nav aria-label="Wallet tools" className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        {[["/treasury","Balance & funding"],["/transactions","Payment history"],["/portfolio","Portfolio"],["/audit","Activity log"],...(!judgeSite?[["/rl","Advanced timing advice"]]:[])].map(([to,label])=><Link key={to} to={to} className="rounded-2xl bg-white p-4 font-semibold shadow-card hover:bg-mint transition-colors">{label} →</Link>)}
+        {[["/funding","Balance & funding"],["/transactions","Payment history"],["/portfolio","Portfolio"],["/audit","Activity log"],...(!judgeSite?[["/rl","Advanced timing advice"]]:[])].map(([to,label])=><Link key={to} to={to} className="rounded-2xl bg-white p-4 font-semibold shadow-card hover:bg-mint transition-colors">{label} →</Link>)}
       </nav>
       <div className="grid lg:grid-cols-2 gap-6">
         <Card>

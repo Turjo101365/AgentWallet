@@ -75,7 +75,7 @@ function TreasuryCard({ state, config }) {
               <>{truncateAddress(config.contractAddress, 8, 6)} · local, no explorer</>
             )}
           </span>
-          <Link to="/treasury" className="font-semibold text-ink inline-flex items-center gap-1 hover:gap-2 transition-all">
+          <Link to="/funding" className="font-semibold text-ink inline-flex items-center gap-1 hover:gap-2 transition-all">
             {isDemo ? 'Wallet details' : isOwner ? 'Manage funds' : 'View balance'} <Icon name="arrow_forward" className="text-[16px]" />
           </Link>
         </div>

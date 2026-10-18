@@ -87,7 +87,7 @@ describe('policy settings', () => {
     renderWith(<PolicySettingsCard />);
     const inputs = await screen.findAllByPlaceholderText('not set');
     fireEvent.change(inputs[1], { target: { value: '0.005' } });
-    fireEvent.click(screen.getByText('Save policy'));
+    fireEvent.click(screen.getByText('Save safeguards'));
     await screen.findByText('This change loosens your risk policy');
     expect(screen.getByText(/raise ETH auto-approval limit/)).toBeTruthy();
     const firstPut = calls.find((c) => c.method === 'PUT');
@@ -100,10 +100,10 @@ describe('policy settings', () => {
 });
 
 describe('agent chat', () => {
-  it('shows the unavailable reason instead of pretending to answer', async () => {
+  it('shows an honest unavailable state instead of pretending to answer', async () => {
     route([['/agent/status', () => ({ body: { success: true, data: { llm: { available: false, reason: 'No LLM provider configured', provider: 'none' } } } })]]);
     renderWith(<Agent />);
-    expect(await screen.findByText(/No LLM provider configured/)).toBeTruthy();
+    expect(await screen.findByText('Your AI assistant is temporarily unavailable')).toBeTruthy();
   });
 
   it('survives browsers whose scrollIntoView returns a Promise (Chrome 156) under StrictMode', async () => {
@@ -119,7 +119,7 @@ describe('agent chat', () => {
           <MemoryRouter><AppContext.Provider value={value}><Agent /></AppContext.Provider></MemoryRouter>
         </React.StrictMode>,
       );
-      expect(await screen.findByText(/No LLM provider configured/)).toBeTruthy();
+      expect(await screen.findByText('Your AI assistant is temporarily unavailable')).toBeTruthy();
       expect(() => unmount()).not.toThrow();
     } finally {
       Element.prototype.scrollIntoView = original;

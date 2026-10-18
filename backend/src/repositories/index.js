@@ -102,12 +102,15 @@ export function createRepositories(db) {
       return mapProposal(rows[0]);
     },
 
-    /** Approved or in-flight proposals for a token (candidates for a daily-limit reservation). */
-    async listCommitted(tokenAddress, excludeId = null, q = db) {
+    /** Include confirmations newer than the pinned snapshot: they are not in its balance/spend yet. */
+    async listCommitted(tokenAddress, excludeId = null, blockTag = null, q = db) {
       const { rows } = await q.query(
         `SELECT intent_id, amount_wei::text AS amount_wei, status FROM proposals
-         WHERE token_address = $1 AND status IN ('APPROVED', 'SUBMITTED') AND ($2::uuid IS NULL OR id <> $2::uuid)`,
-        [tokenAddress, excludeId],
+         WHERE token_address = $1 AND (status IN ('APPROVED', 'SUBMITTED') OR
+           (status='FAILED' AND EXISTS (SELECT 1 FROM executions e WHERE e.proposal_id=proposals.id AND e.tx_hash IS NOT NULL AND e.block_number IS NULL)) OR
+           (status='CONFIRMED' AND $3::bigint IS NOT NULL AND EXISTS (SELECT 1 FROM executions e WHERE e.proposal_id=proposals.id AND (e.block_number IS NULL OR e.block_number>$3::bigint))))
+         AND ($2::uuid IS NULL OR id <> $2::uuid)`,
+        [tokenAddress, excludeId, blockTag],
       );
       return rows.map((r) => ({ intentId: r.intent_id, amountWei: BigInt(r.amount_wei), status: r.status }));
     },
@@ -339,6 +342,9 @@ export function createRepositories(db) {
     append({ actor, action, entityType, entityId = null, details = {} }) {
       return auditMutex.run(() =>
         db.tx(async (t) => {
+          // The in-process mutex cannot protect a hash chain shared by multiple
+          // backend instances. Serialize append transactions in this schema too.
+          if (db.kind === 'postgres') await t.query('SELECT pg_advisory_xact_lock(hashtext(current_schema()), 707)');
           const last = (await t.query('SELECT hash FROM audit_log ORDER BY id DESC LIMIT 1')).rows[0];
           const prevHash = last ? last.hash : GENESIS;
           const entry = {

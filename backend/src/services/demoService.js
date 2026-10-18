@@ -12,7 +12,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 export const DEMO_TOKEN = /^Bearer d\.([0-9a-f]{64})$/;
 
 /** What the judge demo assistant may call: read tools plus propose_transfer. No grants, no policy or task writes. */
-export const DEMO_TOOLS = new Set(['record_plan', 'list_recipients', 'get_portfolio', 'get_spending', 'get_policy_settings', 'explain_proposal', 'propose_transfer', 'request_clarification']);
+export const DEMO_TOOLS = new Set(['record_plan', 'list_recipients', 'get_portfolio', 'get_spending', 'get_policy_settings', 'explain_proposal', 'propose_transfer', 'request_clarification','get_treasury_overview','generate_treasury_plan','prepare_treasury_payment']);
 
 /** Accurate wording shown wherever a demo authorization appears. Never implies the judge's own wallet signed. */
 export const DEMO_AUTHORIZATION = {
@@ -153,6 +153,7 @@ export function createDemoService({ demo, sandbox, budgetDb, aiDailyLimit, logge
     const turn = await agentChat.chat({ message, conversationId }, { address: owner }, {
       tools: DEMO_TOOLS,
       owner: `demo:${session.id}`,
+      treasuryPrincipal:{address:owner,demoSessionId:session.id,executionAllowed:session.executionAllowed},
       maxModelCalls: 4,
       maxOutputTokens: 1024,
       maxContextBytes: 24000,

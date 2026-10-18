@@ -5,6 +5,7 @@ import { useApp } from '../../app/providers.jsx';
 export const NAV = [
   { to: '/', label: 'Home', icon: 'home' },
   { to: '/agent', label: 'AI Assistant', icon: 'auto_awesome' },
+  { to: '/treasury', label: 'Treasury', icon: 'account_balance' },
   { to: '/proposals', label: 'Payments', icon: 'payments' },
   { to: '/automation', label: 'Automations', icon: 'event_repeat' },
   { to: '/controls', label: 'Security', icon: 'shield_lock' },

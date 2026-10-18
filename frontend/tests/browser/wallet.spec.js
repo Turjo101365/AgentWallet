@@ -15,8 +15,10 @@ async function serve(args, cwd, env, readyUrl) {
   const child = spawn(process.execPath, args, { cwd, env: { ...process.env, ...env }, stdio: ['ignore', 'pipe', 'pipe'] });
   processes.push(child);
   let log = '';
-  child.stdout.on('data', d => log += d);
-  child.stderr.on('data', d => log += d);
+  const logPath=path.join(root,'work',cwd.endsWith('backend')?'release-browser-backend.log':'release-browser-vite.log');
+  fs.writeFileSync(logPath,'');
+  child.stdout.on('data', d => {log += d;fs.appendFileSync(logPath,d);});
+  child.stderr.on('data', d => {log += d;fs.appendFileSync(logPath,d);});
   for (let i = 0; i < 200; i++) {
     if (child.exitCode !== null) throw new Error(log);
     try { if ((await fetch(readyUrl)).ok) return; } catch {}
@@ -50,7 +52,9 @@ async function wallet(page) {
     return chain.send(method, params);
   });
   await page.addInitScript(({ address }) => {
-    let connected = false, chainId = '0x1', reject = false;
+    // Like an injected wallet, retain this site's permission/network on reload.
+    // Every Playwright test still gets a fresh, disconnected browser context.
+    let connected = sessionStorage.getItem('__aw_test_connected') === 'true', chainId = sessionStorage.getItem('__aw_test_chain') || '0x1', reject = false;
     const listeners = {};
     window.__rejectNextWalletRequest = () => { reject = true; };
     window.ethereum = {
@@ -64,9 +68,9 @@ async function wallet(page) {
           if (/wants you to sign in/.test(text) && !text.startsWith(`${location.host} wants you to sign in`)) throw Object.assign(new Error(`SIWE domain mismatch: ${text.split(' ')[0]} vs ${location.host}`), { code: 4001 });
         }
         if (method === 'eth_accounts') return connected ? [address] : [];
-        if (method === 'eth_requestAccounts') { connected = true; return [address]; }
+        if (method === 'eth_requestAccounts') { connected = true; sessionStorage.setItem('__aw_test_connected','true'); return [address]; }
         if (method === 'eth_chainId') return chainId;
-        if (method === 'wallet_switchEthereumChain') { chainId = params[0].chainId; (listeners.chainChanged || []).forEach(f => f(chainId)); return null; }
+        if (method === 'wallet_switchEthereumChain') { chainId = params[0].chainId; sessionStorage.setItem('__aw_test_chain',chainId); (listeners.chainChanged || []).forEach(f => f(chainId)); return null; }
         return window.__localWallet({ method, params });
       },
     };
@@ -100,16 +104,19 @@ test('wallet network selection, SIWE, approval/rejection, mined transfer and ind
   await expect(page.getByText('You rejected the request in your wallet.')).toBeVisible();
   expect(await chain.provider.getBalance(fixture.payeeA.address)).toBe(before);
   await page.getByRole('button', { name: 'Confirm in wallet' }).click();
-  await expect(page.getByText('Execution: CONFIRMED')).toBeVisible({ timeout: 30000 });
-  const txHash = (await page.getByText(/^Tx: 0x/).textContent()).match(/0x[0-9a-f]{64}/i)[0];
+  await expect(page.getByText('Payment confirmed — receipt verified')).toBeVisible({ timeout: 30000 });
+  const receiptCard = page.getByText('Payment confirmed — receipt verified').locator('..');
+  const txHash = (await receiptCard.locator('div.break-all').first().textContent()).match(/0x[0-9a-f]{64}/i)[0];
+  await expect.poll(async () => Boolean(await chain.provider.getTransactionReceipt(txHash))).toBe(true);
   const receipt = await chain.provider.getTransactionReceipt(txHash);
   expect(receipt.status).toBe(1);
   expect(receipt.to.toLowerCase()).toBe(fixture.deployment.contractAddress.toLowerCase());
   expect((await chain.provider.getBalance(fixture.payeeA.address)) - before).toBe(ethers.parseEther('0.001'));
   await proposal(page, 'Browser rejected payment');
-  await page.getByRole('button', { name: 'Reject', exact: true }).click();
+  await page.getByRole('button', { name: 'Decline payment', exact: true }).click();
   await expect(page.getByText('Rejected by operator in console', { exact: false })).toBeVisible();
   await navigate(page, '/transactions');
+  await page.locator('details').filter({ hasText: txHash }).getByText('Transaction details', { exact: true }).click();
   await expect(page.getByText(txHash, { exact: true })).toBeVisible({ timeout: 30000 });
   console.log('BROWSER_CHAIN_EVIDENCE', JSON.stringify({ proposalId: created.id, txHash, block: receipt.blockNumber, gasUsed: receipt.gasUsed.toString() }));
 });
@@ -130,17 +137,19 @@ test('portfolio prices, bounded automation grant lifecycle, and truthful unavail
   await signIn(page, '/portfolio');
   await expect(page.getByText('local-mock-feed (synthetic)', { exact: false }).first()).toBeVisible();
   await navigate(page, '/automation');
-  await page.getByLabel('Recipient (allowlisted)').selectOption(fixture.payeeA.address);
+  await page.getByLabel('Approved recipient').selectOption(fixture.payeeA.address);
   await page.getByLabel('Amount per run').fill('0.001');
   await page.getByPlaceholder('Title (optional)').fill('Browser bounded grant');
+  const createdTask=page.waitForResponse(r=>r.url()===`${base}/tasks`&&r.request().method()==='POST');
   await page.getByRole('button', { name: 'Create task', exact: false }).click();
+  expect((await createdTask).status()).toBe(201);
   await page.getByRole('button', { name: 'Sign grant', exact: false }).click();
   await page.getByRole('button', { name: 'Pause', exact: true }).click();
   await page.getByRole('button', { name: 'Resume', exact: true }).click();
   await page.getByRole('button', { name: 'Cancel', exact: true }).click();
   await expect(page.getByText('CANCELLED', { exact: true })).toBeVisible();
   await navigate(page, '/agent');
-  await expect(page.getByText('No language model configured', { exact: true })).toBeVisible();
+  await expect(page.getByText('Your AI assistant is temporarily unavailable', { exact: true })).toBeVisible();
   await page.getByPlaceholder('Ask your AI assistant…').fill('Show my portfolio');
   await page.getByRole('button', { name: 'Send', exact: true }).click();
   await expect(page.getByText('UNAVAILABLE', { exact: true })).toBeVisible();
@@ -156,7 +165,7 @@ test('contract v2: signed deadline is shown, and the owner revokes a task grant 
   await expect(page.getByTestId('signed-deadline').first()).toContainText('never extended');
 
   await navigate(page, '/automation');
-  await page.getByLabel('Recipient (allowlisted)').selectOption(fixture.payeeA.address);
+  await page.getByLabel('Approved recipient').selectOption(fixture.payeeA.address);
   await page.getByLabel('Amount per run').fill('0.001');
   await page.getByPlaceholder('Title (optional)').fill('Grant to revoke on-chain');
   await page.getByRole('button', { name: 'Create task', exact: false }).click();
