@@ -108,9 +108,13 @@ during verification. Leave all sandbox credentials in backend secrets only.
 ## 4. Backend migration/deployment with execution still disabled
 
 1. Confirm the database switch/zero limits and Render zero environment values are
-   still present, and no pending execution appeared. Prevent mixed old/new backend
-   writers by stopping the old service for the maintenance window before migration
-   activation. Do not change the Free plan, instance count or region.
+   still present, and no pending execution appeared. Briefly suspend the old service
+   to establish a stopped boundary. Render refuses deployment while suspended, so
+   resume the same Free service and immediately request the exact release commit.
+   The old build may serve briefly during the rollout: persisted execution must
+   already be false, no pending payments may exist, and jobs must already be off.
+   Verify both audit chains after cutover. Render's paid-only maintenance mode is
+   not used. Do not change the plan, instance count or region.
 2. Deploy the exact reviewed main SHA to the existing Render service. Build:
    `npm ci --prefix backend --omit=dev`; start: `node backend/src/server.js`.
    Keep Render platform health polling on `/health/live`.
@@ -138,7 +142,7 @@ during verification. Leave all sandbox credentials in backend secrets only.
    `VITE_API_URL=https://agentwallet-judge-api.onrender.com/api`. No key, database
    URL or signer credential is allowed in `VITE_*` or built assets.
 3. Require HTTPS and correct API origin, direct reload of `/treasury`, `/funding`,
-   `/agent`, `/admin` and evidence routes, usable 390px navigation and no console
+   `/agent` and evidence routes, usable 390px navigation and no console
    errors. The Owner/Admin console is selected from the role selector, rather than
    a separate `/admin` application route. Public historical evidence stays separate
    from live sandbox data.
