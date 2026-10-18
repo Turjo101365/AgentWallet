@@ -50,9 +50,10 @@ export function createDemoService({ demo, sandbox, budgetDb, aiDailyLimit, logge
 
   // ------------------------------------------------------------------ sessions
   async function startSession({ inviteCode } = {}) {
+    return db.tx(async q => {
     let invite = null;
     if (inviteCode) {
-      const { rows } = await db.query(`UPDATE demo_invites SET sessions_used = sessions_used + 1
+      const { rows } = await q.query(`UPDATE demo_invites SET sessions_used = sessions_used + 1
         WHERE code_hash = $1 AND revoked_at IS NULL AND (expires_at IS NULL OR expires_at > now()) AND sessions_used < max_sessions
         RETURNING id, label`, [sha256(inviteCode.trim())]);
       if (!rows.length) throw new AppError(403, 'INVITE_INVALID', 'Invite code is invalid, revoked, expired or used up');
@@ -61,10 +62,11 @@ export function createDemoService({ demo, sandbox, budgetDb, aiDailyLimit, logge
     const token = crypto.randomBytes(32).toString('hex');
     const id = crypto.randomUUID();
     const expiresAt = new Date(Date.now() + demo.sessionTtlSeconds * 1000);
-    await db.query(`INSERT INTO demo_sessions (id, token_hash, invite_id, execution_allowed, expires_at) VALUES ($1, $2, $3, $4, $5)`,
+    await q.query(`INSERT INTO demo_sessions (id, token_hash, invite_id, execution_allowed, expires_at) VALUES ($1, $2, $3, $4, $5)`,
       [id, sha256(token), invite?.id || null, Boolean(invite), expiresAt]);
-    await repos.audit.append({ actor: `demo:${id}`, action: 'DEMO_SESSION_STARTED', entityType: 'demo_session', entityId: id, details: { executionAllowed: Boolean(invite), invite: invite?.label || null } });
+    await repos.audit.append({ actor: `demo:${id}`, action: 'DEMO_SESSION_STARTED', entityType: 'demo_session', entityId: id, details: { executionAllowed: Boolean(invite), invite: invite?.label || null } }, q);
     return { token: `d.${token}`, sessionId: id, executionAllowed: Boolean(invite), expiresAt: Math.floor(expiresAt.getTime() / 1000), limits: publicLimits() };
+    });
   }
 
   async function authenticate(header) {

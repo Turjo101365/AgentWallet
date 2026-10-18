@@ -277,6 +277,9 @@ describe('judge demo wallet (local sandbox)', () => {
       await request(adminApp).get('/api/admin/me').set(bearer(token)).expect(200);
       await request(adminApp).put('/api/admin/demo/treasury/reserve').set(bearer(token)).send({amount:'0.0002'}).expect(200);
       assert.equal((await runtime.sandbox.container.policySettings.get()).reserveFloors[ETH],ethers.parseEther('0.0002').toString());
+      const reserveView=(await request(adminApp).get('/api/admin/demo').set(bearer(token)).expect(200)).body.data;
+      assert.equal(reserveView.treasuryReserveEth,'0.0002');
+      assert.equal(reserveView.status.limits.minTreasuryEth,'0.0001','server minimum is distinct from the effective reserve');
       await request(adminApp).put('/api/admin/demo/treasury/reserve').set(bearer(token)).send({amount:'0.0001'}).expect(409);
       await request(adminApp).put('/api/admin/demo/treasury/reserve').set(bearer(token)).send({amount:'0.0001',confirmLoosening:true}).expect(200);
 

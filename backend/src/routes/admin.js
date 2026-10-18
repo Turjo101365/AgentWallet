@@ -50,7 +50,13 @@ export function createAdminRouter({ config, auth, demoRuntime, limits, db }) {
       ON CONFLICT(owner_address) DO UPDATE SET contract_address=$2,approved_by=$3,enabled=$4,deploy_block=$5`,[owner,address,req.session.address,req.valid.body.enabled,req.valid.body.deployBlock]);
     return {owner,address,enabled:req.valid.body.enabled};
   }));
-  router.get('/demo', admin, wrap(async () => ({ status: await demo().status(), invites: await demo().listInvites() })));
+  router.get('/demo', admin, wrap(async () => {
+    const service=demo(),box=demoRuntime.sandbox.container;
+    const settings=await box.policySettings.get();
+    const configured=BigInt(settings.reserveFloors[ethers.ZeroAddress]||0);
+    const floor=box.config.nativeReserveFloorWei;
+    return {status:await service.status(),invites:await service.listInvites(),treasuryReserveEth:ethers.formatEther(configured>floor?configured:floor)};
+  }));
   router.put('/demo/treasury/reserve',limits.mutation,admin,validate(reserveSchema),wrap(async req=>{
     demo();
     const box=demoRuntime.sandbox.container;
