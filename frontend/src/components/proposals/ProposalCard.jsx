@@ -24,13 +24,16 @@ function Tag({ kind }) {
   return <span className={`inline-block text-[10px] font-mono font-bold tracking-wider rounded-full px-2 py-0.5 ${style}`}>{kind}</span>;
 }
 
-/** Verified receipt as read back from the chain after a demo confirmation. */
+/** Verified receipt as read back from the chain after a demo confirmation. Public vs local is taken from the backend. */
 function Receipt({ receipt }) {
+  const { config } = useApp();
+  const live = Boolean(config?.isPublicNetwork);
+  const network = config?.networkName || 'this chain';
   return (
     <div className="rounded-2xl bg-mint-soft text-mint-deep p-3.5 text-xs font-mono space-y-0.5" data-testid="demo-receipt">
-      <div className="font-bold font-sans text-base flex items-center gap-2"><Tag kind="LIVE" /> {receipt.status === 1 ? 'Payment confirmed' : 'Payment failed'}</div>
-      <p className="font-sans text-sm">{receipt.status === 1 ? 'Verified on Ethereum Sepolia. This payment uses test ETH.' : 'The transaction reverted. Do not treat it as a completed payment.'}</p>
-      <a className="inline-block font-sans font-semibold underline py-1" href={receipt.explorerUrl} target="_blank" rel="noreferrer">View verified Sepolia receipt ↗</a>
+      <div className="font-bold font-sans text-base flex items-center gap-2"><Tag kind={live ? 'LIVE' : 'SIMULATED'} /> {receipt.status === 1 ? 'Payment confirmed' : 'Payment failed'}</div>
+      <p className="font-sans text-sm">{receipt.status === 1 ? (live ? `Verified on ${network}. This payment uses test ETH.` : `Verified on ${network}, a local simulation chain. This is not public evidence.`) : 'The transaction reverted. Do not treat it as a completed payment.'}</p>
+      {live && receipt.explorerUrl && <a className="inline-block font-sans font-semibold underline py-1" href={receipt.explorerUrl} target="_blank" rel="noreferrer">View verified {network.replace(/^Ethereum /, '')} receipt ↗</a>}
       <details><summary className="cursor-pointer py-1">Receipt details</summary><div>Status {receipt.status} · block {receipt.blockNumber} · gas used {receipt.gasUsed}</div><div className="break-all">{receipt.txHash}</div><div className="break-all">From {receipt.from} → contract {receipt.to}</div></details>
     </div>
   );

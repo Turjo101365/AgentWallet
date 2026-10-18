@@ -118,17 +118,18 @@ export function createDemoService({ demo, sandbox, budgetDb, aiDailyLimit, logge
   }
 
   async function status(session = null) {
-    const [today, enabled, snapshot] = await Promise.all([
+    const [today, enabled, snapshot, limits] = await Promise.all([
       db.query(`SELECT tx_count, amount_wei FROM demo_daily_usage WHERE day = (CURRENT_TIMESTAMP AT TIME ZONE 'UTC')::date`),
       executionEnabled(),
       chain.getSnapshot().catch(() => null),
+      effectiveLimits(),
     ]);
     const native = snapshot?.tokens?.find((t) => t.address === ethers.ZeroAddress);
     return {
       enabled: true,
       sandbox: { chainId: config.chainId, network: config.network.name, contract: config.contractAddress, contractUrl: chain.addressUrl(config.contractAddress), owner, agent: demo.agentAddress, keysHeldBy: 'backend (demo sandbox only)' },
       authorization: DEMO_AUTHORIZATION,
-      limits: await effectiveLimits(),
+      limits,
       live: snapshot ? {
         paused: snapshot.paused,
         treasuryEth: native ? ethers.formatEther(native.balance) : null,
@@ -137,7 +138,7 @@ export function createDemoService({ demo, sandbox, budgetDb, aiDailyLimit, logge
       executionEnabled: enabled,
       busy: executing,
       today: { txCount: today.rows[0]?.tx_count || 0, amountEth: ethers.formatEther(BigInt(today.rows[0]?.amount_wei || 0)) },
-      session: session ? { executionAllowed: session.executionAllowed, txRemaining: Math.max(0, demo.maxTxPerSession - session.txCount), aiRemaining: Math.max(0, demo.maxAiPerSession - session.aiCount), expiresAt: session.expiresAt } : null,
+      session: session ? { executionAllowed: session.executionAllowed, txRemaining: Math.max(0, limits.maxTxPerSession - session.txCount), aiRemaining: Math.max(0, demo.maxAiPerSession - session.aiCount), expiresAt: session.expiresAt } : null,
     };
   }
 
@@ -226,7 +227,7 @@ export function createDemoService({ demo, sandbox, budgetDb, aiDailyLimit, logge
 
         // Charge the per-session and global daily budgets atomically before signing; refunded if nothing is sent.
         const s = await db.query('UPDATE demo_sessions SET tx_count = tx_count + 1 WHERE id = $1 AND tx_count < $2 AND revoked_at IS NULL AND expires_at>now() RETURNING tx_count', [session.id, caps.maxTxPerSession]);
-        if (!s.rows.length) throw new AppError(429, 'DEMO_SESSION_TX_LIMIT', `This demo session may send at most ${demo.maxTxPerSession} payments`);
+        if (!s.rows.length) throw new AppError(429, 'DEMO_SESSION_TX_LIMIT', `This demo session may send at most ${caps.maxTxPerSession} payments`);
         charged = { session: true, global: false, amount };
         const g = await db.query(`INSERT INTO demo_daily_usage (day, tx_count, amount_wei)
           SELECT (CURRENT_TIMESTAMP AT TIME ZONE 'UTC')::date, 1, $1 WHERE $2>=1 AND $1::numeric<=$3
@@ -245,9 +246,10 @@ export function createDemoService({ demo, sandbox, budgetDb, aiDailyLimit, logge
         if (!claimed.rows.length) throw conflict('ALREADY_CONFIRMED', 'This proposal was already confirmed');
         await repos.audit.append({ actor: `demo:${session.id}`, action: 'DEMO_AUTHORIZATION_CONFIRMED', entityType: 'proposal', entityId: id,
           details: { authorization: DEMO_AUTHORIZATION.kind, recipient: p.recipient, amountWei: p.amountWei, signer: owner } });
-        // Once approval is handed to the executor, never refund a timeout/unknown outcome.
-        charged = null;
+        // Keep the charge until approval succeeds: a refusal here (policy/reserve, expiry) hands nothing to the
+        // executor. Once approval is handed to the executor, never refund a timeout/unknown outcome.
         await proposals.approve(id, { signature }, { address: owner });
+        charged = null;
 
         const deadline = Date.now() + demo.executionWaitMs;
         let latest = await proposals.get(id);
@@ -264,7 +266,11 @@ export function createDemoService({ demo, sandbox, budgetDb, aiDailyLimit, logge
         logger.info('Demo payment processed', { proposalId: id, status: latest.status, txHash: latest.execution?.txHash || null });
         return { ...withDemoLabels(latest, true), receipt, pending: !['CONFIRMED', 'FAILED'].includes(latest.status) };
       } catch (err) {
-        if (charged) await refund(session.id, charged).catch(() => {});
+        if (charged) {
+          // Refund only if the proposal never became an authorization the executor could act on.
+          const state = (await proposals.get(id).catch(() => null))?.status;
+          if (state && !['APPROVED', 'SUBMITTED', 'CONFIRMED'].includes(state)) await refund(session.id, charged).catch(() => {});
+        }
         throw err;
       } finally {
         executing = false;
