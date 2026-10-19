@@ -90,3 +90,6 @@ evidence/submission/footage/metamask-raw/
 !evidence/submission/footage/*.log
 # Clip tooling: generated data and fetched browser binaries
 submission/tools/clips/src/resolved.json
+
+# Competition deliverables are submitted separately and are not published here
+/submission/

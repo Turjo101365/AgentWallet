@@ -1,0 +1,1463 @@
+{
+ "verifiedAt": "2026-10-19T06:59:21.785Z",
+ "rpcs": [
+  "https://sepolia.drpc.org",
+  "https://1rpc.io/sepolia"
+ ],
+ "chainId": 11155111,
+ "evidenceContractNow": {
+  "block": 11946553,
+  "paused": true,
+  "agent": "0x0000000000000000000000000000000000000000",
+  "owner": "0x10A0d3247a1446fD30ba40D14e4272206278b5ba",
+  "version": "2",
+  "balanceWei": "0"
+ },
+ "transactions": [
+  {
+   "group": "v2-full",
+   "n": 1,
+   "label": "top-up deployer",
+   "hash": "0xf3bf0e077cd36f9eb1d5528237000c68d5ebb02a3e7ecbbd1437916605af1bdf",
+   "abi": "v2",
+   "status": 1,
+   "block": 11932651,
+   "timeUtc": "2026-10-17T07:10:00.000Z",
+   "from": "0x10A0d3247a1446fD30ba40D14e4272206278b5ba",
+   "to": "0x80D4101A23062ee7E5B2477D4C036AB0FD4e2a67",
+   "contractAddress": null,
+   "valueEth": "0.000018285041741019",
+   "gasLimit": "21000",
+   "gasUsed": "21000",
+   "method": "ETH transfer",
+   "events": [
+    {
+     "name": "native ETH Transfer (system log)",
+     "address": "0xffffFFFfFFffffffffffffffFfFFFfffFFFfFFfE"
+    }
+   ],
+   "secondRpcAgrees": true,
+   "etherscan": "https://sepolia.etherscan.io/tx/0xf3bf0e077cd36f9eb1d5528237000c68d5ebb02a3e7ecbbd1437916605af1bdf",
+   "etherscanCheck": {
+    "status": "Success",
+    "block": 11932651,
+    "timestamp": "Oct-17-2026 07:10:00 AM +UTC",
+    "agreesWithRpc": true
+   }
+  },
+  {
+   "group": "v2-full",
+   "n": 2,
+   "label": "top-up agent",
+   "hash": "0xcf80f95f8d5e93b061777b2e8dbd92d2489275d1f27f8fd76d98cd202ea0319b",
+   "abi": "v2",
+   "status": 1,
+   "block": 11932654,
+   "timeUtc": "2026-10-17T07:10:36.000Z",
+   "from": "0x10A0d3247a1446fD30ba40D14e4272206278b5ba",
+   "to": "0x30D53BD30B6D60E7c49829D6Df79b5B7E4CBBD1D",
+   "contractAddress": null,
+   "valueEth": "0.000000000016976202",
+   "gasLimit": "21000",
+   "gasUsed": "21000",
+   "method": "ETH transfer",
+   "events": [
+    {
+     "name": "native ETH Transfer (system log)",
+     "address": "0xffffFFFfFFffffffffffffffFfFFFfffFFFfFFfE"
+    }
+   ],
+   "secondRpcAgrees": true,
+   "etherscan": "https://sepolia.etherscan.io/tx/0xcf80f95f8d5e93b061777b2e8dbd92d2489275d1f27f8fd76d98cd202ea0319b",
+   "etherscanCheck": {
+    "status": "Success",
+    "block": 11932654,
+    "timestamp": "Oct-17-2026 07:10:36 AM +UTC",
+    "agreesWithRpc": true
+   }
+  },
+  {
+   "group": "v2-full",
+   "n": 3,
+   "label": "deploy",
+   "hash": "0x879566e6943dbcde1653a9f081b197487118cf1a6799ed03bbda6a41cb21f4a5",
+   "abi": "v2",
+   "status": 1,
+   "block": 11932656,
+   "timeUtc": "2026-10-17T07:11:00.000Z",
+   "from": "0x80D4101A23062ee7E5B2477D4C036AB0FD4e2a67",
+   "to": null,
+   "contractAddress": "0x3C9389E704331B8a12381F9ab5A68a7F3F59582F",
+   "valueEth": "0.0",
+   "gasLimit": "20478646",
+   "gasUsed": "20316239",
+   "method": "contract creation",
+   "events": [
+    {
+     "name": "OwnershipTransferred",
+     "args": [
+      "0x0000000000000000000000000000000000000000",
+      "0x10A0d3247a1446fD30ba40D14e4272206278b5ba"
+     ]
+    },
+    {
+     "name": "AgentUpdated",
+     "args": [
+      "0x0000000000000000000000000000000000000000",
+      "0x30D53BD30B6D60E7c49829D6Df79b5B7E4CBBD1D"
+     ]
+    },
+    {
+     "name": "TokenPolicyUpdated",
+     "args": [
+      "0x0000000000000000000000000000000000000000",
+      "true",
+      "200000000000000",
+      "500000000000000"
+     ]
+    }
+   ],
+   "secondRpcAgrees": true,
+   "etherscan": "https://sepolia.etherscan.io/tx/0x879566e6943dbcde1653a9f081b197487118cf1a6799ed03bbda6a41cb21f4a5",
+   "etherscanCheck": {
+    "status": "Success",
+    "block": 11932656,
+    "timestamp": "Oct-17-2026 07:11:00 AM +UTC",
+    "agreesWithRpc": true
+   }
+  },
+  {
+   "group": "v2-full",
+   "n": 4,
+   "label": "owner setRecipient",
+   "hash": "0x912f3e0a0da0f02ee737a810c5f3bb7801859f0491a0703cc8ae8aec656459ff",
+   "abi": "v2",
+   "status": 1,
+   "block": 11932663,
+   "timeUtc": "2026-10-17T07:12:24.000Z",
+   "from": "0x10A0d3247a1446fD30ba40D14e4272206278b5ba",
+   "to": "0x3C9389E704331B8a12381F9ab5A68a7F3F59582F",
+   "contractAddress": null,
+   "valueEth": "0.0",
+   "gasLimit": "131117",
+   "gasUsed": "130018",
+   "method": "setRecipient",
+   "events": [
+    {
+     "name": "RecipientUpdated",
+     "args": [
+      "0x82446B165d0d55051af76e3aD7852B0F3141904e",
+      "true"
+     ]
+    }
+   ],
+   "secondRpcAgrees": true,
+   "etherscan": "https://sepolia.etherscan.io/tx/0x912f3e0a0da0f02ee737a810c5f3bb7801859f0491a0703cc8ae8aec656459ff",
+   "etherscanCheck": {
+    "status": "Success",
+    "block": 11932663,
+    "timestamp": "Oct-17-2026 07:12:24 AM +UTC",
+    "agreesWithRpc": true
+   },
+   "secondRpc": "https://sepolia.gateway.tenderly.co"
+  },
+  {
+   "group": "v2-full",
+   "n": 5,
+   "label": "owner deposit",
+   "hash": "0x17ac2f09e8767418eb1907fcc18231c19709ce82f36cdfceb4eab084746afa3e",
+   "abi": "v2",
+   "status": 1,
+   "block": 11932664,
+   "timeUtc": "2026-10-17T07:12:48.000Z",
+   "from": "0x10A0d3247a1446fD30ba40D14e4272206278b5ba",
+   "to": "0x3C9389E704331B8a12381F9ab5A68a7F3F59582F",
+   "contractAddress": null,
+   "valueEth": "0.0004",
+   "gasLimit": "23043",
+   "gasUsed": "22707",
+   "method": "deposit",
+   "events": [
+    {
+     "name": "native ETH Transfer (system log)",
+     "address": "0xffffFFFfFFffffffffffffffFfFFFfffFFFfFFfE"
+    },
+    {
+     "name": "Deposited",
+     "args": [
+      "0x10A0d3247a1446fD30ba40D14e4272206278b5ba",
+      "400000000000000"
+     ]
+    }
+   ],
+   "secondRpcAgrees": true,
+   "etherscan": "https://sepolia.etherscan.io/tx/0x17ac2f09e8767418eb1907fcc18231c19709ce82f36cdfceb4eab084746afa3e",
+   "etherscanCheck": {
+    "status": "Success",
+    "block": 11932664,
+    "timestamp": "Oct-17-2026 07:12:48 AM +UTC",
+    "agreesWithRpc": true
+   }
+  },
+  {
+   "group": "v2-full",
+   "n": 6,
+   "label": "owner-approved transfer (AI-drafted)",
+   "hash": "0x564129e213f1142da1d9d52e9b3e15eeff42852198cb7d3bcd84242eb6c0702e",
+   "abi": "v2",
+   "status": 1,
+   "block": 11932667,
+   "timeUtc": "2026-10-17T07:13:24.000Z",
+   "from": "0x30D53BD30B6D60E7c49829D6Df79b5B7E4CBBD1D",
+   "to": "0x3C9389E704331B8a12381F9ab5A68a7F3F59582F",
+   "contractAddress": null,
+   "valueEth": "0.0",
+   "gasLimit": "354846",
+   "gasUsed": "282966",
+   "method": "executeApprovedTransfer",
+   "events": [
+    {
+     "name": "native ETH Transfer (system log)",
+     "address": "0xffffFFFfFFffffffffffffffFfFFFfffFFFfFFfE"
+    },
+    {
+     "name": "TransferExecuted",
+     "args": [
+      "0x939869e11994a32370e60c0473ec84b95e40221ed66af36610959290cc810e40",
+      "0x0000000000000000000000000000000000000000",
+      "0x82446B165d0d55051af76e3aD7852B0F3141904e",
+      "100000000000000",
+      "20743",
+      "100000000000000"
+     ]
+    }
+   ],
+   "secondRpcAgrees": true,
+   "etherscan": "https://sepolia.etherscan.io/tx/0x564129e213f1142da1d9d52e9b3e15eeff42852198cb7d3bcd84242eb6c0702e",
+   "etherscanCheck": {
+    "status": "Success",
+    "block": 11932667,
+    "timestamp": "Oct-17-2026 07:13:24 AM +UTC",
+    "agreesWithRpc": true
+   }
+  },
+  {
+   "group": "v2-full",
+   "n": 7,
+   "label": "autonomous transfer (AI-drafted task, grant-approved)",
+   "hash": "0xbcdd8685f552b89ba37352a6768189d8d1e7b104c4d01c111a0e8fa5cf4a2d6e",
+   "abi": "v2",
+   "status": 1,
+   "block": 11932685,
+   "timeUtc": "2026-10-17T07:17:00.000Z",
+   "from": "0x30D53BD30B6D60E7c49829D6Df79b5B7E4CBBD1D",
+   "to": "0x3C9389E704331B8a12381F9ab5A68a7F3F59582F",
+   "contractAddress": null,
+   "valueEth": "0.0",
+   "gasLimit": "511950",
+   "gasUsed": "412346",
+   "method": "executeGrantTransfer",
+   "events": [
+    {
+     "name": "native ETH Transfer (system log)",
+     "address": "0xffffFFFfFFffffffffffffffFfFFFfffFFFfFFfE"
+    },
+    {
+     "name": "TransferExecuted",
+     "args": [
+      "0x75f6bc2bbcc0d1cfb7b4880b2e2504c6cfbd5f07e3370bc950560d7470c3bc76",
+      "0x0000000000000000000000000000000000000000",
+      "0x82446B165d0d55051af76e3aD7852B0F3141904e",
+      "100000000000000",
+      "20743",
+      "200000000000000"
+     ]
+    },
+    {
+     "name": "GrantRunExecuted",
+     "args": [
+      "0xeb52a6c7de2a2438d62db9f3e5fca23aa947cb7aa6ec737d0925e7be7e04ef74",
+      "0x75f6bc2bbcc0d1cfb7b4880b2e2504c6cfbd5f07e3370bc950560d7470c3bc76",
+      "1",
+      "100000000000000"
+     ]
+    }
+   ],
+   "secondRpcAgrees": true,
+   "etherscan": "https://sepolia.etherscan.io/tx/0xbcdd8685f552b89ba37352a6768189d8d1e7b104c4d01c111a0e8fa5cf4a2d6e",
+   "etherscanCheck": {
+    "status": "Success",
+    "block": 11932685,
+    "timestamp": "Oct-17-2026 07:17:00 AM +UTC",
+    "agreesWithRpc": true
+   }
+  },
+  {
+   "group": "v2-full",
+   "n": 8,
+   "label": "owner revokeGrant",
+   "hash": "0x4b8b8efdf4d5a709f320b58a2a7bea7289e7f9f410d7e20efab1829d886c14e6",
+   "abi": "v2",
+   "status": 1,
+   "block": 11932688,
+   "timeUtc": "2026-10-17T07:17:36.000Z",
+   "from": "0x10A0d3247a1446fD30ba40D14e4272206278b5ba",
+   "to": "0x3C9389E704331B8a12381F9ab5A68a7F3F59582F",
+   "contractAddress": null,
+   "valueEth": "0.0",
+   "gasLimit": "130453",
+   "gasUsed": "129357",
+   "method": "revokeGrant",
+   "events": [
+    {
+     "name": "GrantRevoked",
+     "args": [
+      "0xfaf76f97337f30cb7b5b050b404aa0b195335d51b66f22866d01e7ec6dd44bce"
+     ]
+    }
+   ],
+   "secondRpcAgrees": true,
+   "etherscan": "https://sepolia.etherscan.io/tx/0x4b8b8efdf4d5a709f320b58a2a7bea7289e7f9f410d7e20efab1829d886c14e6",
+   "etherscanCheck": {
+    "status": "Success",
+    "block": 11932688,
+    "timestamp": "Oct-17-2026 07:17:36 AM +UTC",
+    "agreesWithRpc": true
+   }
+  },
+  {
+   "group": "v2-full",
+   "n": 9,
+   "label": "owner pause",
+   "hash": "0x19576c61ccbdd0cea313be4894ccc59899569e7b7c7c7d4399145f1b50333ade",
+   "abi": "v2",
+   "status": 1,
+   "block": 11932689,
+   "timeUtc": "2026-10-17T07:17:48.000Z",
+   "from": "0x10A0d3247a1446fD30ba40D14e4272206278b5ba",
+   "to": "0x3C9389E704331B8a12381F9ab5A68a7F3F59582F",
+   "contractAddress": null,
+   "valueEth": "0.0",
+   "gasLimit": "129971",
+   "gasUsed": "128877",
+   "method": "pause",
+   "events": [
+    {
+     "name": "Paused",
+     "args": [
+      "0x10A0d3247a1446fD30ba40D14e4272206278b5ba"
+     ]
+    }
+   ],
+   "secondRpcAgrees": true,
+   "etherscan": "https://sepolia.etherscan.io/tx/0x19576c61ccbdd0cea313be4894ccc59899569e7b7c7c7d4399145f1b50333ade",
+   "etherscanCheck": {
+    "status": "Success",
+    "block": 11932689,
+    "timestamp": "Oct-17-2026 07:17:48 AM +UTC",
+    "agreesWithRpc": true
+   }
+  },
+  {
+   "group": "v2-full",
+   "n": 10,
+   "label": "owner unpause",
+   "hash": "0xbfa8a88eba16b05926c7a95cf3b0de0bc771ab942f08f70641c0f6cc762fcdd6",
+   "abi": "v2",
+   "status": 1,
+   "block": 11932691,
+   "timeUtc": "2026-10-17T07:18:12.000Z",
+   "from": "0x10A0d3247a1446fD30ba40D14e4272206278b5ba",
+   "to": "0x3C9389E704331B8a12381F9ab5A68a7F3F59582F",
+   "contractAddress": null,
+   "valueEth": "0.0",
+   "gasLimit": "31000",
+   "gasUsed": "24796",
+   "method": "unpause",
+   "events": [
+    {
+     "name": "Unpaused",
+     "args": [
+      "0x10A0d3247a1446fD30ba40D14e4272206278b5ba"
+     ]
+    }
+   ],
+   "secondRpcAgrees": true,
+   "etherscan": "https://sepolia.etherscan.io/tx/0xbfa8a88eba16b05926c7a95cf3b0de0bc771ab942f08f70641c0f6cc762fcdd6",
+   "etherscanCheck": {
+    "status": "Success",
+    "block": 11932691,
+    "timestamp": "Oct-17-2026 07:18:12 AM +UTC",
+    "agreesWithRpc": true
+   },
+   "secondRpc": "https://sepolia.gateway.tenderly.co"
+  },
+  {
+   "group": "v2-full",
+   "n": 11,
+   "label": "owner emergencyStop",
+   "hash": "0x80a42def2843143de5a8418cc798fb231f19aa042fdb04d2bf155736cf0b1713",
+   "abi": "v2",
+   "status": 1,
+   "block": 11932692,
+   "timeUtc": "2026-10-17T07:18:24.000Z",
+   "from": "0x10A0d3247a1446fD30ba40D14e4272206278b5ba",
+   "to": "0x3C9389E704331B8a12381F9ab5A68a7F3F59582F",
+   "contractAddress": null,
+   "valueEth": "0.0",
+   "gasLimit": "144632",
+   "gasUsed": "132453",
+   "method": "emergencyStop",
+   "events": [
+    {
+     "name": "Paused",
+     "args": [
+      "0x10A0d3247a1446fD30ba40D14e4272206278b5ba"
+     ]
+    },
+    {
+     "name": "AgentUpdated",
+     "args": [
+      "0x30D53BD30B6D60E7c49829D6Df79b5B7E4CBBD1D",
+      "0x0000000000000000000000000000000000000000"
+     ]
+    },
+    {
+     "name": "EmergencyStop",
+     "args": [
+      "0x30D53BD30B6D60E7c49829D6Df79b5B7E4CBBD1D"
+     ]
+    }
+   ],
+   "secondRpcAgrees": true,
+   "etherscan": "https://sepolia.etherscan.io/tx/0x80a42def2843143de5a8418cc798fb231f19aa042fdb04d2bf155736cf0b1713",
+   "etherscanCheck": {
+    "status": "Success",
+    "block": 11932692,
+    "timestamp": "Oct-17-2026 07:18:24 AM +UTC",
+    "agreesWithRpc": true
+   }
+  },
+  {
+   "group": "v2-full",
+   "n": 12,
+   "label": "owner withdraw",
+   "hash": "0xc3dff58a20a173604828f5b082283a21c2691cef94c34abc37b3a41088fa433e",
+   "abi": "v2",
+   "status": 1,
+   "block": 11932693,
+   "timeUtc": "2026-10-17T07:18:36.000Z",
+   "from": "0x10A0d3247a1446fD30ba40D14e4272206278b5ba",
+   "to": "0x3C9389E704331B8a12381F9ab5A68a7F3F59582F",
+   "contractAddress": null,
+   "valueEth": "0.0",
+   "gasLimit": "44656",
+   "gasUsed": "33893",
+   "method": "withdraw",
+   "events": [
+    {
+     "name": "native ETH Transfer (system log)",
+     "address": "0xffffFFFfFFffffffffffffffFfFFFfffFFFfFFfE"
+    },
+    {
+     "name": "Withdrawn",
+     "args": [
+      "0x0000000000000000000000000000000000000000",
+      "0x10A0d3247a1446fD30ba40D14e4272206278b5ba",
+      "200000000000000"
+     ]
+    }
+   ],
+   "secondRpcAgrees": true,
+   "etherscan": "https://sepolia.etherscan.io/tx/0xc3dff58a20a173604828f5b082283a21c2691cef94c34abc37b3a41088fa433e",
+   "etherscanCheck": {
+    "status": "Success",
+    "block": 11932693,
+    "timestamp": "Oct-17-2026 07:18:36 AM +UTC",
+    "agreesWithRpc": true
+   }
+  },
+  {
+   "group": "hosted",
+   "n": "H",
+   "label": "hosted demo payment (AI-drafted, browser-confirmed, server sandbox key signed)",
+   "hash": "0x62ab63fafa92a9a1ae7f8037e90f1dfd59fe82ea925ee90911b68638e7ad7eaf",
+   "abi": "v2",
+   "status": 1,
+   "block": 11934309,
+   "timeUtc": "2026-10-17T13:01:24.000Z",
+   "from": "0x341E8F433A90d776DE1C13D8f9DdE48bB387A7d6",
+   "to": "0x59a33154288009e030aa2072De46D32fC7d40d85",
+   "contractAddress": null,
+   "valueEth": "0.0",
+   "gasLimit": "577773",
+   "gasUsed": "466554",
+   "method": "executeApprovedTransfer",
+   "events": [
+    {
+     "name": "native ETH Transfer (system log)",
+     "address": "0xffffFFFfFFffffffffffffffFfFFFfffFFFfFFfE"
+    },
+    {
+     "name": "TransferExecuted",
+     "args": [
+      "0x71bd0b7ba1a6307629f3cf1229f68cd23608d184960d971fe035aed122151bdc",
+      "0x0000000000000000000000000000000000000000",
+      "0xd85cdB676877ccdc8873B63DEf51B456568604F5",
+      "100000000000000",
+      "20743",
+      "100000000000000"
+     ]
+    }
+   ],
+   "secondRpcAgrees": true,
+   "etherscan": "https://sepolia.etherscan.io/tx/0x62ab63fafa92a9a1ae7f8037e90f1dfd59fe82ea925ee90911b68638e7ad7eaf",
+   "etherscanCheck": {
+    "status": "Success",
+    "block": 11934309,
+    "timestamp": "Oct-17-2026 01:01:24 PM +UTC",
+    "agreesWithRpc": true
+   }
+  },
+  {
+   "group": "hosted-setup",
+   "n": "S1",
+   "label": "Deploy unchanged AgentWallet v2",
+   "hash": "0xae1bc3339bf0970590afa24304566356e35ef8123ab5a61b3d760d30a7bc55ad",
+   "abi": "v2",
+   "status": 1,
+   "block": 11934212,
+   "timeUtc": "2026-10-17T12:40:48.000Z",
+   "from": "0x74B7a41E3f4949315364DAd08e1142b38870825b",
+   "to": null,
+   "contractAddress": "0x59a33154288009e030aa2072De46D32fC7d40d85",
+   "valueEth": "0.0",
+   "gasLimit": "24574376",
+   "gasUsed": "20316239",
+   "method": "contract creation",
+   "events": [
+    {
+     "name": "OwnershipTransferred",
+     "args": [
+      "0x0000000000000000000000000000000000000000",
+      "0x98cd6633Fa95cf4Ff9761CDFFa555D553FcDf680"
+     ]
+    },
+    {
+     "name": "AgentUpdated",
+     "args": [
+      "0x0000000000000000000000000000000000000000",
+      "0x341E8F433A90d776DE1C13D8f9DdE48bB387A7d6"
+     ]
+    },
+    {
+     "name": "TokenPolicyUpdated",
+     "args": [
+      "0x0000000000000000000000000000000000000000",
+      "true",
+      "100000000000000",
+      "300000000000000"
+     ]
+    }
+   ],
+   "secondRpcAgrees": true,
+   "etherscan": "https://sepolia.etherscan.io/tx/0xae1bc3339bf0970590afa24304566356e35ef8123ab5a61b3d760d30a7bc55ad",
+   "etherscanCheck": {
+    "status": "Success",
+    "block": 11934212,
+    "timestamp": "Oct-17-2026 12:40:48 PM +UTC",
+    "agreesWithRpc": true
+   },
+   "secondRpc": "https://sepolia.gateway.tenderly.co"
+  },
+  {
+   "group": "hosted-setup",
+   "n": "S2",
+   "label": "Fund dedicated owner gas",
+   "hash": "0x8b2b4c8a5f4a447165c8a9d5b25c65241ecfaf80da3f56513cac48d6a7e8661a",
+   "abi": "v2",
+   "status": 1,
+   "block": 11934224,
+   "timeUtc": "2026-10-17T12:43:24.000Z",
+   "from": "0x74B7a41E3f4949315364DAd08e1142b38870825b",
+   "to": "0x98cd6633Fa95cf4Ff9761CDFFa555D553FcDf680",
+   "contractAddress": null,
+   "valueEth": "0.0015",
+   "gasLimit": "248870",
+   "gasUsed": "204600",
+   "method": "ETH transfer",
+   "events": [
+    {
+     "name": "native ETH Transfer (system log)",
+     "address": "0xffffFFFfFFffffffffffffffFfFFFfffFFFfFFfE"
+    }
+   ],
+   "secondRpcAgrees": true,
+   "etherscan": "https://sepolia.etherscan.io/tx/0x8b2b4c8a5f4a447165c8a9d5b25c65241ecfaf80da3f56513cac48d6a7e8661a",
+   "etherscanCheck": {
+    "status": "Success",
+    "block": 11934224,
+    "timestamp": "Oct-17-2026 12:43:24 PM +UTC",
+    "agreesWithRpc": true
+   }
+  },
+  {
+   "group": "hosted-setup",
+   "n": "S3",
+   "label": "Fund dedicated agent gas",
+   "hash": "0xf603b80d45f02d3855c7b832e3c491a2ee3191c280cbdd27d58712e464b5eb7e",
+   "abi": "v2",
+   "status": 1,
+   "block": 11934236,
+   "timeUtc": "2026-10-17T12:45:48.000Z",
+   "from": "0x74B7a41E3f4949315364DAd08e1142b38870825b",
+   "to": "0x341E8F433A90d776DE1C13D8f9DdE48bB387A7d6",
+   "contractAddress": null,
+   "valueEth": "0.0015",
+   "gasLimit": "248870",
+   "gasUsed": "204600",
+   "method": "ETH transfer",
+   "events": [
+    {
+     "name": "native ETH Transfer (system log)",
+     "address": "0xffffFFFfFFffffffffffffffFfFFFfffFFFfFFfE"
+    }
+   ],
+   "secondRpcAgrees": true,
+   "etherscan": "https://sepolia.etherscan.io/tx/0xf603b80d45f02d3855c7b832e3c491a2ee3191c280cbdd27d58712e464b5eb7e",
+   "etherscanCheck": {
+    "status": "Success",
+    "block": 11934236,
+    "timestamp": "Oct-17-2026 12:45:48 PM +UTC",
+    "agreesWithRpc": true
+   }
+  },
+  {
+   "group": "hosted-setup",
+   "n": "S4",
+   "label": "Deposit sandbox treasury",
+   "hash": "0x6aa27b173be6a9d4fbdddd7512322976276b1b1950b1ee7c7c2dfa5a7d3a5ff5",
+   "abi": "v2",
+   "status": 1,
+   "block": 11934241,
+   "timeUtc": "2026-10-17T12:46:48.000Z",
+   "from": "0x74B7a41E3f4949315364DAd08e1142b38870825b",
+   "to": "0x59a33154288009e030aa2072De46D32fC7d40d85",
+   "contractAddress": null,
+   "valueEth": "0.0005",
+   "gasLimit": "27652",
+   "gasUsed": "22707",
+   "method": "deposit",
+   "events": [
+    {
+     "name": "native ETH Transfer (system log)",
+     "address": "0xffffFFFfFFffffffffffffffFfFFFfffFFFfFFfE"
+    },
+    {
+     "name": "Deposited",
+     "args": [
+      "0x74B7a41E3f4949315364DAd08e1142b38870825b",
+      "500000000000000"
+     ]
+    }
+   ],
+   "secondRpcAgrees": true,
+   "etherscan": "https://sepolia.etherscan.io/tx/0x6aa27b173be6a9d4fbdddd7512322976276b1b1950b1ee7c7c2dfa5a7d3a5ff5",
+   "etherscanCheck": {
+    "status": "Success",
+    "block": 11934241,
+    "timestamp": "Oct-17-2026 12:46:48 PM +UTC",
+    "agreesWithRpc": true
+   },
+   "secondRpc": "https://sepolia.gateway.tenderly.co"
+  },
+  {
+   "group": "hosted-setup",
+   "n": "S5",
+   "label": "setRecipient(approvedRecipient,true)",
+   "hash": "0x14cb0e55ce9074ce1773b8e3fc84a431bae3558da8295b33c1c4ee00fca82d96",
+   "abi": "v2",
+   "status": 1,
+   "block": 11934261,
+   "timeUtc": "2026-10-17T12:51:24.000Z",
+   "from": "0x98cd6633Fa95cf4Ff9761CDFFa555D553FcDf680",
+   "to": "0x59a33154288009e030aa2072De46D32fC7d40d85",
+   "contractAddress": null,
+   "valueEth": "0.0",
+   "gasLimit": "157341",
+   "gasUsed": "130018",
+   "method": "setRecipient",
+   "events": [
+    {
+     "name": "RecipientUpdated",
+     "args": [
+      "0xd85cdB676877ccdc8873B63DEf51B456568604F5",
+      "true"
+     ]
+    }
+   ],
+   "secondRpcAgrees": true,
+   "etherscan": "https://sepolia.etherscan.io/tx/0x14cb0e55ce9074ce1773b8e3fc84a431bae3558da8295b33c1c4ee00fca82d96",
+   "etherscanCheck": {
+    "status": "Success",
+    "block": 11934261,
+    "timestamp": "Oct-17-2026 12:51:24 PM +UTC",
+    "agreesWithRpc": true
+   }
+  },
+  {
+   "group": "v2-run1",
+   "label": "top-up deployer",
+   "hash": "0xed1583a094efa3a583f49aedd08478cafb839c48586c99a32b1f51fba8db523a",
+   "abi": "v2",
+   "status": 1,
+   "block": 11930573,
+   "timeUtc": "2026-10-16T23:52:48.000Z",
+   "from": "0x10A0d3247a1446fD30ba40D14e4272206278b5ba",
+   "to": "0x80D4101A23062ee7E5B2477D4C036AB0FD4e2a67",
+   "contractAddress": null,
+   "valueEth": "0.003651198757018832",
+   "gasLimit": "21000",
+   "gasUsed": "21000",
+   "method": "ETH transfer",
+   "events": [
+    {
+     "name": "native ETH Transfer (system log)",
+     "address": "0xffffFFFfFFffffffffffffffFfFFFfffFFFfFFfE"
+    }
+   ],
+   "secondRpcAgrees": true,
+   "etherscan": "https://sepolia.etherscan.io/tx/0xed1583a094efa3a583f49aedd08478cafb839c48586c99a32b1f51fba8db523a",
+   "etherscanCheck": {
+    "status": "Success",
+    "block": 11930573,
+    "timestamp": "Oct-16-2026 11:52:48 PM +UTC",
+    "agreesWithRpc": true
+   }
+  },
+  {
+   "group": "v2-run1",
+   "label": "top-up agent",
+   "hash": "0xa7b57f6cb85b32e186fb29b6b44657fc9a9771c1d3a4e97dbf7f006486e64aae",
+   "abi": "v2",
+   "status": 1,
+   "block": 11930575,
+   "timeUtc": "2026-10-16T23:53:12.000Z",
+   "from": "0x10A0d3247a1446fD30ba40D14e4272206278b5ba",
+   "to": "0x30D53BD30B6D60E7c49829D6Df79b5B7E4CBBD1D",
+   "contractAddress": null,
+   "valueEth": "0.000777365011309297",
+   "gasLimit": "21000",
+   "gasUsed": "21000",
+   "method": "ETH transfer",
+   "events": [
+    {
+     "name": "native ETH Transfer (system log)",
+     "address": "0xffffFFFfFFffffffffffffffFfFFFfffFFFfFFfE"
+    }
+   ],
+   "secondRpcAgrees": true,
+   "etherscan": "https://sepolia.etherscan.io/tx/0xa7b57f6cb85b32e186fb29b6b44657fc9a9771c1d3a4e97dbf7f006486e64aae",
+   "etherscanCheck": {
+    "status": "Success",
+    "block": 11930575,
+    "timestamp": "Oct-16-2026 11:53:12 PM +UTC",
+    "agreesWithRpc": true
+   },
+   "secondRpc": "https://sepolia.gateway.tenderly.co"
+  },
+  {
+   "group": "v2-run1",
+   "label": "deploy AgentWallet v2",
+   "hash": "0x2d2e7f77ed786c1681af6524da8ab8d3aa5f6fbf9210a683f3561dc4f818cb91",
+   "abi": "v2",
+   "status": 1,
+   "block": 11930577,
+   "timeUtc": "2026-10-16T23:53:48.000Z",
+   "from": "0x80D4101A23062ee7E5B2477D4C036AB0FD4e2a67",
+   "to": null,
+   "contractAddress": "0x23bAE3f3C95f9BF7391c0764B1A7dFF700f34458",
+   "valueEth": "0.0",
+   "gasLimit": "20478646",
+   "gasUsed": "20316239",
+   "method": "contract creation",
+   "events": [
+    {
+     "name": "OwnershipTransferred",
+     "args": [
+      "0x0000000000000000000000000000000000000000",
+      "0x10A0d3247a1446fD30ba40D14e4272206278b5ba"
+     ]
+    },
+    {
+     "name": "AgentUpdated",
+     "args": [
+      "0x0000000000000000000000000000000000000000",
+      "0x30D53BD30B6D60E7c49829D6Df79b5B7E4CBBD1D"
+     ]
+    },
+    {
+     "name": "TokenPolicyUpdated",
+     "args": [
+      "0x0000000000000000000000000000000000000000",
+      "true",
+      "200000000000000",
+      "500000000000000"
+     ]
+    }
+   ],
+   "secondRpcAgrees": true,
+   "etherscan": "https://sepolia.etherscan.io/tx/0x2d2e7f77ed786c1681af6524da8ab8d3aa5f6fbf9210a683f3561dc4f818cb91",
+   "etherscanCheck": {
+    "status": "Success",
+    "block": 11930577,
+    "timestamp": "Oct-16-2026 11:53:48 PM +UTC",
+    "agreesWithRpc": true
+   }
+  },
+  {
+   "group": "v2-run1",
+   "label": "owner setRecipient",
+   "hash": "0x6da0058bc825790e0d23b04d796bd16183c46d208e3dab09b6b21a98f20c8ab5",
+   "abi": "v2",
+   "status": 1,
+   "block": 11930586,
+   "timeUtc": "2026-10-16T23:55:36.000Z",
+   "from": "0x10A0d3247a1446fD30ba40D14e4272206278b5ba",
+   "to": "0x23bAE3f3C95f9BF7391c0764B1A7dFF700f34458",
+   "contractAddress": null,
+   "valueEth": "0.0",
+   "gasLimit": "131117",
+   "gasUsed": "130018",
+   "method": "setRecipient",
+   "events": [
+    {
+     "name": "RecipientUpdated",
+     "args": [
+      "0x82446B165d0d55051af76e3aD7852B0F3141904e",
+      "true"
+     ]
+    }
+   ],
+   "secondRpcAgrees": true,
+   "etherscan": "https://sepolia.etherscan.io/tx/0x6da0058bc825790e0d23b04d796bd16183c46d208e3dab09b6b21a98f20c8ab5",
+   "etherscanCheck": {
+    "status": "Success",
+    "block": 11930586,
+    "timestamp": "Oct-16-2026 11:55:36 PM +UTC",
+    "agreesWithRpc": true
+   }
+  },
+  {
+   "group": "v2-run1",
+   "label": "owner deposit",
+   "hash": "0x2622580df473a48bf1f95e412cbe7f8669d0c1f1f3af5c6d3d0e03f26f98a441",
+   "abi": "v2",
+   "status": 1,
+   "block": 11930587,
+   "timeUtc": "2026-10-16T23:55:48.000Z",
+   "from": "0x10A0d3247a1446fD30ba40D14e4272206278b5ba",
+   "to": "0x23bAE3f3C95f9BF7391c0764B1A7dFF700f34458",
+   "contractAddress": null,
+   "valueEth": "0.0004",
+   "gasLimit": "23043",
+   "gasUsed": "22707",
+   "method": "deposit",
+   "events": [
+    {
+     "name": "native ETH Transfer (system log)",
+     "address": "0xffffFFFfFFffffffffffffffFfFFFfffFFFfFFfE"
+    },
+    {
+     "name": "Deposited",
+     "args": [
+      "0x10A0d3247a1446fD30ba40D14e4272206278b5ba",
+      "400000000000000"
+     ]
+    }
+   ],
+   "secondRpcAgrees": true,
+   "etherscan": "https://sepolia.etherscan.io/tx/0x2622580df473a48bf1f95e412cbe7f8669d0c1f1f3af5c6d3d0e03f26f98a441",
+   "etherscanCheck": {
+    "status": "Success",
+    "block": 11930587,
+    "timestamp": "Oct-16-2026 11:55:48 PM +UTC",
+    "agreesWithRpc": true
+   }
+  },
+  {
+   "group": "v2-run1",
+   "label": "owner-approved transfer (AI-drafted, signature verified on-chain)",
+   "hash": "0x30714eb92194cd5ad45b172af45acb67ed6b43f1fcbde98b0fd02e5c4e51aab1",
+   "abi": "v2",
+   "status": 1,
+   "block": 11930590,
+   "timeUtc": "2026-10-16T23:56:24.000Z",
+   "from": "0x30D53BD30B6D60E7c49829D6Df79b5B7E4CBBD1D",
+   "to": "0x23bAE3f3C95f9BF7391c0764B1A7dFF700f34458",
+   "contractAddress": null,
+   "valueEth": "0.0",
+   "gasLimit": "354846",
+   "gasUsed": "282966",
+   "method": "executeApprovedTransfer",
+   "events": [
+    {
+     "name": "native ETH Transfer (system log)",
+     "address": "0xffffFFFfFFffffffffffffffFfFFFfffFFFfFFfE"
+    },
+    {
+     "name": "TransferExecuted",
+     "args": [
+      "0xe27cb2f13461320fcdd490e8415621a9b5b9d4bce37e168772de249f0f242f7e",
+      "0x0000000000000000000000000000000000000000",
+      "0x82446B165d0d55051af76e3aD7852B0F3141904e",
+      "100000000000000",
+      "20742",
+      "100000000000000"
+     ]
+    }
+   ],
+   "secondRpcAgrees": true,
+   "etherscan": "https://sepolia.etherscan.io/tx/0x30714eb92194cd5ad45b172af45acb67ed6b43f1fcbde98b0fd02e5c4e51aab1",
+   "etherscanCheck": {
+    "status": "Success",
+    "block": 11930590,
+    "timestamp": "Oct-16-2026 11:56:24 PM +UTC",
+    "agreesWithRpc": true
+   }
+  },
+  {
+   "group": "v2-run1",
+   "label": "autonomous grant transfer (REVERTED, out of gas)",
+   "hash": "0xb1a4fff1c1aeef329528412d1a170658c03085bb8467535ce949e9666943cbce",
+   "abi": "v2",
+   "status": 0,
+   "block": 11930608,
+   "timeUtc": "2026-10-17T00:00:00.000Z",
+   "from": "0x30D53BD30B6D60E7c49829D6Df79b5B7E4CBBD1D",
+   "to": "0x23bAE3f3C95f9BF7391c0764B1A7dFF700f34458",
+   "contractAddress": null,
+   "valueEth": "0.0",
+   "gasLimit": "511950",
+   "gasUsed": "511950",
+   "method": "executeGrantTransfer",
+   "events": [],
+   "secondRpcAgrees": true,
+   "etherscan": "https://sepolia.etherscan.io/tx/0xb1a4fff1c1aeef329528412d1a170658c03085bb8467535ce949e9666943cbce",
+   "etherscanCheck": {
+    "status": "Fail",
+    "block": 11930608,
+    "timestamp": "Oct-17-2026 12:00:00 AM +UTC",
+    "agreesWithRpc": true
+   },
+   "secondRpc": "https://sepolia.gateway.tenderly.co"
+  },
+  {
+   "group": "v2-run1",
+   "label": "owner emergencyStop (safe-stop)",
+   "hash": "0x67f74c28b9fdf3e23e4b15a971cb02c04acabae18558eec1ba38b13bc23d1a4a",
+   "abi": "v2",
+   "status": 1,
+   "block": 11930641,
+   "timeUtc": "2026-10-17T00:06:36.000Z",
+   "from": "0x10A0d3247a1446fD30ba40D14e4272206278b5ba",
+   "to": "0x23bAE3f3C95f9BF7391c0764B1A7dFF700f34458",
+   "contractAddress": null,
+   "valueEth": "0.0",
+   "gasLimit": "144632",
+   "gasUsed": "132453",
+   "method": "emergencyStop",
+   "events": [
+    {
+     "name": "Paused",
+     "args": [
+      "0x10A0d3247a1446fD30ba40D14e4272206278b5ba"
+     ]
+    },
+    {
+     "name": "AgentUpdated",
+     "args": [
+      "0x30D53BD30B6D60E7c49829D6Df79b5B7E4CBBD1D",
+      "0x0000000000000000000000000000000000000000"
+     ]
+    },
+    {
+     "name": "EmergencyStop",
+     "args": [
+      "0x30D53BD30B6D60E7c49829D6Df79b5B7E4CBBD1D"
+     ]
+    }
+   ],
+   "secondRpcAgrees": true,
+   "etherscan": "https://sepolia.etherscan.io/tx/0x67f74c28b9fdf3e23e4b15a971cb02c04acabae18558eec1ba38b13bc23d1a4a",
+   "etherscanCheck": {
+    "status": "Success",
+    "block": 11930641,
+    "timestamp": "Oct-17-2026 12:06:36 AM +UTC",
+    "agreesWithRpc": true
+   }
+  },
+  {
+   "group": "v2-run1",
+   "label": "owner withdraw remainder (safe-stop)",
+   "hash": "0x63f135cd9c27a511a216a0b107d1f1ef2ddfd8b6c26a840c849f433ca194a4da",
+   "abi": "v2",
+   "status": 1,
+   "block": 11930643,
+   "timeUtc": "2026-10-17T00:07:00.000Z",
+   "from": "0x10A0d3247a1446fD30ba40D14e4272206278b5ba",
+   "to": "0x23bAE3f3C95f9BF7391c0764B1A7dFF700f34458",
+   "contractAddress": null,
+   "valueEth": "0.0",
+   "gasLimit": "44669",
+   "gasUsed": "33903",
+   "method": "withdraw",
+   "events": [
+    {
+     "name": "native ETH Transfer (system log)",
+     "address": "0xffffFFFfFFffffffffffffffFfFFFfffFFFfFFfE"
+    },
+    {
+     "name": "Withdrawn",
+     "args": [
+      "0x0000000000000000000000000000000000000000",
+      "0x10A0d3247a1446fD30ba40D14e4272206278b5ba",
+      "300000000000000"
+     ]
+    }
+   ],
+   "secondRpcAgrees": true,
+   "etherscan": "https://sepolia.etherscan.io/tx/0x63f135cd9c27a511a216a0b107d1f1ef2ddfd8b6c26a840c849f433ca194a4da",
+   "etherscanCheck": {
+    "status": "Success",
+    "block": 11930643,
+    "timestamp": "Oct-17-2026 12:07:00 AM +UTC",
+    "agreesWithRpc": true
+   }
+  },
+  {
+   "group": "v1",
+   "n": 1,
+   "label": "top-up deployer",
+   "hash": "0x15a0af74a4699276674af409d99ee8c55b6f51d41f64ebbf8a69a745e40b6378",
+   "abi": "v1",
+   "status": 1,
+   "block": 11926649,
+   "timeUtc": "2026-10-16T10:04:00.000Z",
+   "from": "0x10A0d3247a1446fD30ba40D14e4272206278b5ba",
+   "to": "0x80D4101A23062ee7E5B2477D4C036AB0FD4e2a67",
+   "contractAddress": null,
+   "valueEth": "0.0086359887543",
+   "gasLimit": "21000",
+   "gasUsed": "21000",
+   "method": "ETH transfer",
+   "events": [
+    {
+     "name": "native ETH Transfer (system log)",
+     "address": "0xffffFFFfFFffffffffffffffFfFFFfffFFFfFFfE"
+    }
+   ],
+   "secondRpcAgrees": true,
+   "etherscan": "https://sepolia.etherscan.io/tx/0x15a0af74a4699276674af409d99ee8c55b6f51d41f64ebbf8a69a745e40b6378",
+   "etherscanCheck": {
+    "status": "Success",
+    "block": 11926649,
+    "timestamp": "Oct-16-2026 10:04:00 AM +UTC",
+    "agreesWithRpc": true
+   }
+  },
+  {
+   "group": "v1",
+   "n": 2,
+   "label": "top-up agent",
+   "hash": "0xdc3cec9386e058646587d45aa8fcf6ef8d3b6911631c5a217503b43549ab1cb9",
+   "abi": "v1",
+   "status": 1,
+   "block": 11926651,
+   "timeUtc": "2026-10-16T10:04:24.000Z",
+   "from": "0x10A0d3247a1446fD30ba40D14e4272206278b5ba",
+   "to": "0x30D53BD30B6D60E7c49829D6Df79b5B7E4CBBD1D",
+   "contractAddress": null,
+   "valueEth": "0.0006853949766",
+   "gasLimit": "21000",
+   "gasUsed": "21000",
+   "method": "ETH transfer",
+   "events": [
+    {
+     "name": "native ETH Transfer (system log)",
+     "address": "0xffffFFFfFFffffffffffffffFfFFFfffFFFfFFfE"
+    }
+   ],
+   "secondRpcAgrees": true,
+   "etherscan": "https://sepolia.etherscan.io/tx/0xdc3cec9386e058646587d45aa8fcf6ef8d3b6911631c5a217503b43549ab1cb9",
+   "etherscanCheck": {
+    "status": "Success",
+    "block": 11926651,
+    "timestamp": "Oct-16-2026 10:04:24 AM +UTC",
+    "agreesWithRpc": true
+   }
+  },
+  {
+   "group": "v1",
+   "n": 3,
+   "label": "deploy",
+   "hash": "0x7d7492bfd7414f25b8f7a9a06200d3f1e958433b6d349443313108fa10ae1ad3",
+   "abi": "v1",
+   "status": 1,
+   "block": 11926653,
+   "timeUtc": "2026-10-16T10:04:48.000Z",
+   "from": "0x80D4101A23062ee7E5B2477D4C036AB0FD4e2a67",
+   "to": null,
+   "contractAddress": "0x8A44716Efabb6Ce401291B91D4427149CaF956a6",
+   "valueEth": "0.0",
+   "gasLimit": "14393315",
+   "gasUsed": "14278824",
+   "method": "contract creation",
+   "events": [
+    {
+     "name": "OwnershipTransferred",
+     "args": [
+      "0x0000000000000000000000000000000000000000",
+      "0x10A0d3247a1446fD30ba40D14e4272206278b5ba"
+     ]
+    },
+    {
+     "name": "AgentUpdated",
+     "args": [
+      "0x0000000000000000000000000000000000000000",
+      "0x30D53BD30B6D60E7c49829D6Df79b5B7E4CBBD1D"
+     ]
+    },
+    {
+     "name": "TokenPolicyUpdated",
+     "args": [
+      "0x0000000000000000000000000000000000000000",
+      "true",
+      "200000000000000",
+      "500000000000000"
+     ]
+    }
+   ],
+   "secondRpcAgrees": true,
+   "etherscan": "https://sepolia.etherscan.io/tx/0x7d7492bfd7414f25b8f7a9a06200d3f1e958433b6d349443313108fa10ae1ad3",
+   "etherscanCheck": {
+    "status": "Success",
+    "block": 11926653,
+    "timestamp": "Oct-16-2026 10:04:48 AM +UTC",
+    "agreesWithRpc": true
+   },
+   "secondRpc": "https://sepolia.gateway.tenderly.co"
+  },
+  {
+   "group": "v1",
+   "n": 4,
+   "label": "owner setRecipient",
+   "hash": "0xf6306fe567bd2286a4f066529896cc444cd29a77d07b1a84944f3b5d59b36299",
+   "abi": "v1",
+   "status": 1,
+   "block": 11926663,
+   "timeUtc": "2026-10-16T10:06:48.000Z",
+   "from": "0x10A0d3247a1446fD30ba40D14e4272206278b5ba",
+   "to": "0x8A44716Efabb6Ce401291B91D4427149CaF956a6",
+   "contractAddress": null,
+   "valueEth": "0.0",
+   "gasLimit": "131073",
+   "gasUsed": "129974",
+   "method": "setRecipient",
+   "events": [
+    {
+     "name": "RecipientUpdated",
+     "args": [
+      "0x82446B165d0d55051af76e3aD7852B0F3141904e",
+      "true"
+     ]
+    }
+   ],
+   "secondRpcAgrees": true,
+   "etherscan": "https://sepolia.etherscan.io/tx/0xf6306fe567bd2286a4f066529896cc444cd29a77d07b1a84944f3b5d59b36299",
+   "etherscanCheck": {
+    "status": "Success",
+    "block": 11926663,
+    "timestamp": "Oct-16-2026 10:06:48 AM +UTC",
+    "agreesWithRpc": true
+   }
+  },
+  {
+   "group": "v1",
+   "n": 5,
+   "label": "owner deposit",
+   "hash": "0xe593d6d3c778ed09476cf1997e90699bd4b7909d433a0653dd64388512968ba1",
+   "abi": "v1",
+   "status": 1,
+   "block": 11926664,
+   "timeUtc": "2026-10-16T10:07:00.000Z",
+   "from": "0x10A0d3247a1446fD30ba40D14e4272206278b5ba",
+   "to": "0x8A44716Efabb6Ce401291B91D4427149CaF956a6",
+   "contractAddress": null,
+   "valueEth": "0.0004",
+   "gasLimit": "23043",
+   "gasUsed": "22707",
+   "method": "deposit",
+   "events": [
+    {
+     "name": "native ETH Transfer (system log)",
+     "address": "0xffffFFFfFFffffffffffffffFfFFFfffFFFfFFfE"
+    },
+    {
+     "name": "Deposited",
+     "args": [
+      "0x10A0d3247a1446fD30ba40D14e4272206278b5ba",
+      "400000000000000"
+     ]
+    }
+   ],
+   "secondRpcAgrees": true,
+   "etherscan": "https://sepolia.etherscan.io/tx/0xe593d6d3c778ed09476cf1997e90699bd4b7909d433a0653dd64388512968ba1",
+   "etherscanCheck": {
+    "status": "Success",
+    "block": 11926664,
+    "timestamp": "Oct-16-2026 10:07:00 AM +UTC",
+    "agreesWithRpc": true
+   }
+  },
+  {
+   "group": "v1",
+   "n": 6,
+   "label": "owner-approved transfer (AI-drafted)",
+   "hash": "0x2c83a855d812b3f278720f3f5a572d358a520e4fbfd4f65fd666e77ad22e37fb",
+   "abi": "v1",
+   "status": 1,
+   "block": 11926668,
+   "timeUtc": "2026-10-16T10:08:00.000Z",
+   "from": "0x30D53BD30B6D60E7c49829D6Df79b5B7E4CBBD1D",
+   "to": "0x8A44716Efabb6Ce401291B91D4427149CaF956a6",
+   "contractAddress": null,
+   "valueEth": "0.0",
+   "gasLimit": "557941",
+   "gasUsed": "450221",
+   "method": "executeTransfer",
+   "events": [
+    {
+     "name": "native ETH Transfer (system log)",
+     "address": "0xffffFFFfFFffffffffffffffFfFFFfffFFFfFFfE"
+    },
+    {
+     "name": "TransferExecuted",
+     "args": [
+      "0x2e1cc84883750425f4117183444caa13886ea5a40c61a52c4fff6f5c8d46567c",
+      "0x0000000000000000000000000000000000000000",
+      "0x82446B165d0d55051af76e3aD7852B0F3141904e",
+      "100000000000000",
+      "20742",
+      "100000000000000"
+     ]
+    }
+   ],
+   "secondRpcAgrees": true,
+   "etherscan": "https://sepolia.etherscan.io/tx/0x2c83a855d812b3f278720f3f5a572d358a520e4fbfd4f65fd666e77ad22e37fb",
+   "etherscanCheck": {
+    "status": "Success",
+    "block": 11926668,
+    "timestamp": "Oct-16-2026 10:08:00 AM +UTC",
+    "agreesWithRpc": true
+   }
+  },
+  {
+   "group": "v1",
+   "n": 7,
+   "label": "autonomous transfer (AI-drafted task, grant-approved)",
+   "hash": "0xedeb6b97380d3b0615639ca0940402789310f16154501ea54990418d48e3cec3",
+   "abi": "v1",
+   "status": 1,
+   "block": 11926686,
+   "timeUtc": "2026-10-16T10:11:36.000Z",
+   "from": "0x30D53BD30B6D60E7c49829D6Df79b5B7E4CBBD1D",
+   "to": "0x8A44716Efabb6Ce401291B91D4427149CaF956a6",
+   "contractAddress": null,
+   "valueEth": "0.0",
+   "gasLimit": "218372",
+   "gasUsed": "168701",
+   "method": "executeTransfer",
+   "events": [
+    {
+     "name": "native ETH Transfer (system log)",
+     "address": "0xffffFFFfFFffffffffffffffFfFFFfffFFFfFFfE"
+    },
+    {
+     "name": "TransferExecuted",
+     "args": [
+      "0x547f6acdc08cd9031a064440ff651363adf1106ca2635419cbb790b939c0b11c",
+      "0x0000000000000000000000000000000000000000",
+      "0x82446B165d0d55051af76e3aD7852B0F3141904e",
+      "100000000000000",
+      "20742",
+      "200000000000000"
+     ]
+    }
+   ],
+   "secondRpcAgrees": true,
+   "etherscan": "https://sepolia.etherscan.io/tx/0xedeb6b97380d3b0615639ca0940402789310f16154501ea54990418d48e3cec3",
+   "etherscanCheck": {
+    "status": "Success",
+    "block": 11926686,
+    "timestamp": "Oct-16-2026 10:11:36 AM +UTC",
+    "agreesWithRpc": true
+   },
+   "secondRpc": "https://sepolia.gateway.tenderly.co"
+  },
+  {
+   "group": "v1",
+   "n": 8,
+   "label": "owner pause",
+   "hash": "0x2a2eeb5084f9dba38e177d2b4528b7242356c5dcb51796c203fa5b9a3bbd211b",
+   "abi": "v1",
+   "status": 1,
+   "block": 11926689,
+   "timeUtc": "2026-10-16T10:12:12.000Z",
+   "from": "0x10A0d3247a1446fD30ba40D14e4272206278b5ba",
+   "to": "0x8A44716Efabb6Ce401291B91D4427149CaF956a6",
+   "contractAddress": null,
+   "valueEth": "0.0",
+   "gasLimit": "130014",
+   "gasUsed": "128920",
+   "method": "pause",
+   "events": [
+    {
+     "name": "Paused",
+     "args": [
+      "0x10A0d3247a1446fD30ba40D14e4272206278b5ba"
+     ]
+    }
+   ],
+   "secondRpcAgrees": true,
+   "etherscan": "https://sepolia.etherscan.io/tx/0x2a2eeb5084f9dba38e177d2b4528b7242356c5dcb51796c203fa5b9a3bbd211b",
+   "etherscanCheck": {
+    "status": "Success",
+    "block": 11926689,
+    "timestamp": "Oct-16-2026 10:12:12 AM +UTC",
+    "agreesWithRpc": true
+   }
+  },
+  {
+   "group": "v1",
+   "n": 9,
+   "label": "owner unpause",
+   "hash": "0x00b0dc316138f8cef8b329e4ff91a469612a8207317615442012bfee21f2f3d0",
+   "abi": "v1",
+   "status": 1,
+   "block": 11926691,
+   "timeUtc": "2026-10-16T10:12:36.000Z",
+   "from": "0x10A0d3247a1446fD30ba40D14e4272206278b5ba",
+   "to": "0x8A44716Efabb6Ce401291B91D4427149CaF956a6",
+   "contractAddress": null,
+   "valueEth": "0.0",
+   "gasLimit": "30937",
+   "gasUsed": "24743",
+   "method": "unpause",
+   "events": [
+    {
+     "name": "Unpaused",
+     "args": [
+      "0x10A0d3247a1446fD30ba40D14e4272206278b5ba"
+     ]
+    }
+   ],
+   "secondRpcAgrees": true,
+   "etherscan": "https://sepolia.etherscan.io/tx/0x00b0dc316138f8cef8b329e4ff91a469612a8207317615442012bfee21f2f3d0",
+   "etherscanCheck": {
+    "status": "Success",
+    "block": 11926691,
+    "timestamp": "Oct-16-2026 10:12:36 AM +UTC",
+    "agreesWithRpc": true
+   },
+   "secondRpc": "https://sepolia.gateway.tenderly.co"
+  },
+  {
+   "group": "v1",
+   "n": 10,
+   "label": "owner emergencyStop",
+   "hash": "0xfe627133719dc4493552259d250ebb7fe31fb86ead7e2034569eea99ede53a8d",
+   "abi": "v1",
+   "status": 1,
+   "block": 11926692,
+   "timeUtc": "2026-10-16T10:12:48.000Z",
+   "from": "0x10A0d3247a1446fD30ba40D14e4272206278b5ba",
+   "to": "0x8A44716Efabb6Ce401291B91D4427149CaF956a6",
+   "contractAddress": null,
+   "valueEth": "0.0",
+   "gasLimit": "144587",
+   "gasUsed": "132409",
+   "method": "emergencyStop",
+   "events": [
+    {
+     "name": "Paused",
+     "args": [
+      "0x10A0d3247a1446fD30ba40D14e4272206278b5ba"
+     ]
+    },
+    {
+     "name": "AgentUpdated",
+     "args": [
+      "0x30D53BD30B6D60E7c49829D6Df79b5B7E4CBBD1D",
+      "0x0000000000000000000000000000000000000000"
+     ]
+    },
+    {
+     "name": "EmergencyStop",
+     "args": [
+      "0x30D53BD30B6D60E7c49829D6Df79b5B7E4CBBD1D"
+     ]
+    }
+   ],
+   "secondRpcAgrees": true,
+   "etherscan": "https://sepolia.etherscan.io/tx/0xfe627133719dc4493552259d250ebb7fe31fb86ead7e2034569eea99ede53a8d",
+   "etherscanCheck": {
+    "status": "Success",
+    "block": 11926692,
+    "timestamp": "Oct-16-2026 10:12:48 AM +UTC",
+    "agreesWithRpc": true
+   },
+   "secondRpc": "https://sepolia.gateway.tenderly.co"
+  },
+  {
+   "group": "v1",
+   "n": 11,
+   "label": "owner withdraw",
+   "hash": "0x6c8fb074172a800c3d85eaa2eb54b5675dcf3e204fd7c7c276e67104d6a5cff5",
+   "abi": "v1",
+   "status": 1,
+   "block": 11926693,
+   "timeUtc": "2026-10-16T10:13:00.000Z",
+   "from": "0x10A0d3247a1446fD30ba40D14e4272206278b5ba",
+   "to": "0x8A44716Efabb6Ce401291B91D4427149CaF956a6",
+   "contractAddress": null,
+   "valueEth": "0.0",
+   "gasLimit": "44634",
+   "gasUsed": "33876",
+   "method": "withdraw",
+   "events": [
+    {
+     "name": "native ETH Transfer (system log)",
+     "address": "0xffffFFFfFFffffffffffffffFfFFFfffFFFfFFfE"
+    },
+    {
+     "name": "Withdrawn",
+     "args": [
+      "0x0000000000000000000000000000000000000000",
+      "0x10A0d3247a1446fD30ba40D14e4272206278b5ba",
+      "200000000000000"
+     ]
+    }
+   ],
+   "secondRpcAgrees": true,
+   "etherscan": "https://sepolia.etherscan.io/tx/0x6c8fb074172a800c3d85eaa2eb54b5675dcf3e204fd7c7c276e67104d6a5cff5",
+   "etherscanCheck": {
+    "status": "Success",
+    "block": 11926693,
+    "timestamp": "Oct-16-2026 10:13:00 AM +UTC",
+    "agreesWithRpc": true
+   }
+  }
+ ],
+ "etherscanCheckedAt": "2026-10-19 (built-in browser, sepolia.etherscan.io /tx pages)"
+}
